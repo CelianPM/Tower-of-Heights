@@ -7,6 +7,7 @@ Un jour, une mystèrieuse tour est apparue au milieu de Nice. Depuis cette tour,
 Jeu de plateforme où il faut grimper une tour tout en éliminant les monstres et en gagnant en puissance.
 # Controles :
 fleches droite-gauche = déplacement du personnage
+
 touche space = saut
 ...
 
