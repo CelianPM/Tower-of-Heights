@@ -24,17 +24,6 @@ touche F = attaque magique
 touche M = menu des attribus
 
 # Cahier des Charges
-ennemies pouvant attaquer et se déplacer en fonction du joueur. Emplacement prédéfini.
-attaques physique et magique (à distance) dépendant des capacités choisi par le personnage---------------------------------
-Pas de niveau, mais un système de checkpoint pouvant sauvegarder la partie sur l'ordinateur.--------------------------
-pas de système de score----------------------------------
-système de vie en fonction de la vitalité du erso (voir capacité ci haut)
-pas de système de timer-------------------
-systèe de controles voir dans controles
-pas de score,donc pas de high score-------------------------------
-un seul compte par fichier, pour recommencer à 0, il faut retélécharger le fichier
-
-
 
 
 - jeu de plateforme
@@ -46,10 +35,13 @@ un seul compte par fichier, pour recommencer à 0, il faut retélécharger le fi
 - les points d'expérience augmente grâce au nombre d'ennemis tués et leurs niveaux (si plus fort, alors plus de points)
 - à un cetain nombre de oints d'expérience, le pesonnage level up
 - à chaque level up, le personnage gagne des points d'abilité, qui sont utilisés à améliorer ses capacités
-- 
+- le système de vie dépend de la vitalité du personnage
+- les ennemis peuvent attaquer et se déplacer en fonction du joueur
+- les ennemis auront un emplacement prédéfini
+- un seul compte par joueur disponible
 - pas de système de timer
 - pas de système de niveaux, mais il y aura des checkpoints
 - pas de système de score, et donc de high score
-- 
+- pour le système de contrôles, voir "Controles"
 - jeu 2D pixélisé style "Celeste" créer avec les bibliothèques random et pyxel
 - création graphique et sonore avec pyxel
