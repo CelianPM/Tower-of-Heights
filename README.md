@@ -16,5 +16,6 @@ Utilisation d'un système de niveau :
 fleches droite-gauche = déplacement du personnage
 
 touche space = saut
+
 ...
 
