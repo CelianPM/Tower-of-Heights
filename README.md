@@ -24,3 +24,4 @@ touche F = attaque magique
 touche M = menu des attribus
 ...
 
+# Cahier des Charges
