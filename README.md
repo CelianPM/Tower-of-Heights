@@ -25,3 +25,14 @@ touche M = menu des attribus
 ...
 
 # Cahier des Charges
+jeu de plateforme
+choix entre 4 persos en début de jeu
+le perso évoluera au cours du jeu
+à chaque level up, le joueur se verra attribuer des points d'abilité
+Grâcer au menu des attribus, le perso pourra augmenter ses capacités
+Les capacités sont : 
+  - La Force (dégats bruts)
+  - L'agilité (vitesse de déplacement et d'attaque)
+  - L'inteligence (dégats magique)
+  - La vitalité (la vie quoi)
+  - 
