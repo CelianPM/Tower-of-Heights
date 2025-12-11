@@ -67,3 +67,17 @@ un seul compte par fichier, pour recommencer à 0, il faut retélécharger le fi
 - 
 - jeu 2D pixélisé style "Celeste" créer avec les bibliothèques random et pyxel
 - création graphique et sonore avec pyxel
+
+
+
+
+
+
+
+
+
+
+[app.py](https://github.com/user-attachments/files/24103346/app.py)
+# Pyxel Studio
+
+import pyxel
