@@ -22,7 +22,6 @@ touche D = attaque dague
 touche F = attaque magique
 
 touche M = menu des attribus
-...
 
 # Cahier des Charges
 jeu de plateforme
@@ -35,4 +34,12 @@ Les capacités sont :
   - L'agilité (vitesse de déplacement et d'attaque)
   - L'inteligence (dégats magique)
   - La vitalité (la vie quoi)
-  - 
+1 seul joueur
+Jeu en 2D pixelisé style "Celeste"
+Création graphique et sonore avec pyxel
+bibliothèques :
+  - random
+  - pyxel
+ennemies pouvant attaquer et se déplacer en fonction du joueur. Emplacement prédéfini.
+attaques physique et magique (à distance) dépendant des capacités et pouvoir choisi par le personnage
+Pas de niveau, mais un système de checkpoint pouvant sauvegarder la partie sur l'ordinateur.
