@@ -17,5 +17,10 @@ fleches droite-gauche = déplacement du personnage
 
 touche space = saut
 
+touche D = attaque dague
+
+touche F = attaque magique
+
+touche M = menu des attribus
 ...
 
