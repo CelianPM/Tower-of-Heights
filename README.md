@@ -23,6 +23,11 @@ touche F = attaque magique
 
 touche C = menu des attribus
 
+# Planning
+Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
+**https://trello.com/b/KulF4ZBH/tower-of-heights**
+
+
 # Cahier des Charges
 
 
