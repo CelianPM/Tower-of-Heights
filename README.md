@@ -21,7 +21,7 @@ touche D = attaque dague
 
 touche F = attaque magique
 
-touche M = menu des attribus
+touche C = menu des attribus
 
 # Cahier des Charges
 
@@ -38,10 +38,13 @@ touche M = menu des attribus
 - le système de vie dépend de la vitalité du personnage
 - les ennemis peuvent attaquer et se déplacer en fonction du joueur
 - les ennemis auront un emplacement prédéfini
-- un seul compte par joueur disponible
 - pas de système de timer
 - pas de système de niveaux, mais il y aura des checkpoints
 - pas de système de score, et donc de high score
 - pour le système de contrôles, voir "Controles"
-- jeu 2D pixélisé style "Celeste" créer avec les bibliothèques random et pyxel
-- création graphique et sonore avec pyxel
+- jeu 2D pixélisé style "Celeste" créer avec les bibliothèques random et pygame
+- utilisation de pygame
+- le personnage se déplace de droite à gauche mais le décor se déplace de haut en bas
+- les attaques seront animé
+- les enemies seront animé et leur mort aussi
+- le jeu se terminera lorsque le personnage aura atteint le haut de la tour
