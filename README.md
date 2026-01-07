@@ -12,7 +12,7 @@ Utilisation d'un système de niveau :
 <img width="664" height="374" alt="image" src="https://github.com/user-attachments/assets/2da63a81-9bc4-437f-a4f5-a5a1f32608cb" />
 
 
-# Controles :
+# Contrôles :
 fleches droite-gauche = déplacement du personnage
 
 touche space = saut
@@ -27,22 +27,27 @@ touche C = menu des attribus
 Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
 **https://trello.com/b/KulF4ZBH/tower-of-heights**
 
-# Conditins de fin de jeu
+# Conditions de fin de jeu
 - lorsque le joueur atteint le sommet de la tour
 - lorsque le joueur perd la totalité de ses points de vies
 
+# Les différentes animations
+- personnage: marche, saut, attaques (dague et magique)
+- ennemis: déplacement, attaque et mort
+- projectlies: apparition, déplacement et impact
+
 
 # Cahier des Charges
-
-
 - jeu de plateforme
 - un seul joueur dont le personnage évoluera au cours du jeu
 - choix entre 4 personnages possibles au début du jeu
-- les capacités sont la force (dégâts bruts), l'agilité (vitesse de déplacement et d'attaque), l'inteligence (dégats magique), et la vitalité (la vie quoi)
+- un seul joueur par machine
+- le jeu n'est pas sauvegardé
+- les capacités sont la force (dégâts bruts), l'agilité (vitesse de déplacement et d'attaque), l'intelligence (dégats magique), et la vitalité (la vie quoi)
 - le personnage à le choix entre un attaque physique (corps à corps) et magique (à distance) en accord avec les capacités du perssonnage
 - le level up dépend du nombre de points d'expérience, et à chaque level up le joueur se voit attribué des points d'abilité
 - les points d'expérience augmente grâce au nombre d'ennemis tués et leurs niveaux (si plus fort, alors plus de points)
-- à un cetain nombre de oints d'expérience, le pesonnage level up
+- à un cetain nombre de points d'expérience, le pesonnage level up
 - à chaque level up, le personnage gagne des points d'abilité, qui sont utilisés à améliorer ses capacités
 - le système de vie dépend de la vitalité du personnage
 - les ennemis peuvent attaquer et se déplacer en fonction du joueur
@@ -56,4 +61,4 @@ Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
 - le personnage se déplace de droite à gauche mais le décor se déplace de haut en bas
 - les attaques seront animé
 - les enemies seront animé et leur mort aussi
-- le jeu se terminera lorsque le personnage aura atteint le haut de la tour
+- le jeu se terminera lorsque le personnage aura atteint le haut de la tour ou lorsqu'il mourra
