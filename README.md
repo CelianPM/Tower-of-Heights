@@ -30,6 +30,7 @@ Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
 # Conditions de fin de jeu
 - lorsque le joueur atteint le sommet de la tour
 - lorsque le joueur perd la totalité de ses points de vies
+- dans le cas échéant, il faut recommencer à 0
 
 # Les différentes animations
 - personnage: marche, saut, attaques (dague et magique)
