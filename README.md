@@ -27,6 +27,10 @@ touche C = menu des attribus
 Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
 **https://trello.com/b/KulF4ZBH/tower-of-heights**
 
+# Conditins de fin de jeu
+- lorsque le joueur atteint le sommet de la tour
+- lorsque le joueur perd la totalité de ses points de vies
+
 
 # Cahier des Charges
 
