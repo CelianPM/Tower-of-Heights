@@ -25,37 +25,39 @@ pygame.display.set_caption("Tower Of Heights")
 
 # Load the character and his information
 heroX = 50
-heroY = 350
-hero = pygame.image.load("Tower Of Heights\pixil-frame-0.png").convert_alpha()
+heroY = 300
+hero = pygame.image.load("Tower Of Heights\hero_with_sword.png").convert_alpha()
+hero = pygame.transform.scale(hero, (100, 100))
+hero_right = hero
+hero_left = pygame.transform.flip(hero, True, False)
 
-loopvar = True
+loop_variable = True
 # Main game loop
-while loopvar == True:
+while loop_variable == True:
 
     # To quite the game
     for event in pygame.event.get():
         if event.type == QUIT:
-            loopvar = False
+            loop_variable = False
 
     # To move the square
     pressed  = pygame.key.get_pressed()
     if pressed[K_LEFT]:
+        hero_right = hero_left
         heroX -= 3
     if pressed[K_RIGHT]:
+        hero_right = hero
         heroX += 3
-
-    # Keep the rect object in sync with heroX/heroY
-  #  hero.topleft = (heroX, heroY)
 
     # To create walls
     if heroX < 0: heroX = 0
     # if heroX > WINDOW_WIDTH - rect1Width: heroX = WINDOW_WIDTH - rect1Width
 
     WINDOW.fill(WHITE) # To load the window
-    WINDOW.blit(hero, (heroX, heroY)) # Render the character image
+    WINDOW.blit(hero_right, (heroX, heroY)) # Render the character image
     pygame.display.update()
     fpsClock.tick(FPS)
 
-# To qiut the game
+# To quit the game
 pygame.quit()
 sys.exit()
