@@ -23,11 +23,39 @@ WINDOW_HEIGHT = 400
 WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Tower Of Heights")
 
-while True:
+# Load the character and his information
+heroX = 50
+heroY = 350
+hero = pygame.image.load("Tower Of Heights\pixil-frame-0.png").convert_alpha()
+
+loopvar = True
+# Main game loop
+while loopvar == True:
+
+    # To quite the game
     for event in pygame.event.get():
         if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
-    WINDOW.fill(WHITE)
+            loopvar = False
+
+    # To move the square
+    pressed  = pygame.key.get_pressed()
+    if pressed[K_LEFT]:
+        heroX -= 3
+    if pressed[K_RIGHT]:
+        heroX += 3
+
+    # Keep the rect object in sync with heroX/heroY
+  #  hero.topleft = (heroX, heroY)
+
+    # To create walls
+    if heroX < 0: heroX = 0
+    # if heroX > WINDOW_WIDTH - rect1Width: heroX = WINDOW_WIDTH - rect1Width
+
+    WINDOW.fill(WHITE) # To load the window
+    WINDOW.blit(hero, (heroX, heroY)) # Render the character image
     pygame.display.update()
     fpsClock.tick(FPS)
+
+# To qiut the game
+pygame.quit()
+sys.exit()
