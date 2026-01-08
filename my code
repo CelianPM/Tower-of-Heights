@@ -1,0 +1,49 @@
+import pygame
+pygame.init()
+
+pygame.display.set_caption("Tower of Heights")
+
+screen = pygame.display.set_mode((800, 600))
+screen.fill((40, 40, 55))
+clock = pygame.time.Clock()
+
+player_speed = 5
+gravité = 0.8
+velocité = 0
+jump_power = -15
+on_ground = True
+
+plateformes = [pygame.Rect(0,600,800,25)]
+
+perso1_image = pygame.image.load(r"U:\Tower of Heights\pixil-frame-0.png").convert_alpha()
+perso1_rect = perso1_image.get_rect(topleft=(200,300))
+
+running = True
+
+while running == True:
+    clock.tick(60)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            running = False
+    key = pygame.key.get_pressed()
+
+    for plateforme in plateformes:
+        pygame.draw.rect(screen,(200, 40, 55), (plateforme.x, plateforme.y, plateforme.width, plateforme.height))
+
+    if key[pygame.K_LEFT]:
+        perso1_rect.x -= player_speed
+    if key[pygame.K_RIGHT]:
+        perso1_rect.x += player_speed
+
+
+    screen.fill((40, 40, 55))
+
+    screen.blit(perso1_image, (perso1_rect.x, perso1_rect.y))
+
+    pygame.display.flip()
+
+
+pygame.quit()
