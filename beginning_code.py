@@ -26,16 +26,17 @@ pygame.display.set_caption("Tower Of Heights")
 # Load the character and his information
 heroX = 50
 heroY = 300
-hero = pygame.image.load("Tower Of Heights\hero_with_sword.png").convert_alpha()
-hero = pygame.transform.scale(hero, (100, 100))
-hero_right = hero
-hero_left = pygame.transform.flip(hero, True, False)
+hero = pygame.image.load("Tower Of Heights\hero_with_sword.png").convert_alpha() # Load the image under the name hero
+hero = pygame.transform.scale(hero, (100, 100)) # Change the image's size
+hero_right = hero # Define the hero's right profile as the usual image
+hero_left = pygame.transform.flip(hero, True, False) # Create the hero's othr profile (ht eleft one)
 
-loop_variable = True
+loop_variable = True # game loop variable
+
 # Main game loop
 while loop_variable == True:
 
-    # To quite the game
+    # To quit the game
     for event in pygame.event.get():
         if event.type == QUIT:
             loop_variable = False
@@ -51,7 +52,6 @@ while loop_variable == True:
 
     # To create walls
     if heroX < 0: heroX = 0
-    # if heroX > WINDOW_WIDTH - rect1Width: heroX = WINDOW_WIDTH - rect1Width
 
     WINDOW.fill(WHITE) # To load the window
     WINDOW.blit(hero_right, (heroX, heroY)) # Render the character image
