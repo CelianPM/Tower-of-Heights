@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 pygame.init()
 
 pygame.display.set_caption("Tower of Heights")
@@ -47,3 +47,4 @@ while running == True:
 
 
 pygame.quit()
+sys.exit()
