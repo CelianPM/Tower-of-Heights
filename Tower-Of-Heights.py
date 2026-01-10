@@ -61,3 +61,4 @@ while loop_variable == True:
 # To quit the game
 pygame.quit()
 sys.exit()
+
