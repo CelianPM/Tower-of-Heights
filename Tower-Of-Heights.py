@@ -2,8 +2,8 @@ import pygame, sys
 from pygame.locals import *
 pygame.init()
 
-Velocity = -21
-Strength = 20
+HeroVelocity = -21
+HeroStrength = 20
 # Colors
 WHITE = (255, 255,255)
 BLACK = (0, 0, 0)
@@ -54,11 +54,11 @@ while loop_variable == True:
         heroX += 3
         
     # Jump
-    if (pressed[K_SPACE] and Velocity < -jumpStrength) :
-      Velocity = Strength
-    if Velocity >= -Strength :
-          heroY -= Velocity
-          Velocity -= 1
+    if (pressed[K_SPACE] and HeroVelocity < -HeroStrength) :
+      HeroVelocity = HeroStrength
+    if HeroVelocity >= -HeroStrength :
+          heroY -= HeroVelocity
+          HeroVelocity -= 1
         
     # To create walls
     if heroX < 0: heroX = 0
@@ -73,4 +73,5 @@ while loop_variable == True:
 pygame.quit()
 
 sys.exit()
+
 
