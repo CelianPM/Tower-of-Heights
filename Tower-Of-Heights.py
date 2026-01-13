@@ -62,6 +62,7 @@ while loop_variable == True:
         
     # To create walls
     if heroX < 0: heroX = 0
+    if heroX > WINDOW_WIDTH: heroX = WINDOW_WIDTH
 
     WINDOW.fill(WHITE) # To load the window
     WINDOW.blit(hero_right, (heroX, heroY)) # Render the character image
@@ -72,3 +73,4 @@ while loop_variable == True:
 pygame.quit()
 
 sys.exit()
+
