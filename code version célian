@@ -13,7 +13,7 @@ velocité = 0
 jump_power = -15
 on_ground = True
 
-plateformes = [pygame.Rect(0,600,800,25)]
+plateformes = [pygame.Rect(0,575,800,25), pygame.Rect(120,450,60,25), pygame.Rect(230,375,50,40), pygame.Rect(345,250,80,25), pygame.Rect(460,150,30,25), pygame.Rect(0,250,10,350),]
 
 perso1_image = pygame.image.load(r"U:\Tower of Heights\pixil-frame-0.png").convert_alpha()
 perso1_rect = perso1_image.get_rect(topleft=(200,300))
@@ -30,16 +30,39 @@ while running == True:
             running = False
     key = pygame.key.get_pressed()
 
-    for plateforme in plateformes:
-        pygame.draw.rect(screen,(200, 40, 55), (plateforme.x, plateforme.y, plateforme.width, plateforme.height))
+    
 
     if key[pygame.K_LEFT]:
         perso1_rect.x -= player_speed
     if key[pygame.K_RIGHT]:
         perso1_rect.x += player_speed
 
+    
+    if key[pygame.K_SPACE] and on_ground:
+        velocité += jump_power
+        on_ground = False
+
+    if not on_ground:
+        velocité += gravité
+    on_ground = False
+    for plateforme in plateformes:
+        if perso1_rect.colliderect(plateforme) and velocité > 0:
+            perso1_rect.bottom = plateforme.top
+            on_ground = True
+            velocité = 0
+
+
+    perso1_rect.y += velocité
+
+
 
     screen.fill((40, 40, 55))
+
+
+    for plateforme in plateformes:
+        pygame.draw.rect(screen,(200, 200, 200), (plateforme.x, plateforme.y, plateforme.width, plateforme.height))
+
+
 
     screen.blit(perso1_image, (perso1_rect.x, perso1_rect.y))
 
@@ -47,4 +70,3 @@ while running == True:
 
 
 pygame.quit()
-sys.exit()
