@@ -2,8 +2,6 @@ import pygame, sys
 from pygame.locals import *
 pygame.init()
 
-HeroVelocity = -21
-HeroStrength = 20
 # Colors
 WHITE = (255, 255,255)
 BLACK = (0, 0, 0)
@@ -24,7 +22,9 @@ heroX = 50
 heroY = 300
 hero = pygame.transform.scale(pygame.image.load("Tower Of Heights\hero_with_sword.png").convert_alpha(), (100, 100)) # Load the image of the hero and change the image's size
 hero_right = hero # Define the hero's right profile as the usual image
-hero_left = pygame.transform.flip(hero, True, False) # Create the hero's othr profile (ht eleft one)
+hero_left = pygame.transform.flip(hero, True, False) # Create the hero's other profile (the left one)
+HeroVelocity = -21
+HeroStrength = 20
 
 loop_variable = True # game loop variable
 
@@ -67,6 +67,7 @@ while loop_variable == True:
 pygame.quit()
 
 sys.exit()
+
 
 
 
