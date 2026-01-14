@@ -28,7 +28,7 @@ heroX = 50
 heroY = 300
 HERO_WIDTH = 100
 HERO_HEIGHT = 100
-hero = pygame.transform.scale(pygame.image.load("Tower Of Heights\hero_with_sword.png").convert_alpha(), (HERO_WIDTH, HERO_HEIGHT)) # Load the image of the hero and change the image's size
+hero = pygame.transform.scale(pygame.image.load("hero_with_sword.png").convert_alpha(), (HERO_WIDTH, HERO_HEIGHT)) # Load the image of the hero and change the image's size
 hero_right = hero # Define the hero's right profile as the usual image
 hero_left = pygame.transform.flip(hero, True, False) # Create the hero's other profile (the left one)
 hero_rect = hero.get_rect(topleft=(200,300))
@@ -95,3 +95,4 @@ while loop_variable == True:
 pygame.quit()
 
 sys.exit()
+
