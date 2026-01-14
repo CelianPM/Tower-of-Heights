@@ -20,11 +20,13 @@ pygame.display.set_caption("Tower Of Heights")
 # Load the character and his information
 heroX = 50
 heroY = 300
-hero = pygame.transform.scale(pygame.image.load("Tower Of Heights\hero_with_sword.png").convert_alpha(), (100, 100)) # Load the image of the hero and change the image's size
+HERO_WIDTH = 100
+HERO_HEIGHT = 100
+hero = pygame.transform.scale(pygame.image.load("Tower Of Heights\hero_with_sword.png").convert_alpha(), (HERO_WIDTH, HERO_HEIGHT)) # Load the image of the hero and change the image's size
 hero_right = hero # Define the hero's right profile as the usual image
 hero_left = pygame.transform.flip(hero, True, False) # Create the hero's other profile (the left one)
-HeroVelocity = -21
-HeroStrength = 20
+HeroJumpVelocity = -21
+JumpStrength = 20
 
 loop_variable = True # game loop variable
 
@@ -42,21 +44,21 @@ while loop_variable == True:
     # To move the square
     if pressed[K_LEFT]:
         hero_right = hero_left
-        heroX -= 3
+        heroX -= 4.5
     if pressed[K_RIGHT]:
         hero_right = hero
-        heroX += 3
+        heroX += 4.5
         
     # Jump
-    if (pressed[K_SPACE] and HeroVelocity < -HeroStrength) :
-      HeroVelocity = HeroStrength
-    if HeroVelocity >= -HeroStrength :
-          heroY -= HeroVelocity
-          HeroVelocity -= 1
+    if (pressed[K_SPACE] and HeroJumpVelocity < -JumpStrength) :
+        HeroJumpVelocity = JumpStrength
+    if HeroJumpVelocity >= -JumpStrength :
+          heroY -= HeroJumpVelocity
+          HeroJumpVelocity -= 1
         
     # To create walls
     if heroX < 0: heroX = 0
-    if heroX > WINDOW_WIDTH: heroX = WINDOW_WIDTH
+    if heroX > WINDOW_WIDTH - HERO_WIDTH: heroX = WINDOW_WIDTH - HERO_WIDTH
 
     WINDOW.fill(WHITE) # To load the window
     WINDOW.blit(hero_right, (heroX, heroY)) # Render the character image
@@ -65,9 +67,4 @@ while loop_variable == True:
 
 # To quit the game
 pygame.quit()
-
 sys.exit()
-
-
-
-
