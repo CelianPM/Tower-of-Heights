@@ -15,7 +15,7 @@ on_ground = True
 
 plateformes = [pygame.Rect(0,1050,2000,25), pygame.Rect(120,450,60,25), pygame.Rect(230,375,50,40), pygame.Rect(345,250,80,25), pygame.Rect(460,150,30,25), pygame.Rect(0,0,10,2000),]
 
-perso1_image = pygame.image.load(r"U:\Tower of Heights\silhouette_épéiste.png").convert_alpha()
+perso1_image = pygame.image.load(r"U:\Tower of Heights\épéiste_couleur.png").convert_alpha()
 perso1_rect = perso1_image.get_rect(topleft=(200,300))
 
 running = True
