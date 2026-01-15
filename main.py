@@ -82,9 +82,9 @@ while running == True:
     
     # Pour bouger
     if key[pygame.K_LEFT]: # Aller à gauche
-        perso1_rect.x -= player_speed
+        perso_rect.x -= player_speed
     if key[pygame.K_RIGHT]: # Aller à droite
-        perso1_rect.x += player_speed
+        perso_rect.x += player_speed
     if key[pygame.K_SPACE] and on_ground: # Saut
         velocity += jump_power
         on_ground = False
@@ -95,13 +95,13 @@ while running == True:
 
     # Pour rester sur les plateformes
     for plateforme in plateformes:
-        if perso1_rect.colliderect(plateforme) and velocity > 0:
-            perso1_rect.bottom = plateforme.top
+        if perso_rect.colliderect(plateforme) and velocity > 0:
+            perso_rect.bottom = plateforme.top
             on_ground = True
             velocity = 0
 
 
-    perso1_rect.y += velocity
+    perso_rect.y += velocity
 
 
 
