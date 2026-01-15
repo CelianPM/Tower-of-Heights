@@ -1,98 +1,139 @@
-import pygame, sys
-from pygame.locals import *
-pygame.init()
+import pygame # Importer la bibliothèque
+pygame.init() # Initialiser pygame
 
+pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, afficher "Tower of Heights"
 
-# Colors
-WHITE = (255, 255,255)
-BLACK = (0, 0, 0)
-GREY = (125, 125, 125)
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+screen.fill((40, 40, 55))
+clock = pygame.time.Clock()
 
-
-# Frames per Second
-FPS = 45
-fpsClock = pygame.time.Clock()
-
-# Plateforms
-plateforms = [pygame.Rect(0,1050,2000,25), pygame.Rect(120,450,60,25), pygame.Rect(230,375,50,40), pygame.Rect(345,250,80,25), pygame.Rect(460,150,30,25), pygame.Rect(0,0,10,2000)]
-
-# Window setup
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 800
-WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption("Tower Of Heights")
-
-
-# Load the character and his information
-heroX = 50
-heroY = 300
-HERO_WIDTH = 100
-HERO_HEIGHT = 100
-hero = pygame.transform.scale(pygame.image.load("hero_with_sword.png").convert_alpha(), (HERO_WIDTH, HERO_HEIGHT)) # Load the image of the hero and change the image's size
-hero_right = hero # Define the hero's right profile as the usual image
-hero_left = pygame.transform.flip(hero, True, False) # Create the hero's other profile (the left one)
-hero_rect = hero.get_rect(topleft=(200,300))
-
+WIDTH = screen.get_width()
+HEIGHT = screen.get_height()
+state = "menu_de_début"
 player_speed = 5
-gravity = 0.5
+GRAVITY = 0.5
 velocity = 0
 jump_power = -10
-on_ground = True
+on_ground = False
 
+# Créer les plateformes
+plateforms = [
+    pygame.Rect(0, HEIGHT - 25, WIDTH, 25),
+    pygame.Rect(120, 450, 80, 25),
+    pygame.Rect(260, 350, 80, 25),
+    pygame.Rect(400, 250, 80, 25),
+    pygame.Rect(550, 150, 80, 25),
+]
 
-loop_variable = True # game loop variable
+# Pour appeler les images
+perso1_image = pygame.image.load("Tower Of Heights/silhouette_épéiste.png").convert_alpha()
+perso2_image = pygame.image.load("Tower Of Heights/épéiste_couleur.png").convert_alpha()
 
-# Main game loop
-while loop_variable == True:
+perso1_rect_menu = perso1_image.get_rect(center=(WIDTH//2 - 150, HEIGHT//2))
+perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
 
-    pressed  = pygame.key.get_pressed() # To simplify when checking if a key is pressed
+selected_image = None
+perso_rect = None
 
-    # To quit the game
+# Pour le texte
+title_font = pygame.font.SysFont(None, 100)
+text_font = pygame.font.SysFont(None, 40)
+
+title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
+title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
+
+running = True # Variable du jeu
+
+# Boucle principale
+while running:
+    clock.tick(60) # FPS
+
+    key = pygame.key.get_pressed() # Pour quand on appuie sur une touche
+
+    # Pour sortir de la fenêtre de jeu
     for event in pygame.event.get():
-        if event.type == QUIT or pressed[K_ESCAPE]:
-            loop_variable = False
+        if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: running = False
 
-    # To move the square
-    if pressed[K_LEFT]:
-        hero_right = hero_left
-        heroX -= 4.5
-    if pressed[K_RIGHT]:
-        hero_right = hero
-        heroX += 4.5
+    # Pour donner le choix de personnages sur la page menu de départ
+    if state == "menu_de_début" and event.type == pygame.MOUSEBUTTONDOWN:
+            if perso1_rect_menu.collidepoint(event.pos):
+                selected_image = perso1_image
+                selected_image_right = selected_image
+                selected_image_left = pygame.transform.flip(selected_image, True, False)
+                perso_rect = selected_image.get_rect(topleft=(200, 300))
+                state = "game"
 
-    # Update position
-    hero_rect.topleft = (heroX, heroY)
+            if perso2_rect_menu.collidepoint(event.pos):
+                selected_image = perso2_image
+                selected_image_right = selected_image
+                selected_image_left = pygame.transform.flip(selected_image, True, False)
+                perso_rect = selected_image.get_rect(topleft=(200, 300))
+                state = "game"
 
-    # Celian's
-    if pressed[K_SPACE] and on_ground:
-        velocity += jump_power
-        on_ground = False
+    # Pour créer la page menu de départ
+    if state == "menu_de_début":
+        screen.fill((30, 30, 45))
+        screen.blit(title_surface, title_rect)
 
-    if not on_ground:
-        velocity += gravity
-    on_ground = False
+        screen.blit(perso1_image, perso1_rect_menu)
+        screen.blit(perso2_image, perso2_rect_menu)
 
-    for plateform in plateforms:
-        if hero_rect.colliderect(plateform) and velocity > 0:
-            hero_rect.bottom = plateform.top
-            on_ground = True
-            velocity = 0
-    heroY += velocity
+        text = text_font.render("Clique sur ton personnage", True, (200, 200, 200))
+        screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT - 120))
+
+        pygame.display.flip() # Pour mettre la fenêtre à jour
+        continue
+    
+    if state == "game":
+
+    # Pour bouger
+        if key[pygame.K_LEFT]: # Aller à gauche
+            perso_rect.x -= player_speed
+            selected_image = selected_image_left
+        if key[pygame.K_RIGHT]: # Aller à droite
+            perso_rect.x += player_speed
+            selected_image = selected_image_right
+        if key[pygame.K_SPACE] and on_ground: # Saut
+            velocity += jump_power
+            on_ground = False
+
+        # Pour redecendre grâce à la gravité
+        if not on_ground:
+            velocity += GRAVITY
+
+        # Pour rester sur les plateformes
+        for plateform in plateforms:
+            if perso_rect.colliderect(plateform) and velocity > 0:
+                perso_rect.bottom = plateform.top
+                on_ground = True
+                velocity = 0
+                break
         
-    # To create walls
-    if heroX < 0: heroX = 0 # Left wall
-    if heroX > WINDOW_WIDTH - HERO_WIDTH: heroX = WINDOW_WIDTH - HERO_WIDTH # Right wall
+        # Pour revenir au menu de départ
+        if key[pygame.K_m]: state = "menu_de_début"
 
-    # To load and update the window, character, shapes and FPS
-    WINDOW.fill(WHITE) # To load the window
-    for plateform in plateforms:
-        pygame.draw.rect(WINDOW,(50, 20, 20), (plateform.x, plateform.y, plateform.width, plateform.height))
-    WINDOW.blit(hero_right, (heroX, heroY)) # Render the character image
-    pygame.display.update() # To update the window
-    fpsClock.tick(FPS) # To set the FPS
+        velocity += GRAVITY
+        perso_rect.y += velocity
 
-# To quit the game
-pygame.quit()
+        on_ground = False
+        for plateform in plateforms:
+            if perso_rect.colliderect(plateform) and velocity > 0:
+                perso_rect.bottom = plateform.top
+                on_ground = True
+                velocity = 0
+                break
 
-sys.exit()
 
+    screen.fill((40, 40, 55)) # Pour remplir la fenêtre
+
+    # Pour générer les plateformes
+    for plateform in plateforms: pygame.draw.rect(screen, (120, 60, 60), plateform)
+
+
+
+    screen.blit(selected_image, perso_rect) # Pour générer le personnage
+
+    pygame.display.flip() # Pour mettre l'ensemble de la fenêtre à jour
+
+
+pygame.quit() # Pour arrêter le jeu
