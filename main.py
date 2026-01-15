@@ -40,20 +40,22 @@ while running == True:
 
     # Pour sauter
     if key[pygame.K_SPACE] and on_ground:
-        velocité += jump_power
+        velocity += jump_power
         on_ground = False
-    
+
+    # Pour redecendre grâce à la gravity
     if not on_ground:
-        velocité += gravité
-        on_ground = False
+        velocity += gravity
+
+    # Pour rester sur les plateformes
     for plateforme in plateformes:
-        if perso1_rect.colliderect(plateforme) and velocité > 0:
+        if perso1_rect.colliderect(plateforme) and velocity > 0:
             perso1_rect.bottom = plateforme.top
             on_ground = True
-            velocité = 0
+            velocity = 0
 
 
-    perso1_rect.y += velocité
+    perso1_rect.y += velocity
 
 
 
