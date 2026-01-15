@@ -42,7 +42,7 @@ text_font = pygame.font.SysFont(None, 40)
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
 title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
 
-runing = True # Variable du jeu
+running = True # Variable du jeu
 
 # Boucle principale
 while running == True:
