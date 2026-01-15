@@ -58,11 +58,15 @@ while running:
     if state == "menu_de_début" and event.type == pygame.MOUSEBUTTONDOWN:
             if perso1_rect_menu.collidepoint(event.pos):
                 selected_image = perso1_image
+                selected_image_right = selected_image
+                selected_image_left = pygame.transform.flip(selected_image, True, False)
                 perso_rect = selected_image.get_rect(topleft=(200, 300))
                 state = "game"
 
             if perso2_rect_menu.collidepoint(event.pos):
                 selected_image = perso2_image
+                selected_image_right = selected_image
+                selected_image_left = pygame.transform.flip(selected_image, True, False)
                 perso_rect = selected_image.get_rect(topleft=(200, 300))
                 state = "game"
 
@@ -83,8 +87,12 @@ while running:
     if state == "game":
 
     # Pour bouger
-        if key[pygame.K_LEFT]: perso_rect.x -= player_speed  # Aller à gauche
-        if key[pygame.K_RIGHT]: perso_rect.x += player_speed  # Aller à droite
+        if key[pygame.K_LEFT]: # Aller à gauche
+            perso_rect.x -= player_speed
+            selected_image = selected_image_left
+        if key[pygame.K_RIGHT]: # Aller à droite
+            perso_rect.x += player_speed
+            selected_image = selected_image_right
         if key[pygame.K_SPACE] and on_ground: # Saut
             velocity += jump_power
             on_ground = False
