@@ -108,3 +108,63 @@ while running:
             perso_rect.x += player_speed
 
         if key[pygame.K_SPACE] and on_ground:
+            velocité = jump_power
+            on_ground = False
+
+        if perso_rect.y > ground_rect.y and not on_ground:
+            state = "death"
+
+        # Gravité
+        velocité += gravité
+        perso_rect.y += velocité
+
+        # Collisions plateformes
+        on_ground = False
+        for plateforme in plateformes:
+            if perso_rect.colliderect(plateforme) and velocité > 0:
+                perso_rect.bottom = plateforme.top
+                velocité = 0
+                on_ground = True
+
+        # Mort si chute hors écran
+        if perso_rect.top > HEIGHT:
+            state = "death"
+
+        # Affichage du jeu
+        screen.fill((40, 40, 55))
+        for plateforme in plateformes:
+            pygame.draw.rect(screen, (120, 60, 60), plateforme)
+
+        screen.blit(selected_image, perso_rect)
+        pygame.display.flip()
+        continue
+
+    # --- DEATH ---
+    if state == "death":
+        screen.fill((0, 0, 0))
+
+        txt = death_txt_font.render("Bienvenue au Royaume des Dé'fins'", True, (150, 20, 40))
+        screen.blit(txt, txt.get_rect(center=(WIDTH//2, HEIGHT//2 - 100)))
+
+        # Bouton REJOUER
+        pygame.draw.rect(screen, (200, 0, 0), restart_rect_death)
+        txt_restart = text_font.render("Rejouer", True, (255, 255, 255))
+        screen.blit(txt_restart, txt_restart.get_rect(center=restart_rect_death.center))
+
+        # Bouton QUITTER
+        pygame.draw.rect(screen, (0, 0, 200), end_rect_death)
+        txt_end = text_font.render("Quitter", True, (255, 255, 255))
+        screen.blit(txt_end, txt_end.get_rect(center=end_rect_death.center))
+
+        pygame.display.flip()
+        continue
+
+    # --- END ---
+    if state == "end":
+        screen.fill((0, 0, 100))
+        txt = text_font.render("Merci d'avoir joué à Tower Of Heights", True, (255, 255, 255))
+        screen.blit(txt, txt.get_rect(center=(WIDTH//2, HEIGHT//2)))
+        pygame.display.flip()
+        continue
+
+pygame.quit()
