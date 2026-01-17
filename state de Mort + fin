@@ -39,10 +39,10 @@ selected_image = None
 perso_rect = None
 
 # --- Boutons écran de mort ---
-restart_rect_death = pygame.Rect(0, 0, 200, 60)
+restart_rect_death = pygame.Rect(0, 255, 0, 60)
 restart_rect_death.center = (WIDTH//2 - 150, HEIGHT//2 + 120)
 
-end_rect_death = pygame.Rect(0, 0, 200, 60)
+end_rect_death = pygame.Rect(255, 0, 0, 60)
 end_rect_death.center = (WIDTH//2 + 150, HEIGHT//2 + 120)
 
 # --- Polices ---
