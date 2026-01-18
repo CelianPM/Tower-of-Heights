@@ -29,8 +29,8 @@ plateforms = [
 ]
 
 # Pour appeler les images
-perso1_image = pygame.image.load("Tower Of Heights/silhouette_épéiste.png").convert_alpha()
-perso2_image = pygame.image.load("Tower Of Heights/épéiste_couleur.png").convert_alpha()
+perso1_image = pygame.image.load("silhouette_épéiste.png").convert_alpha()
+perso2_image = pygame.image.load("épéiste_couleur.png").convert_alpha()
 
 perso1_rect_menu = perso1_image.get_rect(center=(WIDTH//2 - 150, HEIGHT//2))
 perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
@@ -48,7 +48,7 @@ end_rect_death.center = (WIDTH//2 + 150, HEIGHT//2 + 120)
 # Pour le texte
 title_font = pygame.font.SysFont(None, 100)
 text_font = pygame.font.SysFont(None, 40)
-death_txt_font = pygame.font.SysFont("Tower Of Heights/you-murderer.zip/youmurdererbb_reg.ttf", 64)
+death_txt_font = pygame.font.SysFont("you-murderer.zip/youmurdererbb_reg.ttf", 64)
 
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
 title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
