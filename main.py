@@ -7,6 +7,9 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 screen.fill((40, 40, 55))
 clock = pygame.time.Clock()
 
+# Colors
+WHITE = (255, 255, 255)
+
 WIDTH = screen.get_width()
 HEIGHT = screen.get_height()
 state = "menu_de_début"
@@ -35,9 +38,17 @@ perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
 selected_image = None
 perso_rect = None
 
+# Boutons écran de mort
+restart_rect_death = pygame.Rect(0, 255, 200, 60)
+restart_rect_death.center = (WIDTH//2 - 150, HEIGHT//2 + 120)
+
+end_rect_death = pygame.Rect(255, 0, 200, 60)
+end_rect_death.center = (WIDTH//2 + 150, HEIGHT//2 + 120)
+
 # Pour le texte
 title_font = pygame.font.SysFont(None, 100)
 text_font = pygame.font.SysFont(None, 40)
+death_txt_font = pygame.font.SysFont("Tower Of Heights/you-murderer.zip/youmurdererbb_reg.ttf", 64)
 
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
 title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
@@ -54,8 +65,8 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: running = False
 
-    # Pour donner le choix de personnages sur la page menu de départ
-    if state == "menu_de_début" and event.type == pygame.MOUSEBUTTONDOWN:
+        # Pour donner le choix de personnages sur la page menu de départ
+        if state == "menu_de_début" and event.type == pygame.MOUSEBUTTONDOWN:
             if perso1_rect_menu.collidepoint(event.pos):
                 selected_image = perso1_image
                 selected_image_right = selected_image
@@ -69,8 +80,15 @@ while running:
                 selected_image_left = pygame.transform.flip(selected_image, True, False)
                 perso_rect = selected_image.get_rect(topleft=(200, 300))
                 state = "game"
+        
+        # Pour la page de mort
+        if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
+            if restart_rect_death.collidepoint(event.pos):
+                state = "menu_de_début"
+            elif end_rect_death.collidepoint(event.pos):
+                state = "end"
 
-    # Pour créer la page menu de départ
+    # Pour créer la page du menu de départ
     if state == "menu_de_début":
         screen.fill((30, 30, 45))
         screen.blit(title_surface, title_rect)
@@ -79,11 +97,14 @@ while running:
         screen.blit(perso2_image, perso2_rect_menu)
 
         text = text_font.render("Clique sur ton personnage", True, (200, 200, 200))
+        info = text_font.render("Appuie sur M pour revenir sur cette page", True, (200, 200, 200))
         screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT - 120))
+        screen.blit(info, (WIDTH//2 - info.get_width()//2, HEIGHT - 80))
 
         pygame.display.flip() # Pour mettre la fenêtre à jour
         continue
-    
+
+    # Pour jouer
     if state == "game":
 
     # Pour bouger
@@ -122,17 +143,50 @@ while running:
                 on_ground = True
                 velocity = 0
                 break
+        
+        # Mort si chute hors écran
+        if perso_rect.top > HEIGHT:
+            state = "death"
+    
+    # Pour générer l'écran de mort
+    if state == "death":
+        screen.fill((0, 0, 0))
+
+        txt = death_txt_font.render("Bienvenue au Royaume des Défunts", True, (150, 20, 40))
+        screen.blit(txt, txt.get_rect(center=(WIDTH//2, HEIGHT//2 - 100)))
+
+        # Bouton REJOUER
+        pygame.draw.rect(screen, (200, 0, 0), restart_rect_death)
+        txt_restart = text_font.render("Rejouer", True, WHITE)
+        screen.blit(txt_restart, txt_restart.get_rect(center=restart_rect_death.center))
+
+        # Bouton QUITTER
+        pygame.draw.rect(screen, (0, 0, 200), end_rect_death)
+        txt_end = text_font.render("Quitter", True, WHITE)
+        screen.blit(txt_end, txt_end.get_rect(center=end_rect_death.center))
+
+        pygame.display.flip()
+        continue
+
+    # Pour la page de mort
+    if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
+        if restart_rect_death.collidepoint(event.pos):
+            state = "menu_de_début"
+        elif end_rect_death.collidepoint(event.pos):
+            state = "end"
+
+    # END
+    if state == "end":
+        screen.fill((0, 0, 100))
+        txt = text_font.render("Merci d'avoir joué à Tower Of Heights", True, WHITE)
+        screen.blit(txt, txt.get_rect(center=(WIDTH//2, HEIGHT//2)))
+        pygame.display.flip()
+        continue
 
 
     screen.fill((40, 40, 55)) # Pour remplir la fenêtre
-
-    # Pour générer les plateformes
-    for plateform in plateforms: pygame.draw.rect(screen, (120, 60, 60), plateform)
-
-
-
+    for plateform in plateforms: pygame.draw.rect(screen, (120, 60, 60), plateform) # Pour générer les plateformes
     screen.blit(selected_image, perso_rect) # Pour générer le personnage
-
     pygame.display.flip() # Pour mettre l'ensemble de la fenêtre à jour
 
 
