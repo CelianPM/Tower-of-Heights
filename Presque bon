@@ -34,7 +34,7 @@ plateforms = [
 # Pour appeler les images
 perso1_image = pygame.image.load("silhouette_épéiste.png").convert_alpha()
 perso2_image = pygame.image.load("épéiste_couleur.png").convert_alpha()
-
+perso_image_attaque = pygame.image.load("épéiste_attaque.png").convert_alpha()
 monstre = pygame.image.load("épéiste_couleur.png").convert_alpha()
 monstre_rect = monstre.get_rect(topleft = (0, HEIGHT - 150))
 
@@ -43,7 +43,7 @@ perso1_rect_menu = perso1_image.get_rect(center=(WIDTH//2 - 150, HEIGHT//2))
 perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
 
 selected_image = None #image sélectioné
-image_attack = perso1_image
+image_attack = perso_image_attaque
 image_rect_attack = perso1_rect_menu
 perso_rect = None #rect de l'image sélectionné
 
