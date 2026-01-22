@@ -38,6 +38,7 @@ plateforms = [
     # Héros
 perso1_image = pygame.image.load("silhouette_épéiste.png").convert_alpha()
 perso2_image = pygame.image.load("épéiste_couleur.png").convert_alpha()
+perso1_image_attaque = pygame.image.load("épéiste_attaque.png").convert_alpha()
 
     # Monstre
 monster = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112.5))
@@ -48,9 +49,10 @@ monster_rect = monster.get_rect(topleft = (0, HEIGHT - 130))
 # Prend le rect des images
 perso1_rect_menu = perso1_image.get_rect(center=(WIDTH//2 - 150, HEIGHT//2))
 perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
+perso1_attaque_rect = perso1_image_attaque.get_rect(center=(WIDTH//2 - 150, HEIGHT//2))
 
 selected_image = None #image sélectioné, non-définie pour l'instant
-image_attack = perso1_image
+image_attack = perso1_image_attaque
 image_rect_attack = perso1_rect_menu
 perso_rect = None #rect de l'image sélectionné
 
@@ -69,6 +71,31 @@ death_txt_font = pygame.font.SysFont("youmurdererbb_reg.ttf", 64) #caractéristi
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240)) 
 title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
 
+def menu_de_début():
+    global state, perso1_rect_menu, perso1_image, selected_image, selected_image_left, selected_image_right, perso_rect, selected_attack_left,  selected_attack_right
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if perso1_rect_menu.collidepoint(event.pos):
+            selected_image = perso1_image
+            selected_image_right = selected_image
+            selected_image_left = pygame.transform.flip(selected_image, True, False)
+            selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
+            selected_attack_right = selected_attack
+            selected_attack_left = pygame.transform.flip(selected_attack, True, False)
+            perso_rect = selected_image.get_rect(topleft=(200, 300))
+            state = "game"
+            pygame.mixer.music.play(-1)
+
+        if perso2_rect_menu.collidepoint(event.pos):
+            selected_image = perso2_image
+            selected_image_right = selected_image
+            selected_image_left = pygame.transform.flip(selected_image, True, False)
+            selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
+            selected_attack_right = selected_attack
+            selected_attack_left = pygame.transform.flip(selected_attack, True, False)
+            perso_rect = selected_image.get_rect(topleft=(200, 300))
+            state = "game"
+            pygame.mixer.music.play(-1)
+
 running = True # Variable du jeu
 
 # Boucle principale
@@ -83,29 +110,8 @@ while running:
         if event.type == pygame.QUIT or key[pygame.K_ESCAPE]: running = False
 
         # Pour donner le choix de personnages sur la page menu de départ
-        if state == "menu_de_début" and event.type == pygame.MOUSEBUTTONDOWN:
-            if perso1_rect_menu.collidepoint(event.pos):
-                selected_image = perso1_image
-                selected_image_right = selected_image
-                selected_image_left = pygame.transform.flip(selected_image, True, False)
-                selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
-                selected_attack_right = selected_attack
-                selected_attack_left = pygame.transform.flip(selected_attack, True, False)
-                perso_rect = selected_image.get_rect(topleft=(200, 300))
-                state = "game"
-                pygame.mixer.music.play(-1)
-
-            if perso2_rect_menu.collidepoint(event.pos):
-                selected_image = perso2_image
-                selected_image_right = selected_image
-                selected_image_left = pygame.transform.flip(selected_image, True, False)
-                selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
-                selected_attack_right = selected_attack
-                selected_attack_left = pygame.transform.flip(selected_attack, True, False)
-                perso_rect = selected_image.get_rect(topleft=(200, 300))
-                state = "game"
-                pygame.mixer.music.play(-1)
-
+        if state == "menu_de_début":
+            menu_de_début()
         
         # Pour la page de mort
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
