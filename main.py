@@ -3,7 +3,7 @@ pygame.init() # Initialiser pygame
 pygame.mixer.init()
 
 pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, afficher "Tower of Heights"
-pygame.mixer.music.load("Tower Of Heights/MusiqueDebase.mp3")
+pygame.mixer.music.load("MusiqueDebase.mp3")
 pygame.mixer.music.set_volume(1)
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #définit la taille de la fenêtre (plein écran)
@@ -36,11 +36,11 @@ plateforms = [
 
 # Pour appeler les images
     # Héros
-perso1_image = pygame.image.load("Tower Of Heights/silhouette_épéiste.png").convert_alpha()
-perso2_image = pygame.image.load("Tower Of Heights/épéiste_couleur.png").convert_alpha()
+perso1_image = pygame.image.load("silhouette_épéiste.png").convert_alpha()
+perso2_image = pygame.image.load("épéiste_couleur.png").convert_alpha()
 
     # Monstre
-monster = pygame.transform.scale(pygame.image.load("Tower Of Heights/slug.png").convert_alpha(), (150, 112.5))
+monster = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112.5))
 monster_right = monster
 monster_left = pygame.transform.flip(monster, True, False)
 monster_rect = monster.get_rect(topleft = (0, HEIGHT - 130))
@@ -64,7 +64,7 @@ end_rect_death.center = (WIDTH//2 + 150, HEIGHT//2 + 120)
 # Pour le texte
 title_font = pygame.font.SysFont(None, 100) #caractéristiques du titre
 text_font = pygame.font.SysFont(None, 40) #caractéristiques du texte
-death_txt_font = pygame.font.SysFont("Tower Of Heights/you-murderer.zip/youmurdererbb_reg.ttf", 64) #caractéristiques du texte de mort
+death_txt_font = pygame.font.SysFont("youmurdererbb_reg.ttf", 64) #caractéristiques du texte de mort
 
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240)) 
 title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
@@ -88,7 +88,7 @@ while running:
                 selected_image = perso1_image
                 selected_image_right = selected_image
                 selected_image_left = pygame.transform.flip(selected_image, True, False)
-                selected_attack = pygame.image.load("Tower Of Heights/épéiste_attaque.png").convert_alpha()
+                selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
                 selected_attack_right = selected_attack
                 selected_attack_left = pygame.transform.flip(selected_attack, True, False)
                 perso_rect = selected_image.get_rect(topleft=(200, 300))
@@ -99,7 +99,7 @@ while running:
                 selected_image = perso2_image
                 selected_image_right = selected_image
                 selected_image_left = pygame.transform.flip(selected_image, True, False)
-                selected_attack = pygame.image.load("Tower Of Heights/épéiste_attaque.png").convert_alpha()
+                selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
                 selected_attack_right = selected_attack
                 selected_attack_left = pygame.transform.flip(selected_attack, True, False)
                 perso_rect = selected_image.get_rect(topleft=(200, 300))
