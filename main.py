@@ -166,7 +166,7 @@ while running:
         screen.blit(text_font.render("Quitter", True, BLACK), (quit_button.x + 40, quit_button.y + 15)) # Pour afficher le texte
 
         pygame.display.flip()
-        continue  # <-- FREEZE GAME HERE
+        continue
 
     # Pour creer la page du menu de depart
     if state == "menu_de_debut":
