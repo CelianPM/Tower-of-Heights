@@ -7,7 +7,7 @@ pygame.mixer.init()
 pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, afficher "Tower of Heights"
 
 # Pour le son de fond
-pygame.mixer.music.load("MusiqueDebase.mp3")
+pygame.mixer.music.load("MusiqueDeBase.mp3")
 pygame.mixer.music.set_volume(1)
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #definit la taille de la fenêtre (plein ecran)
@@ -161,7 +161,7 @@ def menu_de_debut2():
     screen.blit(info, (WIDTH//2 - info.get_width()//2, HEIGHT - 80))
     pygame.display.flip()
 def game():
-    global key, perso_rect, player_speed, selected_image, selected_image_right, selected_image_left, selected_attack_left, selected_attack_right, on_ground, jump_power, velocity, monster_rect, monster_speed, monster_left, monster_right, GRAVITY, platforms, PUSHBACK, life, state, HEIGHT, monster
+    global key, perso_rect, player_speed, selected_image, selected_image_right, selected_image_left, selected_attack_left, selected_attack_right, on_ground, jump_power, velocity, monster_rect, monster_speed, monster_left, monster_right, GRAVITY, plateforms, PUSHBACK, life, state, HEIGHT, monster
     
     if key[pygame.K_LEFT]:
         perso_rect.x -= player_speed
@@ -213,7 +213,6 @@ def game():
     if key[pygame.K_m]:
         state = "menu_de_debut"
 
-    velocity += GRAVITY
     perso_rect.y += velocity
 
     on_ground = False
