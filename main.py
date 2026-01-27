@@ -8,7 +8,9 @@ pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, 
 
 # Pour le son de fond
 pygame.mixer.music.load("MusiqueDeBase.mp3")
-pygame.mixer.music.set_volume(1)
+pygame.mixer.music.set_volume(0.5)
+jump_sound = pygame.mixer.Sound("Saut.wav")#son très moche qui va changer
+jump_sound.set_volume(1)
 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #definit la taille de la fenêtre (plein ecran)
 screen.fill((40, 40, 55)) # Couleur de l'ecran 
@@ -36,6 +38,9 @@ on_ground = False #contact avec le sol
 monster_speed = 2 #vitesse de deplacement des monstres
 attack = False
 direction = "right"
+start_time = 0
+attack_delay = 1000
+
 
 life = 5 # Nombres de vies de départ
 PUSHBACK = 100
@@ -165,29 +170,40 @@ def menu_de_debut2():
     screen.blit(info, (WIDTH//2 - info.get_width()//2, HEIGHT - 80))
     pygame.display.flip()
 def game():
-    global direction, key, perso_rect, player_speed, selected_image, selected_image_right, selected_image_left, selected_attack_left, selected_attack_right, on_ground, jump_power, velocity, monster_rect, monster_speed, monster_left, monster_right, GRAVITY, plateforms, PUSHBACK, life, state, HEIGHT, monster
+    global time, attack_delay, start_time, direction, attack, key, perso_rect, player_speed, selected_image, selected_image_right, selected_image_left, selected_attack_left, selected_attack_right, on_ground, jump_power, velocity, monster_rect, monster_speed, monster_left, monster_right, GRAVITY, plateforms, PUSHBACK, life, state, HEIGHT, monster
     
     if key[pygame.K_LEFT]:
         perso_rect.x -= player_speed
-        selected_image = selected_image_left
+        if direction == "right":
+            selected_image = selected_image_left
         direction = "left"
 
     if key[pygame.K_RIGHT]:
         perso_rect.x += player_speed
-        selected_image = selected_image_right
+        if direction == "left":
+            selected_image = selected_image_right
         direction = "right"
     
-    if key[pygame.K_d]:
+    if key[pygame.K_d] and time - start_time >= attack_delay:
+        start_time = pygame.time.get_ticks()
         if direction == "left":
             selected_image = selected_attack_left
         else:
             selected_image = selected_attack_right
         attack = True
+        
+    if time - start_time >= 500:
+        if direction == "left":
+            selected_image = selected_image_left
+        else:
+            selected_image = selected_image_right
+        attack = False
 
 
     if key[pygame.K_SPACE] and on_ground:
         velocity += jump_power
         on_ground = False
+        jump_sound.play()
 
     if monster_rect.x > perso_rect.x:
         monster_rect.x -= monster_speed
@@ -207,13 +223,19 @@ def game():
             break
 
     if perso_rect.colliderect(monster_rect):
-        life -= 1
-        if perso_rect.x < monster_rect.x - 20:
-            perso_rect.x -= PUSHBACK
-        elif perso_rect.x > monster_rect.x + 20:
-            perso_rect.x += PUSHBACK
-        if perso_rect.y < monster_rect.y:
-            velocity -= 2*velocity
+        if attack == True:
+            if perso_rect.x < monster_rect.x:
+                monster_rect.x += PUSHBACK
+            elif perso_rect.x > monster_rect.x:
+                monster_rect.x -= PUSHBACK
+        else:
+            life -= 1
+            if perso_rect.x < monster_rect.x - 20:
+                perso_rect.x -= PUSHBACK
+            elif perso_rect.x > monster_rect.x + 20:
+                perso_rect.x += PUSHBACK
+            if perso_rect.y < monster_rect.y:
+                velocity -= 2*velocity
 
     if life == 0:
         state = "death"
@@ -261,6 +283,7 @@ def end():
 # Boucle principale
 while running:
     clock.tick(60) # FPS
+    time = pygame.time.get_ticks()
 
     key = pygame.key.get_pressed() # Pour quand on appuie sur une touche
 
