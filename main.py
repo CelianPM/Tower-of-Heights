@@ -34,6 +34,8 @@ velocity = 0 #variable = vitesse de saut - vitesse de chute
 jump_power = -15 #puisssance de saut
 on_ground = False #contact avec le sol
 monster_speed = 2 #vitesse de deplacement des monstres
+attack = False
+direction = "right"
 
 life = 5 # Nombres de vies de départ
 PUSHBACK = 100
@@ -64,8 +66,8 @@ perso1_rect_menu = perso1_image.get_rect(center=(WIDTH//2 - 150, HEIGHT//2))
 perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
 
 selected_image = None # Image selectionnée, non-definie pour l'instant
-image_rect_attack = perso1_rect_menu
 perso_rect = None # Rect de l'image selectionnée
+image_rect_attaque = None
 
 # --- Boutons écran de mort ---
     # Celui pour recommencer
@@ -125,10 +127,11 @@ def menu_de_debut():
         selected_image = perso1_image
         selected_image_right = selected_image
         selected_image_left = pygame.transform.flip(selected_image, True, False)
-        selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
+        selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()
         selected_attack_right = selected_attack
         selected_attack_left = pygame.transform.flip(selected_attack, True, False)
         perso_rect = selected_image.get_rect(topleft=(200, 300))
+        image_rect_attaque = selected_attack.get_rect(topleft=(200, 300))
         state = "game"
         pygame.mixer.music.play(-1)
     if perso2_rect_menu.collidepoint(event.pos):
@@ -139,6 +142,7 @@ def menu_de_debut():
         selected_attack_right = selected_attack
         selected_attack_left = pygame.transform.flip(selected_attack, True, False)
         perso_rect = selected_image.get_rect(topleft=(200, 300))
+        image_rect_attaque = selected_attack.get_rect(topleft=(200, 300))
         state = "game"
         pygame.mixer.music.play(-1)
 def death():
@@ -161,21 +165,25 @@ def menu_de_debut2():
     screen.blit(info, (WIDTH//2 - info.get_width()//2, HEIGHT - 80))
     pygame.display.flip()
 def game():
-    global key, perso_rect, player_speed, selected_image, selected_image_right, selected_image_left, selected_attack_left, selected_attack_right, on_ground, jump_power, velocity, monster_rect, monster_speed, monster_left, monster_right, GRAVITY, plateforms, PUSHBACK, life, state, HEIGHT, monster
+    global direction, key, perso_rect, player_speed, selected_image, selected_image_right, selected_image_left, selected_attack_left, selected_attack_right, on_ground, jump_power, velocity, monster_rect, monster_speed, monster_left, monster_right, GRAVITY, plateforms, PUSHBACK, life, state, HEIGHT, monster
     
     if key[pygame.K_LEFT]:
         perso_rect.x -= player_speed
-        if key[pygame.K_d]:
-            selected_image = selected_attack_left
-        else:
-            selected_image = selected_image_left
+        selected_image = selected_image_left
+        direction = "left"
 
     if key[pygame.K_RIGHT]:
         perso_rect.x += player_speed
-        if key[pygame.K_d]:
-            selected_image = selected_attack_right
+        selected_image = selected_image_right
+        direction = "right"
+    
+    if key[pygame.K_d]:
+        if direction == "left":
+            selected_image = selected_attack_left
         else:
-            selected_image = selected_image_right
+            selected_image = selected_attack_right
+        attack = True
+
 
     if key[pygame.K_SPACE] and on_ground:
         velocity += jump_power
