@@ -50,7 +50,7 @@ plateforms = [
 # --- Images ---
 
     # Heros
-perso1_image = pygame.image.load("archer pas terminé.png").convert_alpha()
+perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()
 perso2_image = pygame.image.load("épéiste_couleur.png").convert_alpha()
 
     # Monstre
@@ -212,6 +212,7 @@ def game():
 
     if key[pygame.K_m]:
         state = "menu_de_debut"
+        pygame.mixer.music.stop()
 
     perso_rect.y += velocity
 
