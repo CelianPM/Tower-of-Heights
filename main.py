@@ -42,12 +42,13 @@ attack = False
 direction = "right"
 start_time = 0
 attack_delay = 1000
+player = None
 
 
 life = 5 # Nombres de vies de départ
 PUSHBACK = 100
 
-# --- Plateformes ---
+# --- dictionnaires ---
 plateforms = [
     pygame.Rect(0, HEIGHT - 25, WIDTH, 25),
     pygame.Rect(100, 950, 80, 25),
@@ -59,9 +60,30 @@ plateforms = [
     pygame.Rect(400, 250, 80, 25),
     pygame.Rect(550, 150, 80, 25),
 ]
+arrows = []
+# --- Classes --- 
+class Arrow:
+    def __init__(self, x, y, direction):
+        self.direction = direction
+        self.speed = 10
 
+        if direction == "right":
+            self.image = arrow_right
+            self.rect = self.image.get_rect(midleft=(x, y))
+        else:
+            self.image = arrow_left
+            self.rect = self.image.get_rect(midright=(x, y))
+
+    def update(self):
+        if self.direction == "right":
+            self.rect.x += self.speed
+        else:
+            self.rect.x -= self.speed
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 # --- Images ---
-# Fleche
+    # Fleche
 arrow_img = pygame.image.load("fleche.png").convert_alpha()
 arrow_right = arrow_img
 arrow_left = pygame.transform.flip(arrow_img, True, False)
@@ -82,7 +104,6 @@ perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
 
 selected_image = None # Image selectionnée, non-definie pour l'instant
 perso_rect = None # Rect de l'image selectionnée
-image_rect_attaque = None
 
 # --- Boutons écran de mort ---
     # Celui pour recommencer
@@ -137,9 +158,9 @@ def paused2():
     pygame.display.flip()
 
 def menu_de_debut():
-    global perso1_rect_menu, selected_image, perso1_image, selected_image_right, selected_image_left, selected_attack, selected_attack_right, selected_attack_left, perso_rect, state
+    global perso1_rect_menu, selected_image, perso1_image, selected_image_right, selected_image_left, selected_attack, selected_attack_right, selected_attack_left, perso_rect, state, player
     if perso1_rect_menu.collidepoint(event.pos):
-        perso = "archer"
+        player = "archer"
         selected_image = perso1_image
         selected_image_right = selected_image
         selected_image_left = pygame.transform.flip(selected_image, True, False)
@@ -151,7 +172,7 @@ def menu_de_debut():
         state = "game"
         pygame.mixer.music.play(-1)
     if perso2_rect_menu.collidepoint(event.pos):
-        perso = "epeiste"
+        player = "epeiste"
         selected_image = perso2_image
         selected_image_right = selected_image
         selected_image_left = pygame.transform.flip(selected_image, True, False)
@@ -183,7 +204,9 @@ def menu_de_debut2():
     pygame.display.flip()
 def game():
     global time, attack_delay, start_time, direction, attack, key, perso_rect, player_speed, selected_image, selected_image_right, selected_image_left, selected_attack_left, selected_attack_right, on_ground, jump_power, velocity, monster_rect, monster_speed, monster_left, monster_right, GRAVITY, plateforms, PUSHBACK, life, state, HEIGHT, monster
-    
+    for arrow in arrows[:]:
+        arrow.update()
+        
     if key[pygame.K_LEFT]:
         perso_rect.x -= player_speed
         if direction == "right":
@@ -202,7 +225,6 @@ def game():
             selected_image = selected_attack_left
         else:
             selected_image = selected_attack_right
-        attack = True
         
     if time - start_time >= 500:
         if direction == "left":
@@ -307,7 +329,17 @@ while running:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state == "game":
             state = "paused"
             pygame.mixer.music.pause() # Arrêter la musique
-
+            
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_d and state == "game":
+                if player == "archer":
+                    arrows.append(
+                        Arrow(
+                            perso_rect.centerx,
+                            perso_rect.centery,
+                            direction
+                        )
+                    )
         # --- Boutons de pause ---
         if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
             paused()
@@ -347,7 +379,9 @@ while running:
 
     if state == "end":
         end()
-        
+    if perso_rect is None:
+        continue
+
     target_camera = perso_rect.y - HEIGHT // 2
     camera_y += (target_camera - camera_y) * CAMERA_SMOOTH
     if perso_rect.y > HEIGHT //2:
@@ -358,6 +392,11 @@ while running:
         pygame.draw.rect(screen, (120, 60, 60),(plateform.x, plateform.y - camera_y, plateform.width, plateform.height))
     screen.blit(selected_image, (perso_rect.x, perso_rect.y - camera_y))
     screen.blit(monster, (monster_rect.x, monster_rect.y - camera_y))
+    for arrow in arrows:
+        screen.blit(
+            arrow.image,
+            (arrow.rect.x, arrow.rect.y - camera_y)
+        )
     pygame.display.flip()
 
 pygame.quit()
