@@ -61,6 +61,10 @@ plateforms = [
 ]
 
 # --- Images ---
+# Fleche
+arrow_img = pygame.image.load("fleche.png").convert_alpha()
+arrow_right = arrow_img
+arrow_left = pygame.transform.flip(arrow_img, True, False)
 
     # Heros
 perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()
@@ -135,6 +139,7 @@ def paused2():
 def menu_de_debut():
     global perso1_rect_menu, selected_image, perso1_image, selected_image_right, selected_image_left, selected_attack, selected_attack_right, selected_attack_left, perso_rect, state
     if perso1_rect_menu.collidepoint(event.pos):
+        perso = "archer"
         selected_image = perso1_image
         selected_image_right = selected_image
         selected_image_left = pygame.transform.flip(selected_image, True, False)
@@ -146,6 +151,7 @@ def menu_de_debut():
         state = "game"
         pygame.mixer.music.play(-1)
     if perso2_rect_menu.collidepoint(event.pos):
+        perso = "epeiste"
         selected_image = perso2_image
         selected_image_right = selected_image
         selected_image_left = pygame.transform.flip(selected_image, True, False)
