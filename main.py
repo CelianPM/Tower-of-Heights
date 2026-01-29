@@ -26,6 +26,8 @@ RED = (255, 0, 0)
 # Constante pour la fenêtre
 WIDTH = screen.get_width() #constante = largeur de l'ecran
 HEIGHT = screen.get_height() #constante = hauteur de l'ecran
+CAMERA_SMOOTH = 0.1
+camera_y = 0
 
 state = "menu_de_debut" #le jeu demare sur la fenêtre de menu
 
@@ -48,6 +50,10 @@ PUSHBACK = 100
 # --- Plateformes ---
 plateforms = [
     pygame.Rect(0, HEIGHT - 25, WIDTH, 25),
+    pygame.Rect(100, 950, 80, 25),
+    pygame.Rect(100, 850, 80, 25),
+    pygame.Rect(100, 700, 80, 25),
+    pygame.Rect(100, 550, 80, 25),
     pygame.Rect(120, 450, 80, 25),
     pygame.Rect(260, 350, 80, 25),
     pygame.Rect(400, 250, 80, 25),
@@ -336,11 +342,16 @@ while running:
     if state == "end":
         end()
         
+    target_camera = perso_rect.y - HEIGHT // 2
+    camera_y += (target_camera - camera_y) * CAMERA_SMOOTH
+    if perso_rect.y > HEIGHT //2:
+        camera_y = 0
+
     screen.fill((40, 40, 55))
     for plateform in plateforms:
-        pygame.draw.rect(screen, (120, 60, 60), plateform)
-    screen.blit(selected_image, perso_rect)
-    screen.blit(monster, monster_rect)
+        pygame.draw.rect(screen, (120, 60, 60),(plateform.x, plateform.y - camera_y, plateform.width, plateform.height))
+    screen.blit(selected_image, (perso_rect.x, perso_rect.y - camera_y))
+    screen.blit(monster, (monster_rect.x, monster_rect.y - camera_y))
     pygame.display.flip()
 
 pygame.quit()
