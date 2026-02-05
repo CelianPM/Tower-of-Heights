@@ -93,8 +93,10 @@ class Monster:
         self.image = self.image_right
         self.rect = self.image.get_rect(topleft = (x, y))
         self.life = 3
+        self.max_life = 3
+        self.alive = True
         self.speed = 2
-    
+
     def update(self, player_rect): # Le monstre suit le joueur
         if self.rect.x > player_rect.x :
             self.rect.x -= self.speed
@@ -103,8 +105,13 @@ class Monster:
             self.rect.x += self.speed
             self.image = self.image_right
     
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
+    def reset(self):
+        self.alive = True
+        self.life = self.max_life
+
+
+    def draw(self, screen, camera_y):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
 # --- Dictionnaires ---
     # Plateformes
@@ -135,6 +142,7 @@ perso2_rect_menu = perso2_image.get_rect(center=(WIDTH//2 + 150, HEIGHT//2))
 selected_image = None         # Image selectionnée, non-definie pour l'instant
 selected_image_left = None    # Profil gauche de l'image selectionnée, non-definie pour l'instant
 selected_image_right = None   # Profil droit de l'image sélectionnée, non-definie pour l'instant
+selected_attack = None       # Image de base de l'attaque, non-definie pour l'instant
 selected_attack_left = None   # Profil gauche de l'image attaquant, non-definie pour l'instant
 selected_attack_right = None  # Profil droit de l'image attaquant, non-definie pour l'instant
 perso_rect = None             # Rect de l'image selectionnée
@@ -317,23 +325,27 @@ def game():
         if hitbox.colliderect(monster.rect):
 
             if attack:
-                monster.life -= 1
-
-                if hitbox.x < monster.rect.x:
-                    monster.rect.x += PUSHBACK
+                if selected_image == selected_attack_left and player == "swordsman":
+                    if monster.rect.x < hitbox.x:  # Si le monstre est à gauche du joueur
+                        monster.life -= 1              # Il perd une vie
+                        monster.rect.x += PUSHBACK     # Il recule
+                elif selected_image == selected_attack_right and player == "swordsman":
+                    if monster.rect.x > hitbox.x:  # Si le monstre est à droite du joueur
+                        monster.life -= 1              # Il perd une vie
+                        monster.rect.x -= PUSHBACK     # Il recule
                 else:
-                    monster.rect.x -= PUSHBACK
+                    life -= 1 # Si le joueur n'attaque pas, ou n'attaque pas du bon côté, le héro perd une vie
 
-                if monster.life <= 0:
-                    monsters.remove(monster)
+                if monster.life <= 0:        # Quand le monstre n'a plus de vies
+                    monster.alive = False # Il est retiré du jeu
 
             else:
                 life -= 1
 
-                if hitbox.x < monster.rect.x:
-                    hitbox.x -= PUSHBACK
+                if perso_rect.x < monster.rect.x:
+                    perso_rect.x -= PUSHBACK
                 else:
-                    hitbox.x += PUSHBACK
+                    perso_rect.x += PUSHBACK
 
     if life <= 0:
         state = "death"
@@ -383,6 +395,8 @@ def death2():
     screen.blit(txt_end, txt_end.get_rect(center=end_rect_death.center))
     
     life = 5 # Recommencer à 0 avec les 5 vies
+    for monster in monsters:
+        monster.reset()   # Recommencer à 0 avec les 3 vies de chaque monstre
     pygame.display.flip() # Tout générer sur la fenêtre
 
 def end():
