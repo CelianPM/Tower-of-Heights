@@ -9,7 +9,7 @@ pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, 
 # --- Pour les bruitages ---
     # Pour la musique de fond
 pygame.mixer.music.load("MusiqueDeBase.mp3")
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(0.7)
 
     # Pour le son du saut
 jump_sound = pygame.mixer.Sound("Saut.wav")#son très moche qui va changer
@@ -139,6 +139,8 @@ selected_attack_left = None   # Profil gauche de l'image attaquant, non-definie 
 selected_attack_right = None  # Profil droit de l'image attaquant, non-definie pour l'instant
 perso_rect = None             # Rect de l'image selectionnée
 player = None                 # Qui sera le héro, ce qui n'est pas encore défini
+hitbox = None                 # hitbox du personnage (collisions)
+
 
 # Polices de texte
 title_font = pygame.font.SysFont(None, 100)  # Police du titre
@@ -196,7 +198,7 @@ def paused2():
     pygame.display.flip() # Pour charger la fenêtre
 
 def menu_de_debut():
-    global selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, perso_rect, state, player
+    global selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, perso_rect, state, player
     
     if perso1_rect_menu.collidepoint(event.pos):
         player = "archer"
@@ -215,6 +217,7 @@ def menu_de_debut():
     selected_attack_right = selected_attack                                    # Profil droit de l'image attaquant
     selected_attack_left = pygame.transform.flip(selected_attack, True, False) # Profil gauche de l'image attaquant
     perso_rect = selected_image.get_rect(topleft=(200, 300))                   # Rect de l'image
+    hitbox = pygame.Rect(perso_rect.x, perso_rect.y, perso_rect.width - 60, perso_rect.height - 10)
     pygame.mixer.music.play(-1)
     state = "game" # Passer au jeu
 
@@ -244,14 +247,14 @@ def game():
     # --- Mouvements du joueur ---
         # Gauche
     if key[pygame.K_LEFT]:
-        perso_rect.x -= player_speed
+        hitbox.x -= player_speed
         if direction == "right":
             selected_image = selected_image_left
         direction = "left"
 
         # Droite
     if key[pygame.K_RIGHT]:
-        perso_rect.x += player_speed
+        hitbox.x += player_speed
         if direction == "left":
             selected_image = selected_image_right
         direction = "right"
@@ -285,13 +288,25 @@ def game():
         attack = False
 
     # --- Collision avec les plateformes ---
+    # --- Collision avec les plateformes ---
     on_ground = False
     for plateform in plateforms:
-        if perso_rect.colliderect(plateform) and velocity > 0:
-            perso_rect.bottom = plateform.top
-            on_ground = True
-            velocity = 0
-            break
+        if hitbox.colliderect(plateform):
+
+        # Collision PAR LE DESSUS seulement
+            if velocity > 0 and hitbox.bottom - velocity <= plateform.top:
+                hitbox.bottom = plateform.top
+                on_ground = True
+                velocity = 0
+            if velocity < 0 and hitbox.top - velocity >= plateform.bottom:
+                hitbox.top = plateform.bottom
+                velocity = 0
+            if hitbox.right - player_speed <= plateform.left:
+                hitbox.right = plateform.left
+            if hitbox.left + player_speed >= plateform.right:
+                hitbox.left = plateform.right
+            
+
 
     # --- Monster movement ---
     for monster in monsters:
@@ -299,12 +314,12 @@ def game():
 
     # --- Monster collision ---
     for monster in monsters[:]:
-        if perso_rect.colliderect(monster.rect):
+        if hitbox.colliderect(monster.rect):
 
             if attack:
                 monster.life -= 1
 
-                if perso_rect.x < monster.rect.x:
+                if hitbox.x < monster.rect.x:
                     monster.rect.x += PUSHBACK
                 else:
                     monster.rect.x -= PUSHBACK
@@ -315,10 +330,10 @@ def game():
             else:
                 life -= 1
 
-                if perso_rect.x < monster.rect.x:
-                    perso_rect.x -= PUSHBACK
+                if hitbox.x < monster.rect.x:
+                    hitbox.x -= PUSHBACK
                 else:
-                    perso_rect.x += PUSHBACK
+                    hitbox.x += PUSHBACK
 
     if life <= 0:
         state = "death"
@@ -327,11 +342,11 @@ def game():
         state = "menu_de_debut"
         pygame.mixer.music.stop()
 
-    perso_rect.y += velocity
+    hitbox.y += velocity
 
     # Caméra montante
-    if perso_rect.y < HEIGHT//2 :
-        camera_y = HEIGHT//2 - perso_rect.y
+    if hitbox.y < HEIGHT//2 :
+        camera_y = HEIGHT//2 - hitbox.y
     else:
         camera_y = 0
 
@@ -446,6 +461,13 @@ while running:
         end()
     if perso_rect is None:
         continue
+    # Synchronisation image avec la hitbox
+    if direction == "right":
+        perso_rect.x = hitbox.x - 20
+    else:
+        perso_rect.x = hitbox.x - (perso_rect.width - hitbox.width - 20)
+
+    perso_rect.y = hitbox.y - 10
 
     target_camera = perso_rect.y - HEIGHT//2
     camera_y += (target_camera - camera_y) * CAMERA_SMOOTH
