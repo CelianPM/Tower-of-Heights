@@ -296,7 +296,6 @@ def game():
         attack = False
 
     # --- Collision avec les plateformes ---
-    # --- Collision avec les plateformes ---
     on_ground = False
     for plateform in plateforms:
         if hitbox.colliderect(plateform):
@@ -346,6 +345,13 @@ def game():
                     perso_rect.x -= PUSHBACK
                 else:
                     perso_rect.x += PUSHBACK
+        for arrow in arrows:
+            if arrow.rect.colliderect(monster.rect):
+                monster.life -= 1 
+                monster.rect.x -= PUSHBACK
+                arrows.remove(arrow)
+            if monster.life <= 0:
+                monster.alive = False
 
     if life <= 0:
         state = "death"
@@ -432,7 +438,7 @@ while running:
         if event.type == pygame.KEYDOWN :
             if event.key == pygame.K_d and state == "game":
                 if player == "archer":
-                    arrows.append(Arrow(perso_rect.centerx, perso_rect.centery, direction))
+                    arrows.append(Arrow(hitbox.centerx, hitbox.centery, direction))
 
         # --- Boutons de pause ---
         if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
