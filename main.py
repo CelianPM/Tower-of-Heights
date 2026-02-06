@@ -50,6 +50,8 @@ attack_delay = 1000  # le temps qu'oil faut attendre avant de pouvoir rattaquer
 life = 5             # Nombres de vies de départ
 PUSHBACK = 100
 
+
+
 # --- Images et classes---
     # Heros
 perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()
@@ -98,6 +100,8 @@ class Monster:
         self.speed = 2
 
     def update(self, player_rect): # Le monstre suit le joueur
+        if not self.alive:
+            return
         if self.rect.x > player_rect.x :
             self.rect.x -= self.speed
             self.image = self.image_left
@@ -279,7 +283,7 @@ def game():
     
     # --- Le joueur attaquant ---
         # Attaque
-    if key[pygame.K_d] and time - start_time >= attack_delay:
+    if key[pygame.K_d] and attack == False:
         start_time = pygame.time.get_ticks()
         if direction == "left":
             selected_image = selected_attack_left
@@ -317,21 +321,22 @@ def game():
 
     # --- Monster movement ---
     for monster in monsters:
-        monster.update(perso_rect)
+        if monster.alive:
+            monster.update(hitbox)
 
     # --- Monster collision ---
     for monster in monsters[:]:
-        if hitbox.colliderect(monster.rect):
+        if monster.alive and hitbox.colliderect(monster.rect):
 
             if attack:
                 if selected_image == selected_attack_left and player == "swordsman":
                     if monster.rect.x < hitbox.x:  # Si le monstre est à gauche du joueur
                         monster.life -= 1              # Il perd une vie
-                        monster.rect.x += PUSHBACK     # Il recule
+                        monster.rect.x -= PUSHBACK     # Il recule
                 elif selected_image == selected_attack_right and player == "swordsman":
                     if monster.rect.x > hitbox.x:  # Si le monstre est à droite du joueur
                         monster.life -= 1              # Il perd une vie
-                        monster.rect.x -= PUSHBACK     # Il recule
+                        monster.rect.x += PUSHBACK     # Il recule
                 else:
                     life -= 1 # Si le joueur n'attaque pas, ou n'attaque pas du bon côté, le héro perd une vie
 
@@ -341,11 +346,11 @@ def game():
             else:
                 life -= 1
 
-                if perso_rect.x < monster.rect.x:
-                    perso_rect.x -= PUSHBACK
+                if hitbox.x < monster.rect.x:
+                    hitbox.x -= PUSHBACK
                 else:
-                    perso_rect.x += PUSHBACK
-        for arrow in arrows:
+                    hitbox.x += PUSHBACK
+        for arrow in arrows[:]:
             if arrow.rect.colliderect(monster.rect):
                 monster.life -= 1 
                 monster.rect.x -= PUSHBACK
@@ -503,9 +508,10 @@ while running:
         pygame.draw.rect(screen, (120, 60, 60), (plateform.x, plateform.y - camera_y, plateform.width, plateform.height))
     screen.blit(selected_image, (perso_rect.x, perso_rect.y - camera_y))
     for monster in monsters:
-        screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))
-        for arrow in arrows:
-            screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))
+        if monster.alive:
+            screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))
+    for arrow in arrows:
+        screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))
     pygame.display.flip()
 
 pygame.quit()
