@@ -55,7 +55,7 @@ PUSHBACK = 100
 # --- Images et classes---
     # Heros
 perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()
-perso2_image = pygame.image.load("épéiste_couleur.png").convert_alpha()
+perso2_image = pygame.image.load("epeiste_couleur.png").convert_alpha()
 
     # Fleche
 arrow_img = pygame.image.load("fleche.png").convert_alpha()
@@ -224,7 +224,7 @@ def menu_de_debut():
         selected_image = perso2_image
         selected_image_right = selected_image
         selected_image_left = pygame.transform.flip(selected_image, True, False)
-        selected_attack = pygame.image.load("épéiste_attaque.png").convert_alpha()
+        selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()
 
     selected_attack_right = selected_attack                                    # Profil droit de l'image attaquant
     selected_attack_left = pygame.transform.flip(selected_attack, True, False) # Profil gauche de l'image attaquant
