@@ -47,12 +47,14 @@ attack = False       # le héro n'attaque pas encore
 direction = "right"  # direction initiale
 start_time = 0
 last_attack_time = 0
-ATTACK_DELAY = 500
-attack_delay = 1000  # le temps qu'oil faut attendre avant de pouvoir rattaquer
+ATTACK_COOLDOWN = 500
+ATTACK_ANIM_DURATION = 200
+attack_anim_start = 0  # le temps qu'oil faut attendre avant de pouvoir rattaquer
 life = 5             # Nombres de vies de départ
 PUSHBACK = 100
-
-
+attack_hit = False
+ATTACK_HIT_DURATION = 100  # ms
+attack_hit_start = 0
 
 # --- Images et classes---
     # Heros
@@ -256,8 +258,10 @@ def menu_de_debut2():
     pygame.display.flip()
 
 def game():
-    global start_time, direction, attack, on_ground, velocity, life, state, selected_image, last_attack_time   
-
+    global start_time, direction, attack, on_ground, velocity, life, state, selected_image, last_attack_time, current_time, attack_hit,attack_hit_start
+    current_time = pygame.time.get_ticks()
+    if attack_hit and pygame.time.get_ticks() - attack_hit_start > ATTACK_HIT_DURATION:
+        attack_hit = False
     # --- Mouvements du joueur ---
         # Gauche
     if key[pygame.K_LEFT]:
@@ -282,23 +286,10 @@ def game():
         # La gravité
     if not on_ground:
         velocity += GRAVITY
-    
-    # --- Le joueur attaquant ---
-        # Attaque
-    current_time = pygame.time.get_ticks()
-    if key[pygame.K_d] and not attack and current_time - last_attack_time >= ATTACK_DELAY:
-        last_attack_time = current_time
-        attack = True
-        if direction == "left":
-            selected_image = selected_attack_left
-        else:
-            selected_image = selected_attack_right
-        if player == "archer":
-            arrows.append(Arrow(hitbox.centerx, hitbox.centery, direction))
-        
+    hitbox.y += velocity
         
         # Délai avant la prochaine attaque
-    if attack and current_time - last_attack_time >= 200:  
+    if attack and current_time - attack_anim_start >= ATTACK_ANIM_DURATION:  
         attack = False
         if direction == "left":
             selected_image = selected_image_left
@@ -332,43 +323,40 @@ def game():
 
     # --- Monster collision ---
     for monster in monsters[:]:
-        if monster.alive and hitbox.colliderect(monster.rect):
-
-            if attack:
-                if selected_image == selected_attack_left and player == "swordsman":
-                    if monster.rect.x < hitbox.x:  # Si le monstre est à gauche du joueur
-                        monster.life -= 1              # Il perd une vie
-                        monster.rect.x -= PUSHBACK     # Il recule
-                elif selected_image == selected_attack_right and player == "swordsman":
-                    if monster.rect.x > hitbox.x:  # Si le monstre est à droite du joueur
-                        monster.life -= 1              # Il perd une vie
-                        monster.rect.x += PUSHBACK     # Il recule
+        if not monster.alive:
+            continue
+        if hitbox.colliderect(monster.rect):
+            if player == "swordsman":
+                if attack_hit:
+                    # Le monstre doit être devant le joueur
+                    if direction == "left" and monster.rect.x < hitbox.x:
+                        monster.life -= 1
+                        monster.rect.x -= PUSHBACK
+                    elif direction == "right" and monster.rect.x > hitbox.x:
+                        monster.life -= 1
+                        monster.rect.x += PUSHBACK
                 else:
-                    life -= 1 # Si le joueur n'attaque pas, ou n'attaque pas du bon côté, le héro perd une vie
-
-                if monster.life <= 0:        # Quand le monstre n'a plus de vies
-                    monster.alive = False # Il est retiré du jeu
-
-            else:
-                life -= 1
+                    if not attack_hit:
+                        life -= 1
 
                 if hitbox.x < monster.rect.x:
                     hitbox.x -= PUSHBACK
                 else:
                     hitbox.x += PUSHBACK
-        for arrow in arrows[:]:
-            if arrow.rect.colliderect(monster.rect):
-                monster.life -= 1
+        if monster.alive == True:
+            for arrow in arrows[:]:
+                if arrow.rect.colliderect(monster.rect):
+                    monster.life -= 1
 
-                if arrow.direction == "left":
-                    monster.rect.x -= PUSHBACK
-                else:
-                    monster.rect.x += PUSHBACK
+                    if arrow.direction == "left":
+                        monster.rect.x -= PUSHBACK
+                    else:
+                        monster.rect.x += PUSHBACK
 
-                arrows.remove(arrow)
+                    arrows.remove(arrow)
 
-                if monster.life <= 0:
-                    monster.alive = False
+                    if monster.life <= 0:
+                        monster.alive = False
 
     if life <= 0:
         state = "death"
@@ -376,8 +364,6 @@ def game():
     if key[pygame.K_m]:
         state = "menu_de_debut"
         pygame.mixer.music.stop()
-
-    hitbox.y += velocity
 
     # Caméra montante
     if hitbox.y < HEIGHT//2 :
@@ -445,24 +431,51 @@ while running:
 
     # Pour sortir de la fenêtre de jeu
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or state != "game" and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+        if event.type == pygame.QUIT:
             running = False
 
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state == "game":
-            state = "paused"
-            pygame.mixer.music.pause() # Arrêter la musique
+        if event.type == pygame.KEYDOWN:
+            # ATTAQUE
+            if event.key == pygame.K_d and state == "game":
+                current_time = pygame.time.get_ticks()
+                if current_time - last_attack_time >= ATTACK_COOLDOWN:
+                    last_attack_time = current_time
+                    attack_anim_start = current_time
+                    attack = True
+                    attack_hit = True
+                    attack_hit_start = current_time
 
-        # --- Boutons de pause ---
-        if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
-            paused()
+                    if direction == "left":
+                        selected_image = selected_attack_left
+                    else:
+                        selected_image = selected_attack_right
 
-        # Pour donner le choix de personnages sur la page menu de depart
-        if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            menu_de_debut()
+                    if player == "archer":
+                        arrows.append(
+                            Arrow(hitbox.centerx, hitbox.centery, direction)
+                        )
 
-        # Pour la page de mort
-        if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            death()
+            # PAUSE
+            if event.key == pygame.K_ESCAPE and state == "game":
+                state = "paused"
+                pygame.mixer.music.pause()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if state == "game":
+                    state = "paused"
+                    pygame.mixer.music.pause() # Arrêter la musique
+
+            # --- Boutons de pause ---
+            if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
+                paused()
+
+            # Pour donner le choix de personnages sur la page menu de depart
+            if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
+                menu_de_debut()
+
+            # Pour la page de mort
+            if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
+                death()
 
     # --- Pause ---
     if state == "paused":
@@ -506,7 +519,7 @@ while running:
     if perso_rect.y > HEIGHT//2 : 
         camera_y = 0
     
-    if state == "game" :
+    if state == "game":
         for arrow in arrows[:] : 
             arrow.update()
         
