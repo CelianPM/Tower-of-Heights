@@ -214,7 +214,7 @@ def paused2():
     pygame.display.flip() # Pour charger la fenêtre
 
 def menu_de_debut():
-    global selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, perso_rect, state, player
+    global selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, perso_rect, state, player, selected_attack
     
     if perso1_rect_menu.collidepoint(event.pos):
         player = "archer"
