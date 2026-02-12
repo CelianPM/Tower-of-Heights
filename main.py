@@ -7,6 +7,7 @@ pygame.mixer.init()  # Initialiser le module de son de pygame
 
 pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, afficher "Tower of Heights" dans la barre de titre
 
+# Ceci est un test
 
 # ================================
 # VARIABLES GLOBALES
