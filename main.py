@@ -1,3 +1,4 @@
+
 import pygame # Importer la bibliothèque
 
 # Initialier pygame
@@ -57,8 +58,8 @@ start_time = 0       # Lorsque le jeu commence, le temps de départ est à 0
 attack_delay = 1000  # le temps qu'il faut attendre avant de pouvoir rattaquer
 life = 5             # Nombres de vies de départ
 PUSHBACK = 100       # La distance de recul quand le joueur ou le monstre est touché
-
-
+last_attack_time = 0
+attack_animation_time = 0
 
 # --- Images et classes---
     # Heros
@@ -225,10 +226,11 @@ def paused2(screen, pause_box, text_font, continue_button, quit_button, WHITE, B
 
     pygame.display.flip() # Pour charger la fenêtre
 
-def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay):
+def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time):
     """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi"""
     if perso1_rect_menu.collidepoint(event.pos):
-        attack_delay = 1200                                                                          # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
+        attack_delay = 800                                                                          # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
+        attack_animation_time = 300
         player = "archer"                                                                            # Le joueur choisi est l'archer
         selected_image = perso1_image                                                                # L'image sélectionnée est celle de l'archer
         selected_image_right = selected_image                                                        # Profil droit de l'image sélectionnée
@@ -236,7 +238,8 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
         
     if perso2_rect_menu.collidepoint(event.pos):
-        attack_delay = 1000                                                                          # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
+        attack_delay = 300                                                                          # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
+        attack_animation_time = 50
         player = "swordsman"                                                                         # Le joueur choisi est l'épéiste
         selected_image = perso2_image                                                                # L'image sélectionnée est celle de l'épéiste
         selected_image_right = selected_image                                                        # Profil droit de l'image sélectionnée
@@ -274,7 +277,7 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
     screen.blit(pour_pauser, (WIDTH//2 - pour_pauser.get_width()//2, HEIGHT - 60))                        # Pour afficher le texte
     pygame.display.flip()                                                                                 # Tout générer sur la fenêtre
 
-def game(start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key):
+def game(start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, attack_delay, attack_animation_time):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     # --- Mouvements du joueur ---
         # Gauche
@@ -303,8 +306,9 @@ def game(start_time, direction, attack, on_ground, velocity, life, state, select
     
     # --- Le joueur attaquant ---
         # Attaque
-    if key[pygame.K_d] and attack == False:         # Si la touche D est appuyée et que le joueur n'est pas déjà en train d'attaquer
+    if key[pygame.K_d] and not attack and time - start_time >= attack_animation_time:         # Si la touche D est appuyée et que le joueur n'est pas déjà en train d'attaquer
         start_time = pygame.time.get_ticks()        # Enregistrer le temps de début de l'attaque pour gérer le délai entre les attaques
+        last_attack_time = time
         if direction == "left":
             selected_image = selected_attack_left   # Si la direction est à gauche, changer l'image sélectionnée par celle de l'attaque du profil gauche
         else:
@@ -395,7 +399,7 @@ def game(start_time, direction, attack, on_ground, velocity, life, state, select
     if hitbox.top > HEIGHT + camera_y:
         state = "death"  # Si le personnage tombe en dessous de l'écran, passer à l'écran de mort
     
-    return start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y
+    return start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time
 
 def death(state, event, restart_rect_death, end_rect_death):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
@@ -468,8 +472,9 @@ while running:
         # --- Pour tirer une flèche si le héro est l'archer ---
         if event.type == pygame.KEYDOWN :
             if event.key == pygame.K_d and state == "game":
-                if player == "archer":
+                if player == "archer" and time - last_attack_time >= attack_delay:
                     arrows.append(Arrow(hitbox.centerx, hitbox.centery, direction))  # Si le héro est l'archer et que celui-ci est en train d'attaquer, lorsqu'une flèche est tirée, elle est ajoutée à la liste des flèches avec sa position initiale et sa direction basées sur la hitbox du joueur et la direction du joueur au moment du tir
+                    last_attack_time = time
 
         # --- Boutons de pause ---
         if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
@@ -477,7 +482,7 @@ while running:
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay = menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
+            selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay = menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
@@ -495,7 +500,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y = game(start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time = game(start_time, direction, attack, on_ground, velocity, life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, attack_delay, attack_animation_time)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -524,7 +529,7 @@ while running:
     if hitbox.y >= HEIGHT//2:
         camera_y = 0                                            # Si le personnage est en dessous de la moitié de l'écran en hauteur, la caméra ne descend pas plus bas que le sol (camera_y = 0)
     else:
-        target_camera = HEIGHT//2 - hitbox.y                    # La position cible de la caméra est calculée pour que le personnage soit toujours à la moitié de l'écran en hauteur, sauf si le personnage est en dessous de cette moitié, auquel cas la caméra ne descend pas plus bas que le sol (camera_y = 0)
+        target_camera = hitbox.y - HEIGHT//2                    # La position cible de la caméra est calculée pour que le personnage soit toujours à la moitié de l'écran en hauteur, sauf si le personnage est en dessous de cette moitié, auquel cas la caméra ne descend pas plus bas que le sol (camera_y = 0)
         camera_y += (target_camera - camera_y) * CAMERA_SMOOTH  # Pour faire en sorte que la caméra suive le joueur de manière lissée, on calcule la position cible de la caméra en fonction de la position du joueur, et on ajuste progressivement la position actuelle de la caméra vers cette position cible en utilisant un facteur de lissage (CAMERA_SMOOTH)
     
     if state == "game" :
@@ -556,4 +561,3 @@ pygame.quit()  # Arrêter Pygame et fermer la fenêtre du jeu
         - William
         - Samuel
 """
-
