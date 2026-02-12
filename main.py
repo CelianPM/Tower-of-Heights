@@ -89,6 +89,10 @@ class Arrow:
             self.rect.x -= self.speed  # La flèche se déplace vers la gauche si sa direction est à gauche
         if self.rect.right < 0 or self.rect.left > WIDTH:  # Si la flèche sort de l'écran, elle est retirée du jeu
             arrows.remove(self)
+        for plateform in plateforms:
+            if self.rect.colliderect(plateform):
+                arrows.remove(self)
+                break
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)  # Afficher la flèche à sa position actuelle sur l'écran
