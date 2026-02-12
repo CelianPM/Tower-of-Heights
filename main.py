@@ -373,7 +373,7 @@ def game(start_time, direction, attack, on_ground, velocity, life, state, select
                 else:
                     hitbox.x += PUSHBACK                                                 # Si le joueur est à droite du monstre, il recule vers la droite
         for arrow in arrows[:]:
-            if arrow.rect.colliderect(monster.rect):                                     # Si la hitbox de la flèche est en collision avec celle du monstre
+            if monster.alive and arrow.rect.colliderect(monster.rect):                   # Si la hitbox de la flèche est en collision avec celle du monstre
                 monster.life -= 1                                                        # Le monstre perd une vie
                 if arrow.direction == "right":
                     monster.rect.x += PUSHBACK                                           # Si la flèche va vers la droite, le monstre recule vers la droite
