@@ -243,7 +243,7 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         selected_image_right = selected_image                                                        # Profil droit de l'image sélectionnée
         selected_image_left = pygame.transform.flip(selected_image, True, False)                     # Profil gauche de l'image sélectionnée
         selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
-        player_speed = 4
+        player_speed = 3
     
     if perso2_rect_menu.collidepoint(event.pos):
         attack_delay = 300                                                                          # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
@@ -253,7 +253,7 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         selected_image_right = selected_image                                                        # Profil droit de l'image sélectionnée
         selected_image_left = pygame.transform.flip(selected_image, True, False)                     # Profil gauche de l'image sélectionnée
         selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
-        player_speed = 5
+        player_speed = 4
     
     if selected_attack is None:                                                                      # Si on n'a cliqué sur aucun des personnages, ne rien faire
         return selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay
@@ -410,11 +410,11 @@ def game(start_time, direction, attack, on_ground, velocity, life, state, select
                 else:
                     monster.rect.x -= PUSHBACK                                           # Si la flèche va vers la gauche, le monstre recule vers la gauche
                 arrows.remove(arrow)                                                     # Retirer la flèche du jeu
-            if monster.life <= 0:
-                monster.alive = False                                                    # Quand le monstre n'a plus de vies, il est retiré du jeu
-                xp += 10
-                if level<xp//10:
-                    point_attribut += 5
+                if monster.life <= 0:
+                    monster.alive = False                                                # Quand le monstre n'a plus de vies, il est retiré du jeu
+                    xp += 10
+                    if level<xp//10:
+                        point_attribut += 5
     
     # --- Lorsque le héro n'a plus de vies ---
     if life <= 0:
@@ -488,11 +488,11 @@ def menu_attribut2(state, event, restart_rect_death, end_rect_death, level, play
     elif end_rect_death.collidepoint(event.pos):
         if point_attribut>0:
             point_attribut -= 1            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
-            player_speed += 0.2
+            player_speed = (player_speed * 10 + 1) / 10
             player_speed = player_speed
     return level, state, player_speed, point_attribut
 
-def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, restart_rect_death, end_rect_death):
+def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, restart_rect_death, end_rect_death, player_speed):
    
     screen.fill((0, 0, 100))                                                      # Remplir l'écran d'une couleur de base
     txt = text_font.render("ATTRIBUT", True, RED)                                 # Définir le texte de l'écran
@@ -507,7 +507,7 @@ def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, restart_rect_dea
 
         # Leur texte
     txt_restart = text_font.render("Continuer", True, WHITE)                            # Définir le texte du bouton pour recommencer
-    txt_end = text_font.render("+ 1 vitesse", True, WHITE)                                # Définir le texte du bouton pour arrêter
+    txt_end = text_font.render("vitesse : " + str(player_speed), True, WHITE)                                # Définir le texte du bouton pour arrêter
     
         # Les afficher
     screen.blit(txt_restart, txt_restart.get_rect(center=restart_rect_death.center))  # Afficher le texte du bouton pour recommencer
@@ -583,7 +583,7 @@ while running:
             state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
 
     if state == "menu_attribut":
-            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, restart_rect_death, end_rect_death)
+            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, restart_rect_death, end_rect_death, player_speed)
             continue
     
     if state == "end":
