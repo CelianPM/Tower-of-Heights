@@ -54,7 +54,7 @@ on_ground = False    # contact avec le sol
 attack = False       # le héro n'attaque pas encore
 direction = "right"  # direction initiale
 start_time = 0       # Lorsque le jeu commence, le temps de départ est à 0
-attack_delay = 1000  # le temps qu'il faut attendre avant de pouvoir rattaquer
+attack_delay = 0  # le temps qu'il faut attendre avant de pouvoir rattaquer
 life = 5             # Nombres de vies de départ
 PUSHBACK = 100       # La distance de recul quand le joueur ou le monstre est touché
 last_attack_time = 0
@@ -340,6 +340,7 @@ def game(start_time, direction, attack, on_ground, velocity, life, state, select
         else:
             selected_image = selected_image_right   # L'image revient à celle du profil droit de l'image selectionnée
         attack = False                              # Après le délai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient à celle de base
+    if time - start_time >= attack_animation_time + attack_delay:
         can_attack = True
 
         # --- Gestion du cooldown de l'archer ---
