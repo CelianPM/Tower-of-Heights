@@ -116,29 +116,24 @@ class Monster:
         self.alive = True                                  # Le monstre est vivant au début du jeu, et cette variable est utilisée pour déterminer s'il doit être affiché et s'il peut interagir avec le joueur
         self.speed = 2                                     # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
 
-    def update(self, player_rect, monsters, PUSHBACK):
+    def update(self, player_rect, monsters):
         if not self.alive:
             return                         # Si le monstre n'est pas vivant, il ne fait rien et ne suit pas le joueur
         old_monster_x = self.rect.x
         if self.rect.x > player_rect.x :
             self.rect.x -= self.speed      # Le monstre se déplace vers la gauche si sa position x est plus grande que celle du joueur
-            self.rect.x += PUSHBACK
             self.image = self.image_left   # Le monstre affiche son profil gauche pour se déplacer vers la gauche
         elif self.rect.x < player_rect.x:
             self.rect.x += self.speed      # Le monstre se déplace vers la droite si sa position x est plus petite que celle du joueur
-            self.rect.x += PUSHBACK
             self.image = self.image_right  # Le monstre affiche son profil droit pour se déplacer vers la droite
         for other_monster in monsters:
             if other_monster is self or not other_monster.alive:
                 continue
             if self.rect.colliderect(other_monster.rect):
-                if PUSHBACK == 0:
-                    self.rect.x = 2 * self.rect.x - old_monster_x  # Si deux slugs se touchent, on annule le déplacement pour éviter qu'ils se traversent
-                    other_monster.rect.x = other_monster.rect.x + self.rect.x - old_monster_x
-                    break
-                else:
-                    self.rect.x = (2 * self.rect.x - old_monster_x)  # Si deux slugs se touchent, on annule le déplacement pour éviter qu'ils se traversent
-                    other_monster.rect.x = (other_monster.rect.x + self.rect.x - old_monster_x)
+                overlap_x = min(self.rect.right, other_monster.rect.right) - max(self.rect.left, other_monster.rect.left)
+                max_overlap = self.rect.width * 0.5  # Autoriser jusqu'à 50% de chevauchement entre deux slugs
+                if overlap_x > max_overlap:
+                    self.rect.x = old_monster_x  # On annule seulement si le chevauchement dépasse la moitié de la taille du slug
                     break
     
     def reset(self):
@@ -408,7 +403,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
     # --- Monster movement ---
     for monster in monsters:
         if monster.alive:
-            monster.update(hitbox, monsters, 0)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
+            monster.update(hitbox, monsters)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
 
     # --- Monster collision ---
     for monster in monsters[:]:
@@ -418,11 +413,13 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                 if selected_image == selected_attack_left and player == "swordsman":     # Si le joueur attaque vers la gauche avec l'épée
                     if monster.rect.x < hitbox.x:                                        # Si le monstre est à gauche du joueur
                         monster.life -= 1                                                # Le monstre perd une vie
-                        monster.update(hitbox, monsters, - PUSHBACK)                                       # Le monstre recule
+                        monster.rect.x -= PUSHBACK
+                        monster.update(hitbox, monsters)                                       # Le monstre recule
                 elif selected_image == selected_attack_right and player == "swordsman":  # Si le joueur attaque vers la droite avec l'épée
                     if monster.rect.x > hitbox.x:                                        # Si le monstre est à droite du joueur
                         monster.life -= 1                                                # Le monstre perd une vie
-                        monster.update(hitbox, monsters, PUSHBACK)                                       # Le monstre recule
+                        monster.rect.x += PUSHBACK
+                        monster.update(hitbox, monsters)                                       # Le monstre recule
                 else:
                     life -= 1                                                            # Si le joueur n'attaque pas du bon côté, le héro perd une vie
                     last_damage_time = time
@@ -462,7 +459,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
 
     if time - last_damage_time >= regenaration_time and life < max_life:
         life += 1
-        last_damage_time = time
+        last_damage_time += 1500
 
     # --- Pour retourner à la page du départ ---
     if key[pygame.K_m]:
