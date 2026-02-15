@@ -62,6 +62,8 @@ attack_animation_time = 0
 can_attack = True
 level = 0
 point_attribut = 0
+last_damage_time = 0
+regenaration_time = 0
 
 # --- Images et classes---
     # Heros
@@ -187,13 +189,16 @@ restart_rect_death = pygame.Rect(0, 255, 200, 60)
 restart_rect_death.center = (WIDTH//2 - 150, HEIGHT//2 + 120)
 
 continue_rect = pygame.Rect(0, 255, 200, 60)
-continue_rect.center = (WIDTH//2 - 150, HEIGHT//2 + 120)
+continue_rect.center = (WIDTH//2 - 150, HEIGHT//2)
 
-speed_rect = pygame.Rect(255, 0, 200, 60)
-speed_rect.center = (WIDTH//2 + 150, HEIGHT//2 + 120)
+speed_rect = pygame.Rect(255, 0, 200, 30)
+speed_rect.center = (WIDTH//2 + 150, HEIGHT//2)
 
-vitality_rect = pygame.Rect(0, 0, 200, 60)
-vitality_rect.center = (WIDTH//2 + 150, HEIGHT//4 * 3)
+vitality_rect = pygame.Rect(0, 0, 200, 30)
+vitality_rect.center = (WIDTH//2 + 150, HEIGHT//8 * 5)
+
+regenaration_time_rect = pygame.Rect(0, 0, 200, 30)
+regenaration_time_rect.center = (WIDTH//2 + 150, HEIGHT//4 * 3)
 
     # Celui dans l'écran de mort pour arrêter
 end_rect_death = pygame.Rect(255, 0, 200, 60)
@@ -242,7 +247,7 @@ def paused2(screen, pause_box, text_font, continue_button, quit_button, WHITE, B
 
     pygame.display.flip() # Pour charger la fenêtre
 
-def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life):
+def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life, regenaration_time):
     """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi"""
     if perso1_rect_menu.collidepoint(event.pos):
         attack_delay = 800                                                                          # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
@@ -254,6 +259,7 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
         player_speed = 3
         max_life = 5
+        regenaration_time = 20000
     
     if perso2_rect_menu.collidepoint(event.pos):
         attack_delay = 300                                                                          # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
@@ -265,9 +271,18 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
         player_speed = 4
         max_life = 4
+        regenaration_time = 25000
+
     
-    if selected_attack is None:                                                                      # Si on n'a cliqué sur aucun des personnages, ne rien faire
-        return selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay
+    if selected_attack is None:
+        return (selected_image, hitbox, selected_image_left,
+            selected_image_right, selected_attack_left,
+            selected_attack_right, selected_attack,
+            perso_rect, state, player,
+            attack_delay, attack_animation_time,
+            player_speed, max_life, max_life,
+            regenaration_time)
+
 
     selected_attack_right = selected_attack                                                          # Profil droit de l'image attaquant
     selected_attack_left = pygame.transform.flip(selected_attack, True, False)                       # Profil gauche de l'image attaquant
@@ -276,7 +291,7 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
     pygame.mixer.music.play(-1)                                                                      # Lancer la musique de fond en boucle
     state = "game"                                                                                   # Passer au jeu
     life = max_life
-    return selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life
+    return selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life, regenaration_time
 
 def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_menu, perso2_image, perso2_rect_menu, text_font, WIDTH, HEIGHT):
     """Se charge d'afficher le menu de départ, avec les personnages à choisir et les instructions pour jouer"""
@@ -298,7 +313,7 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
     screen.blit(pour_pauser, (WIDTH//2 - pour_pauser.get_width()//2, HEIGHT - 60))                        # Pour afficher le texte
     pygame.display.flip()                                                                                 # Tout générer sur la fenêtre
 
-def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life):
+def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     # --- Mouvements du joueur ---
         # Gauche
@@ -399,6 +414,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                         monster.rect.x += PUSHBACK                                       # Le monstre recule
                 else:
                     life -= 1                                                            # Si le joueur n'attaque pas du bon côté, le héro perd une vie
+                    last_damage_time = time
 
                 if monster.life <= 0:                                                    # Quand le monstre n'a plus de vies
                     monster.alive = False                                                # Il est retiré du jeu
@@ -408,6 +424,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
             
             else:                                                                        # Si le joueur n'attaque pas
                 life -= 1                                                                # Le héro perd une vie
+                last_damage_time = time
 
                 if hitbox.x < monster.rect.x:
                     hitbox.x -= PUSHBACK                                                 # Si le joueur est à gauche du monstre, il recule vers la gauche
@@ -432,6 +449,10 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
     if life <= 0:
         state = "death"  # Passer à l'écran de mort
 
+    if time - last_damage_time >= regenaration_time and life < max_life:
+        life += 1
+        last_damage_time = time
+
     # --- Pour retourner à la page du départ ---
     if key[pygame.K_m]:
         state = "menu_attribut"    # Passer à l'état correspondant à celui du menu de départ
@@ -444,8 +465,11 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
         state = "death"  # Si le personnage tombe en dessous de l'écran, passer à l'écran de mort
 
     level = xp // 10
+
+    txt = text_font.render(str(life), True, (250, 0, 0))
+    screen.blit(txt, (20, 20))
     
-    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, can_attack, xp, level, point_attribut, life
+    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, 
 
 def death(state, event, restart_rect_death, end_rect_death):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
@@ -492,7 +516,7 @@ def end(running, screen, text_font, WIDTH, HEIGHT, WHITE):
     running = False                                                               # Sortir de la boucle principale
     return running
 
-def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, level, player_speed, point_attribut, max_life):
+def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, level, player_speed, point_attribut, max_life, regenaration_time):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
     if continue_rect.collidepoint(event.pos):
         state = "game"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
@@ -505,9 +529,13 @@ def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, level
         if point_attribut>0:
             point_attribut -= 1
             max_life += 1
-    return level, state, player_speed, point_attribut, max_life
+    elif regenaration_time_rect.collidepoint(event.pos):
+        if point_attribut>0:
+            point_attribut -= 1
+            regenaration_time -= 500
+    return level, state, player_speed, point_attribut, max_life, regenaration_time
 
-def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, player_speed, point_attribut, max_life):
+def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, player_speed, point_attribut, max_life, regenaration_time):
    
     screen.fill((0, 0, 100))                                                      # Remplir l'écran d'une couleur de base
     txt = text_font.render("ATTRIBUT", True, RED)                                 # Définir le texte de l'écran
@@ -527,11 +555,13 @@ def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, s
     txt_continue = text_font.render("Continuer", True, WHITE)                            # Définir le texte du bouton pour recommencer
     txt_speed = text_font.render("vitesse : " + str(player_speed), True, WHITE)                                # Définir le texte du bouton pour arrêter
     txt_vitality = text_font.render("vie : " + str(max_life), True, WHITE)
+    txt_regenaration_time = text_font.render("regéneration : " + str((30000 - regenaration_time)/500), True, WHITE)
 
         # Les afficher
     screen.blit(txt_continue, txt_continue.get_rect(center=continue_rect.center))  # Afficher le texte du bouton pour recommencer
     screen.blit(txt_speed, txt_speed.get_rect(center=speed_rect.center))              # Afficher le texte du bouton pour arrêter
     screen.blit(txt_vitality, txt_vitality.get_rect(center=vitality_rect.center))
+    screen.blit(txt_regenaration_time, txt_regenaration_time.get_rect(center=regenaration_time_rect.center))
     
     pygame.display.flip()  # Tout générer sur la fenêtre
 
@@ -563,17 +593,17 @@ while running:
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life = menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
+            selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life, regenaration_time = menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life, regenaration_time)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
             state = death(state, event, restart_rect_death, end_rect_death)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
-            level, state, player_speed, point_attribut, max_life = menu_attribut2(
+            level, state, player_speed, point_attribut, max_life, regenaration_time = menu_attribut2(
                 state, event,
-                continue_rect, speed_rect, vitality_rect,
-                level, player_speed, point_attribut, max_life
+                continue_rect, speed_rect, regenaration_time_rect, vitality_rect,
+                level, player_speed, point_attribut, max_life, regenaration_time
                 )
     
     # --- Pause ---
@@ -588,7 +618,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, can_attack, xp, level, point_attribut, life = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -602,7 +632,7 @@ while running:
             state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
 
     if state == "menu_attribut":
-            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, player_speed, point_attribut, max_life)
+            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, player_speed, point_attribut, max_life, regenaration_time)
             continue
     
     if state == "end":
@@ -638,6 +668,8 @@ while running:
             screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     for arrow in arrows:
         screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les flèches à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
+    txt = text_font.render("Vie : " + str(life) + "/" + str(max_life), True, WHITE)
+    screen.blit(txt, (20, 20))
     pygame.display.flip()                                                                                                  # Tout générer sur la fenêtre
 
 pygame.quit()  # Arrêter Pygame et fermer la fenêtre du jeu
