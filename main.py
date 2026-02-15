@@ -116,15 +116,30 @@ class Monster:
         self.alive = True                                  # Le monstre est vivant au début du jeu, et cette variable est utilisée pour déterminer s'il doit être affiché et s'il peut interagir avec le joueur
         self.speed = 2                                     # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
 
-    def update(self, player_rect):
+    def update(self, player_rect, monsters, PUSHBACK):
         if not self.alive:
             return                         # Si le monstre n'est pas vivant, il ne fait rien et ne suit pas le joueur
+        old_monster_x = self.rect.x
         if self.rect.x > player_rect.x :
             self.rect.x -= self.speed      # Le monstre se déplace vers la gauche si sa position x est plus grande que celle du joueur
+            self.rect.x += PUSHBACK
             self.image = self.image_left   # Le monstre affiche son profil gauche pour se déplacer vers la gauche
         elif self.rect.x < player_rect.x:
             self.rect.x += self.speed      # Le monstre se déplace vers la droite si sa position x est plus petite que celle du joueur
+            self.rect.x += PUSHBACK
             self.image = self.image_right  # Le monstre affiche son profil droit pour se déplacer vers la droite
+        for other_monster in monsters:
+            if other_monster is self or not other_monster.alive:
+                continue
+            if self.rect.colliderect(other_monster.rect):
+                if PUSHBACK == 0:
+                    self.rect.x = 2 * self.rect.x - old_monster_x  # Si deux slugs se touchent, on annule le déplacement pour éviter qu'ils se traversent
+                    other_monster.rect.x = other_monster.rect.x + self.rect.x - old_monster_x
+                    break
+                else:
+                    self.rect.x = (2 * self.rect.x - old_monster_x)  # Si deux slugs se touchent, on annule le déplacement pour éviter qu'ils se traversent
+                    other_monster.rect.x = (other_monster.rect.x + self.rect.x - old_monster_x)
+                    break
     
     def reset(self):
         self.alive = True                                 # Quand le monstre est réinitialisé, il redevient vivant
@@ -151,7 +166,7 @@ plateforms = [
     # Monstres
 monsters = [
     Monster(0, HEIGHT - 130),
-    Monster(100, HEIGHT - 130)
+    Monster(200, HEIGHT - 130)
 ]
 
     # Fleches
@@ -393,7 +408,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
     # --- Monster movement ---
     for monster in monsters:
         if monster.alive:
-            monster.update(hitbox)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
+            monster.update(hitbox, monsters, 0)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
 
     # --- Monster collision ---
     for monster in monsters[:]:
@@ -403,11 +418,11 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                 if selected_image == selected_attack_left and player == "swordsman":     # Si le joueur attaque vers la gauche avec l'épée
                     if monster.rect.x < hitbox.x:                                        # Si le monstre est à gauche du joueur
                         monster.life -= 1                                                # Le monstre perd une vie
-                        monster.rect.x -= PUSHBACK                                       # Le monstre recule
+                        monster.update(hitbox, monsters, - PUSHBACK)                                       # Le monstre recule
                 elif selected_image == selected_attack_right and player == "swordsman":  # Si le joueur attaque vers la droite avec l'épée
                     if monster.rect.x > hitbox.x:                                        # Si le monstre est à droite du joueur
                         monster.life -= 1                                                # Le monstre perd une vie
-                        monster.rect.x += PUSHBACK                                       # Le monstre recule
+                        monster.update(hitbox, monsters, PUSHBACK)                                       # Le monstre recule
                 else:
                     life -= 1                                                            # Si le joueur n'attaque pas du bon côté, le héro perd une vie
                     last_damage_time = time
