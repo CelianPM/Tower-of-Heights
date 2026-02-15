@@ -258,8 +258,8 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         selected_image_left = pygame.transform.flip(selected_image, True, False)                     # Profil gauche de l'image sélectionnée
         selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
         player_speed = 3
-        max_life = 5
-        regenaration_time = 20000
+        max_life = 4
+        regenaration_time = 25000
     
     if perso2_rect_menu.collidepoint(event.pos):
         attack_delay = 300                                                                          # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
@@ -270,8 +270,8 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         selected_image_left = pygame.transform.flip(selected_image, True, False)                     # Profil gauche de l'image sélectionnée
         selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
         player_speed = 4
-        max_life = 4
-        regenaration_time = 25000
+        max_life = 5
+        regenaration_time = 20000
 
     
     if selected_attack is None:
@@ -602,7 +602,7 @@ while running:
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             level, state, player_speed, point_attribut, max_life, regenaration_time = menu_attribut2(
                 state, event,
-                continue_rect, speed_rect, regenaration_time_rect, vitality_rect,
+                continue_rect, speed_rect, vitality_rect, regenaration_time_rect,
                 level, player_speed, point_attribut, max_life, regenaration_time
                 )
     
