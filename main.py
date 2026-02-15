@@ -150,7 +150,8 @@ plateforms = [
 
     # Monstres
 monsters = [
-    Monster(0, HEIGHT - 130)
+    Monster(0, HEIGHT - 130),
+    Monster(100, HEIGHT - 130)
 ]
 
     # Fleches
@@ -184,14 +185,17 @@ restart_rect_death.center = (WIDTH//2 - 150, HEIGHT//2 + 120)
 continue_rect = pygame.Rect(0, 255, 200, 60)
 continue_rect.center = (WIDTH//2 - 150, HEIGHT//2)
 
-speed_rect = pygame.Rect(255, 0, 200, 30)
-speed_rect.center = (WIDTH//2 + 150, HEIGHT//2)
+speed_rect = pygame.Rect(0, 255, 300, 30)
+speed_rect.center = (WIDTH//2 + 150, HEIGHT//16 * 8)
 
-vitality_rect = pygame.Rect(0, 0, 200, 30)
-vitality_rect.center = (WIDTH//2 + 150, HEIGHT//8 * 5)
+vitality_rect = pygame.Rect(0, 255, 300, 30)
+vitality_rect.center = (WIDTH//2 + 150, HEIGHT//16 * 9)
 
-regenaration_time_rect = pygame.Rect(0, 0, 200, 30)
-regenaration_time_rect.center = (WIDTH//2 + 150, HEIGHT//4 * 3)
+regenaration_time_rect = pygame.Rect(0, 255, 300, 30)
+regenaration_time_rect.center = (WIDTH//2 + 150, HEIGHT//16 * 10)
+
+attack_delay_rect = pygame.Rect(0,255, 300, 30)
+attack_delay_rect.center = (WIDTH//2 + 150, HEIGHT//16 * 11)
 
     # Celui dans l'écran de mort pour arrêter
 end_rect_death = pygame.Rect(255, 0, 200, 60)
@@ -507,7 +511,7 @@ def end(running, screen, text_font, WIDTH, HEIGHT, WHITE):
     running = False                                                               # Sortir de la boucle principale
     return running
 
-def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, level, player_speed, point_attribut, max_life, regenaration_time):
+def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, attack_delay_rect, level, player_speed, point_attribut, max_life, regenaration_time, attack_delay):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
     if continue_rect.collidepoint(event.pos):
         state = "game"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
@@ -524,9 +528,13 @@ def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, regen
         if point_attribut>0:
             point_attribut -= 1
             regenaration_time -= 500
-    return level, state, player_speed, point_attribut, max_life, regenaration_time
+    elif attack_delay_rect.collidepoint(event.pos):
+        if point_attribut>0:
+            point_attribut -= 1
+            attack_delay -= 10
+    return level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay
 
-def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, player_speed, point_attribut, max_life, regenaration_time):
+def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay):
    
     screen.fill((0, 0, 100))                                                      # Remplir l'écran d'une couleur de base
     txt = text_font.render("ATTRIBUT", True, RED)                                 # Définir le texte de l'écran
@@ -541,18 +549,24 @@ def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, s
         # Leur rect
     pygame.draw.rect(screen, (200, 0, 0), continue_rect)                         # Dessiner un rectangle rouge pour le bouton de recommencer
     pygame.draw.rect(screen, (0, 0, 200), speed_rect)                             # Dessiner un rectangle bleu pour le bouton d'arrêter
+    pygame.draw.rect(screen, (0, 0, 200), vitality_rect)
+    pygame.draw.rect(screen, (0, 0, 200), regenaration_time_rect)
+    pygame.draw.rect(screen, (0, 0, 200), attack_delay_rect)
+
 
         # Leur texte
     txt_continue = text_font.render("Continuer", True, WHITE)                            # Définir le texte du bouton pour recommencer
     txt_speed = text_font.render("vitesse : " + str(player_speed), True, WHITE)                                # Définir le texte du bouton pour arrêter
     txt_vitality = text_font.render("vie : " + str(max_life), True, WHITE)
     txt_regenaration_time = text_font.render("regéneration : " + str((30000 - regenaration_time)/500), True, WHITE)
+    txt_attack_delay = text_font.render("vitesse d'attaque : " + str((1000 - attack_delay)/50), True, WHITE)
 
         # Les afficher
     screen.blit(txt_continue, txt_continue.get_rect(center=continue_rect.center))  # Afficher le texte du bouton pour recommencer
     screen.blit(txt_speed, txt_speed.get_rect(center=speed_rect.center))              # Afficher le texte du bouton pour arrêter
     screen.blit(txt_vitality, txt_vitality.get_rect(center=vitality_rect.center))
     screen.blit(txt_regenaration_time, txt_regenaration_time.get_rect(center=regenaration_time_rect.center))
+    screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center=attack_delay_rect.center))
     
     pygame.display.flip()  # Tout générer sur la fenêtre
 
@@ -591,10 +605,10 @@ while running:
             state = death(state, event, restart_rect_death, end_rect_death)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
-            level, state, player_speed, point_attribut, max_life, regenaration_time = menu_attribut2(
+            level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay = menu_attribut2(
                 state, event,
-                continue_rect, speed_rect, vitality_rect, regenaration_time_rect,
-                level, player_speed, point_attribut, max_life, regenaration_time
+                continue_rect, speed_rect, vitality_rect, regenaration_time_rect, attack_delay_rect,
+                level, player_speed, point_attribut, max_life, regenaration_time, attack_delay
                 )
     
     # --- Pause ---
@@ -623,7 +637,7 @@ while running:
             state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
 
     if state == "menu_attribut":
-            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, player_speed, point_attribut, max_life, regenaration_time)
+            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay)
             continue
     
     if state == "end":
