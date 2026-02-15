@@ -20,7 +20,6 @@ pygame.mixer.music.set_volume(0.7)            # Régler le volume de la musique 
 jump_sound = pygame.mixer.Sound("Saut.wav")   # Son très moche qui va changer, mais qui est pour l'instant le son du saut
 jump_sound.set_volume(1)                      # Régler le volume du son du saut à 100%
 
-
 # --- Pour la fenêtre ---
     # L'écran
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Definit la taille de la fenêtre (plein ecran)
@@ -29,13 +28,11 @@ screen.fill((40, 40, 55))                                    # Remplir la fenêt
     # Le FPS
 clock = pygame.time.Clock() # Variable de FPS
 
-
 # --- Les couleurs ---
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-
 
 # --- Constantes pour la fenêtre ---
 WIDTH = screen.get_width()    # Largeur de l'ecran
@@ -43,7 +40,6 @@ HEIGHT = screen.get_height()  # Hauteur de l'ecran
 camera_y = 0                  # Position verticale de la caméra, qui va suivre le joueur quand il monte
 CAMERA_SMOOTH = 0.1           # Facteur de lissage pour le mouvement de la caméra, plus il est élevé, plus la caméra suit rapidement le joueur
 state = "menu_de_debut" # Le jeu demarre sur la fenêtre de menu
-
 
 # --- Variables de joueur ---
 player_speed = 0     # vitesse du joueur
@@ -138,7 +134,6 @@ class Monster:
     def draw(self, screen, camera_y):
         screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre à sa position actuelle sur l'écran, en tenant compte du décalage de la caméra
 
-
 # --- Dictionnaires ---
     # Plateformes
 plateforms = [
@@ -161,7 +156,6 @@ monsters = [
     # Fleches
 arrows = []
 
-
 # --- Variables des personnages ---
 perso1_rect_menu = perso1_image.get_rect(center = (WIDTH//2 - 150, HEIGHT//2))  # Rect de l'image de l'archer dans le menu de départ
 perso2_rect_menu = perso2_image.get_rect(center = (WIDTH//2 + 150, HEIGHT//2))  # Rect de l'image de l'épéiste dans le menu de départ
@@ -176,7 +170,6 @@ perso_rect = None             # Rect de l'image selectionnée, non-definie pour 
 player = None                 # Qui sera le héro, non-definie pour l'instant
 hitbox = None                 # Hitbox du personnage ( pour les collisions), non-definie pour l'instant
 xp = 0
-
 
 # --- Polices de texte ---
 title_font = pygame.font.SysFont(None, 100)                                         # Police du titre
@@ -208,7 +201,6 @@ end_rect_death.center = (WIDTH//2 + 150, HEIGHT//2 + 120)
 pause_box = pygame.Rect(WIDTH//2 - 250, HEIGHT//2 - 150, 500, 300)      # Rectangle dans lquel se situeront les boutons
 continue_button = pygame.Rect(WIDTH//2 - 200, HEIGHT//2 + 40, 180, 60)  # Celui pour continuer
 quit_button = pygame.Rect(WIDTH//2 + 20, HEIGHT//2 + 40, 180, 60)       # Celui pour arrêter
-
 
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
 title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
@@ -504,7 +496,6 @@ def death2(screen, WIDTH, HEIGHT, restart_rect_death, death_txt_font, WHITE, end
     for monster in monsters:
         monster.reset()    # Faire recommencer à 0 les monstres avec les 3 vies de chaque monstre
     pygame.display.flip()  # Tout générer sur la fenêtre
-    
 
 def end(running, screen, text_font, WIDTH, HEIGHT, WHITE):
     """Se charge d'afficher l'écran de fin du jeu, avec un message de remerciement, et de fermer la fenêtre après quelques secondes"""
