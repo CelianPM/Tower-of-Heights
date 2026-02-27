@@ -1,6 +1,6 @@
 
 import pygame # Importer la bibliothèque
-
+import math
 # Initialier pygame
 pygame.init()        # Initialiser tous les modules de pygame
 pygame.mixer.init()  # Initialiser le module de son de pygame
@@ -104,45 +104,92 @@ monster_right = monster_img                                                     
 monster_left = pygame.transform.flip(monster_img, True, False)                                     # Le profil gauche du monstre est l'image de base retournée horizontalement
 
 class Monster:
-    def __init__(self, x, y):
+    def __init__(self, x, y, image_right = None, life = 0, speed = 0):
         self.spawn_x = x                                   # La position de spawn du monstre, qui est utilisée pour réinitialiser sa position quand il meurt
         self.spawn_y = y                                   # La position de spawn du monstre, qui est utilisée pour réinitialiser sa position quand il meurt
-        self.image_right = monster_right                   # Le profil droit du monstre est l'image du profil droit
-        self.image_left = monster_left                     # Le profil gauche du monstre est l'image du profil gauche
+        self.image_right = image_right                   # Le profil droit du monstre est l'image du profil droit
+        self.image_left = pygame.transform.flip(image_right, True, False) if image_right else None                     # Le profil gauche du monstre est l'image du profil gauche
         self.image = self.image_right                      # L'image de base du monstre est le profil droit
-        self.rect = self.image.get_rect(topleft = (x, y))  # Le rectangle de collision du monstre est basé sur l'image du profil droit, et sa position est définie par les coordonnées x et y
-        self.life = 3                                      # Le monstre commence avec 3 vies
-        self.max_life = 3                                  # Le monstre a un maximum de 3 vies, et cette variable est utilisée pour réinitialiser la vie du monstre quand il meurt
+        self.rect = self.image.get_rect(topleft = (x, y)) if image_right else pygame.Rect(x, y, 50, 50)  # Le rectangle de collision du monstre est basé sur l'image du profil droit, et sa position est définie par les coordonnées x et y
+        self.life = life                                      # Le monstre commence avec 3 vies
+        self.max_life = life                                  # Le monstre a un maximum de 3 vies, et cette variable est utilisée pour réinitialiser la vie du monstre quand il meurt
         self.alive = True                                  # Le monstre est vivant au début du jeu, et cette variable est utilisée pour déterminer s'il doit être affiché et s'il peut interagir avec le joueur
-        self.speed = 2                                     # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
+        self.speed = speed                                     # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
 
     def update(self, player_rect, monsters):
         if not self.alive:
             return                         # Si le monstre n'est pas vivant, il ne fait rien et ne suit pas le joueur
-        old_monster_x = self.rect.x
+        old_x = self.rect.x
         if self.rect.x > player_rect.x :
             self.rect.x -= self.speed      # Le monstre se déplace vers la gauche si sa position x est plus grande que celle du joueur
-            self.image = self.image_left   # Le monstre affiche son profil gauche pour se déplacer vers la gauche
+            if self.image_left:
+                self.image = self.image_left
         elif self.rect.x < player_rect.x:
             self.rect.x += self.speed      # Le monstre se déplace vers la droite si sa position x est plus petite que celle du joueur
-            self.image = self.image_right  # Le monstre affiche son profil droit pour se déplacer vers la droite
-        for other_monster in monsters:
-            if other_monster is self or not other_monster.alive:
+            if self.image_right:
+                self.image = self.image_right  # Le monstre affiche son profil droit pour se déplacer vers la droite
+        
+        for other in monsters:
+            if other is self or not other.alive:
                 continue
-            if self.rect.colliderect(other_monster.rect):
-                overlap_x = min(self.rect.right, other_monster.rect.right) - max(self.rect.left, other_monster.rect.left)
+            if self.rect.colliderect(other.rect):
+                overlap = min(self.rect.right, other.rect.right) - max(self.rect.left, other.rect.left)
                 max_overlap = self.rect.width * 0.5  # Autoriser jusqu'à 50% de chevauchement entre deux slugs
-                if overlap_x > max_overlap:
-                    self.rect.x = old_monster_x  # On annule seulement si le chevauchement dépasse la moitié de la taille du slug
-                    break
+                if overlap > max_overlap:
+                    self.rect.x = old_x  # On annule seulement si le chevauchement dépasse la moitié de la taille du slug
     
     def reset(self):
         self.alive = True                                 # Quand le monstre est réinitialisé, il redevient vivant
         self.life = self.max_life                         # Quand le monstre est réinitialisé, il retrouve sa vie maximale (qui est de 3)
         self.rect.topleft = (self.spawn_x, self.spawn_y)  # Quand le monstre est réinitialisé, il retourne à sa position de spawn
 
-    def draw(self, screen, camera_y):
+    def draw(self, screen, camera_y = 0):
         screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre à sa position actuelle sur l'écran, en tenant compte du décalage de la caméra
+    
+slug_img = pygame.image.load("slug.png").convert_alpha()
+slug_img = pygame.transform.scale(slug_img, (150, 112))
+bat_img = pygame.image.load("bat.png").convert_alpha()
+bat_img = pygame.transform.scale(bat_img, (60, 28))
+
+class Slug(Monster):
+    def __init__(self, x, y):
+        super().__init__(
+            x, 
+            y, 
+            image_right=slug_img,  # Image spécifique
+            life=3,                # Vie spécifique du Slug
+            speed=2                # Vitesse spécifique du Slug
+        )
+
+class Bat(Monster):
+    def __init__(self, x, y):
+        super().__init__(
+            x,
+            y,
+            image_right=bat_img,  # Image spécifique
+            life=1,               # Moins de vie qu'un slug
+            speed=3               # Plus rapide qu'un slug
+        )
+    def update(self, player_rect, monsters):
+        if not self.alive:
+            return
+
+        dx = player_rect.centerx - self.rect.centerx
+        dy = player_rect.centery - self.rect.centery
+
+        distance = math.sqrt(dx*dx + dy*dy)
+
+        if distance != 0:
+            dx /= distance
+            dy /= distance
+
+            self.rect.x += dx * self.speed
+            self.rect.y += dy * self.speed
+
+        if dx < 0:
+            self.image = self.image_left
+        else:
+            self.image = self.image_right
 
 # --- Dictionnaires ---
     # Plateformes
@@ -160,8 +207,10 @@ plateforms = [
 
     # Monstres
 monsters = [
-    Monster(0, HEIGHT - 130),
-    Monster(200, HEIGHT - 130)
+    Slug(1000, HEIGHT - 130),
+    Slug(800, HEIGHT - 130),
+    Bat(1000, HEIGHT - 250),
+    Bat(1000, HEIGHT - 300)
 ]
 
     # Fleches
