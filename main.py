@@ -60,6 +60,7 @@ level = 0
 point_attribut = 0
 last_damage_time = 0
 regenaration_time = 0
+invincibility_time = 1000
 
 # --- Images et classes---
     # Heros
@@ -335,7 +336,7 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
             selected_attack_right, selected_attack,
             perso_rect, state, player,
             attack_delay, attack_animation_time,
-            player_speed, max_life, max_life,
+            player_speed, max_life, life,
             regenaration_time)
 
 
@@ -410,10 +411,6 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
             arrows.append(Arrow(hitbox.centerx, hitbox.centery, direction))
             last_attack_time = time        
                 
-                # --- Gestion du cooldown de l'archer ---
-        if player == "archer" and not can_attack:
-            if time - last_attack_time >= attack_delay:
-                can_attack = True
         can_attack = False
         # Délai avant la prochaine attaque
     if attack and time - start_time >= attack_animation_time:
@@ -470,8 +467,9 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                         monster.rect.x += PUSHBACK
                         monster.update(hitbox, monsters)                                       # Le monstre recule
                 else:
-                    life -= 1                                                            # Si le joueur n'attaque pas du bon côté, le héro perd une vie
-                    last_damage_time = time
+                    if time - last_damage_time >= invincibility_time:
+                        life -= 1
+                        last_damage_time = time
 
                 if monster.life <= 0:                                                    # Quand le monstre n'a plus de vies
                     monster.alive = False                                                # Il est retiré du jeu
@@ -480,13 +478,14 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                         point_attribut += 5
             
             else:                                                                        # Si le joueur n'attaque pas
-                life -= 1                                                                # Le héro perd une vie
-                last_damage_time = time
+                if time - last_damage_time >= invincibility_time:
+                    life -= 1
+                    last_damage_time = time
 
-                if hitbox.x < monster.rect.x:
-                    hitbox.x -= PUSHBACK                                                 # Si le joueur est à gauche du monstre, il recule vers la gauche
-                else:
-                    hitbox.x += PUSHBACK                                                 # Si le joueur est à droite du monstre, il recule vers la droite
+                    if hitbox.x < monster.rect.x:
+                        hitbox.x -= PUSHBACK                                                 # Si le joueur est à gauche du monstre, il recule vers la gauche
+                    else:
+                        hitbox.x += PUSHBACK                                                 # Si le joueur est à droite du monstre, il recule vers la droite
         
         for arrow in arrows[:]:
             if monster.alive and arrow.rect.colliderect(monster.rect):                   # Si la hitbox de la flèche est en collision avec celle du monstre
@@ -523,8 +522,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
 
     level = xp // 10
 
-    txt = text_font.render(str(life), True, (250, 0, 0))
-    screen.blit(txt, (20, 20))
+
     
     return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, 
 
@@ -690,12 +688,6 @@ while running:
     if state == "death":
         death2(screen, WIDTH, HEIGHT, restart_rect_death, death_txt_font, WHITE, end_rect_death, monsters)  # Pour appeler la fonction death2() pour afficher l'écran de mort, et récupérer les variables mises à jour par cette fonction
         continue
-
-    if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-        if restart_rect_death.collidepoint(event.pos):
-            state = "menu_de_debut"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
-        elif end_rect_death.collidepoint(event.pos):
-            state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
 
     if state == "menu_attribut":
             menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay)
