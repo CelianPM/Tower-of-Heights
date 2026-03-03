@@ -525,13 +525,15 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
     
     return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, 
 
-def death(state, event, restart_rect_death, end_rect_death):
+def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
     if restart_rect_death.collidepoint(event.pos):
         state = "menu_de_debut"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
     elif end_rect_death.collidepoint(event.pos):
         state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
-    return state
+    xp = 0
+    point_attribut = 0
+    return state, xp, point_attribut
 
 def death2(screen, WIDTH, HEIGHT, restart_rect_death, death_txt_font, WHITE, end_rect_death, monsters):
     """S'occupe d'afficher l'écran de mort, avec les boutons pour recommencer ou arrêter le jeu, et de réinitialiser les variables du jeu pour pouvoir recommencer à zéro si le joueur choisit de rejouer"""
@@ -660,7 +662,7 @@ while running:
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state = death(state, event, restart_rect_death, end_rect_death)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
+            state, xp, point_attribut = death(state, event, restart_rect_death, end_rect_death, xp, point_attribut)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay = menu_attribut2(
