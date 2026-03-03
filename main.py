@@ -116,10 +116,35 @@ class Monster:
         self.alive = True                                  # Le monstre est vivant au début du jeu, et cette variable est utilisée pour déterminer s'il doit être affiché et s'il peut interagir avec le joueur
         self.speed = speed                                     # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
 
+    def overlap(self, monsters, horizontal_only = False):
+        for other in monsters:
+            if other is self or not other.alive or other.__class__ is not self.__class__:
+                continue
+            if not self.rect.colliderect(other.rect):
+                continue
+
+            overlap_x = min(self.rect.right, other.rect.right) - max(self.rect.left, other.rect.left)
+            overlap_y = min(self.rect.bottom, other.rect.bottom) - max(self.rect.top, other.rect.top)
+
+            if overlap_x <= 0 or overlap_y <= 0:
+                continue
+
+            if horizontal_only or overlap_x < overlap_y:
+                push_x = math.ceil(overlap_x / 2)
+                if self.rect.centerx < other.rect.centerx:
+                    self.rect.x -= push_x
+                else:
+                    self.rect.x += push_x
+            else:
+                push_y = math.ceil(overlap_y / 2)
+                if self.rect.centery < other.rect.centery:
+                    self.rect.y -= push_y
+                else:
+                    self.rect.y += push_y
+
     def update(self, player_rect, monsters):
         if not self.alive:
             return                         # Si le monstre n'est pas vivant, il ne fait rien et ne suit pas le joueur
-        old_x = self.rect.x
         if self.rect.x > player_rect.x :
             self.rect.x -= self.speed      # Le monstre se déplace vers la gauche si sa position x est plus grande que celle du joueur
             if self.image_left:
@@ -129,14 +154,7 @@ class Monster:
             if self.image_right:
                 self.image = self.image_right  # Le monstre affiche son profil droit pour se déplacer vers la droite
         
-        for other in monsters:
-            if other is self or not other.alive:
-                continue
-            if self.rect.colliderect(other.rect):
-                overlap = min(self.rect.right, other.rect.right) - max(self.rect.left, other.rect.left)
-                max_overlap = self.rect.width * 0.5  # Autoriser jusqu'à 50% de chevauchement entre deux slugs
-                if overlap > max_overlap:
-                    self.rect.x = old_x  # On annule seulement si le chevauchement dépasse la moitié de la taille du slug
+        self.overlap(monsters, horizontal_only = True)
     
     def reset(self):
         self.alive = True                                 # Quand le monstre est réinitialisé, il redevient vivant
@@ -190,6 +208,9 @@ class Bat(Monster):
             self.image = self.image_left
         else:
             self.image = self.image_right
+        
+        self.overlap(monsters)
+
 
 # --- Dictionnaires ---
     # Plateformes
@@ -459,12 +480,10 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                     if monster.rect.x < hitbox.x:                                        # Si le monstre est à gauche du joueur
                         monster.life -= 1                                                # Le monstre perd une vie
                         monster.rect.x -= PUSHBACK
-                        monster.update(hitbox, monsters)                                       # Le monstre recule
                 elif selected_image == selected_attack_right and player == "swordsman":  # Si le joueur attaque vers la droite avec l'épée
                     if monster.rect.x > hitbox.x:                                        # Si le monstre est à droite du joueur
                         monster.life -= 1                                                # Le monstre perd une vie
                         monster.rect.x += PUSHBACK
-                        monster.update(hitbox, monsters)                                       # Le monstre recule
                 else:
                     if time - last_damage_time >= invincibility_time:
                         life -= 1
