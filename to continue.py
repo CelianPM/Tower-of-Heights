@@ -61,6 +61,7 @@ last_damage_time = 0
 regenaration_time = 0
 invincibility_time = 1000
 degat = 0
+puissance = 0
 
 # --- Images et classes---
     # Heros
@@ -607,7 +608,7 @@ def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puiss
             point_attribut -= 1
             max_life += 1
             regenaration_time -= 500
-    elif puissance.collidepoint(event.pos):
+    elif puissance_rect.collidepoint(event.pos):
         if point_attribut>0:
             point_attribut -= 1
             puissance += degat//40
@@ -641,7 +642,7 @@ def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, s
     txt_continue = text_font.render("Continuer", True, WHITE)                            # Définir le texte du bouton pour recommencer
     txt_speed = text_font.render("vitesse : " + str(player_speed), True, WHITE)                                # Définir le texte du bouton pour arrêter
     txt_vitality = text_font.render("vie : " + str(max_life), True, WHITE)
-    txt_puissance = text_font.render("puissance : " + str((puissance), True, WHITE))
+    txt_puissance = text_font.render("puissance : " + str(puissance), True, WHITE)
     txt_attack_delay = text_font.render("vitesse d'attaque : " + str((1000 - attack_delay)/50), True, WHITE)
 
         # Les afficher
@@ -688,11 +689,10 @@ while running:
             state, xp, point_attribut = death(state, event, restart_rect_death, end_rect_death, xp, point_attribut)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
-            level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay = menu_attribut2(
-                state, event,
-                continue_rect, speed_rect, vitality_rect, regenaration_time_rect, attack_delay_rect,
-                level, player_speed, point_attribut, max_life, regenaration_time, attack_delay
-                )
+            level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance, puissance_rect = menu_attribut2(
+    state, event,
+    continue_rect, speed_rect, vitality_rect, attack_delay_rect,
+    level, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance, puissance_rect)
     
     # --- Pause ---
     if state == "paused":
@@ -714,7 +714,7 @@ while running:
         continue
 
     if state == "menu_attribut":
-            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, regenaration_time_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay)
+            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay)
             continue
     
     if state == "end":
