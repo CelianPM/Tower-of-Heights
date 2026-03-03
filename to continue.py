@@ -689,11 +689,8 @@ while running:
             state, xp, point_attribut = death(state, event, restart_rect_death, end_rect_death, xp, point_attribut)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
-            level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance, puissance_rect = menu_attribut2(
-    state, event,
-    continue_rect, speed_rect, vitality_rect, attack_delay_rect,
-    level, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance, puissance_rect)
-    
+            level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance = menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, level, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance
+)    
     # --- Pause ---
     if state == "paused":
         paused2(screen, pause_box, text_font, continue_button, quit_button, WHITE, BLACK, GREEN, RED)  # Appeler la fonction paused2() pour afficher la fenêtre de pause
@@ -714,9 +711,9 @@ while running:
         continue
 
     if state == "menu_attribut":
-            menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay)
-            continue
-    
+        menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay)
+        continue
+
     if state == "end":
         running = end(running, screen, text_font, WIDTH, HEIGHT, WHITE)  # Pour appeler la fonction end() pour afficher l'écran de fin, et récupérer les variables mises à jour par cette fonction
     if perso_rect is None:
