@@ -393,7 +393,7 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
     screen.blit(pour_pauser, (WIDTH//2 - pour_pauser.get_width()//2, HEIGHT - 60))                        # Pour afficher le texte
     pygame.display.flip()                                                                                 # Tout générer sur la fenêtre
 
-def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat):
+def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     # --- Mouvements du joueur ---
         # Gauche
@@ -482,11 +482,11 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
             if attack:
                 if selected_image == selected_attack_left and player == "swordsman":     # Si le joueur attaque vers la gauche avec l'épée
                     if monster.rect.x < hitbox.x:                                        # Si le monstre est à gauche du joueur
-                        monster.life -= degat                                                # Le monstre perd une vie
+                        monster.life -= degat + puissance                                                # Le monstre perd une vie
                         monster.rect.x -= PUSHBACK
                 elif selected_image == selected_attack_right and player == "swordsman":  # Si le joueur attaque vers la droite avec l'épée
                     if monster.rect.x > hitbox.x:                                        # Si le monstre est à droite du joueur
-                        monster.life -= degat                                                # Le monstre perd une vie
+                        monster.life -= degat + puissance                                                # Le monstre perd une vie
                         monster.rect.x += PUSHBACK
                 else:
                     if time - last_damage_time >= invincibility_time:
@@ -511,7 +511,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
         
         for arrow in arrows[:]:
             if monster.alive and arrow.rect.colliderect(monster.rect):                   # Si la hitbox de la flèche est en collision avec celle du monstre
-                monster.life -= degat                                                        # Le monstre perd une vie
+                monster.life -= degat + puissance                                                        # Le monstre perd une vie
                 if arrow.direction == "right":
                     monster.rect.x += PUSHBACK                                           # Si la flèche va vers la droite, le monstre recule vers la droite
                 else:
@@ -642,7 +642,7 @@ def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, s
     txt_continue = text_font.render("Continuer", True, WHITE)                            # Définir le texte du bouton pour recommencer
     txt_speed = text_font.render("vitesse : " + str(player_speed), True, WHITE)                                # Définir le texte du bouton pour arrêter
     txt_vitality = text_font.render("vie : " + str(max_life), True, WHITE)
-    txt_puissance = text_font.render("puissance : " + str(puissance), True, WHITE)
+    txt_puissance = text_font.render("puissance : " + str(puissance*40//100), True, WHITE)
     txt_attack_delay = text_font.render("vitesse d'attaque : " + str((1000 - attack_delay)/50), True, WHITE)
 
         # Les afficher
@@ -703,7 +703,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
