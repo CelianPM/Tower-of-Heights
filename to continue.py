@@ -1,5 +1,7 @@
 import pygame # Importer la bibliothèque
 import math
+
+from pygame import time
 # Initialier pygame
 pygame.init()        # Initialiser tous les modules de pygame
 pygame.mixer.init()  # Initialiser le module de son de pygame
@@ -62,11 +64,28 @@ regenaration_time = 0
 invincibility_time = 1000
 degat = 0
 puissance = 0
+walk_index = 0
+walk_timer = 0
+walk_speed = 90
+walk_images = None
+walk_images_left = None
 
 # --- Images et classes---
     # Heros
 perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
 perso2_image = pygame.image.load("epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
+epeiste_walk = [
+    pygame.image.load("epeiste_couleur.png").convert_alpha(),
+    pygame.image.load("epeiste_1.png").convert_alpha(),
+    pygame.image.load("epeiste_2.png").convert_alpha(),
+]
+epeiste_walk_left = [pygame.transform.flip(img, True, False) for img in epeiste_walk]
+
+archer_walk = [
+    pygame.image.load("archer-attaque.png").convert_alpha(),
+
+]
+archer_walk_left = [pygame.transform.flip(img, True, False) for img in archer_walk]
 
     # Fleche
 arrow_img = pygame.image.load("fleche.png").convert_alpha()  # Charger l'image de la flèche
@@ -325,7 +344,7 @@ def paused2(screen, pause_box, text_font, continue_button, quit_button, WHITE, B
 
     pygame.display.flip() # Pour charger la fenêtre
 
-def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life, regenaration_time, degat):
+def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life, regenaration_time, degat, walk_images, walk_images_left):
     """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi"""
     if perso1_rect_menu.collidepoint(event.pos):
         attack_delay = 800                                                                          # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
@@ -339,31 +358,34 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         max_life = 4
         regenaration_time = 25000
         degat = 600
+        walk_images = archer_walk
+        walk_images_left = archer_walk_left
     
     if perso2_rect_menu.collidepoint(event.pos):
         attack_delay = 300                                                                          # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
         attack_animation_time = 300
         player = "swordsman"                                                                         # Le joueur choisi est l'épéiste
         selected_image = perso2_image                                                                # L'image sélectionnée est celle de l'épéiste
-        selected_image_right = selected_image                                                        # Profil droit de l'image sélectionnée
-        selected_image_left = pygame.transform.flip(selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-        selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
         player_speed = 4
         max_life = 5
         regenaration_time = 20000
         degat = 500
+        walk_images = epeiste_walk
+        walk_images_left = epeiste_walk_left
+        selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
 
     
     if selected_attack is None:
+        life = max_life
         return (selected_image, hitbox, selected_image_left,
             selected_image_right, selected_attack_left,
             selected_attack_right, selected_attack,
             perso_rect, state, player,
             attack_delay, attack_animation_time,
             player_speed, max_life, life,
-            regenaration_time)
+            regenaration_time, degat, walk_images, walk_images_left)
 
-
+    
     selected_attack_right = selected_attack                                                          # Profil droit de l'image attaquant
     selected_attack_left = pygame.transform.flip(selected_attack, True, False)                       # Profil gauche de l'image attaquant
     perso_rect = selected_image.get_rect(topleft=(200, 300))                                         # Rect de l'image
@@ -371,7 +393,7 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
     pygame.mixer.music.play(-1)                                                                      # Lancer la musique de fond en boucle
     state = "game"                                                                                   # Passer au jeu
     life = max_life
-    return selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life, regenaration_time, degat
+    return selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life, regenaration_time, degat, walk_images, walk_images_left
 
 def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_menu, perso2_image, perso2_rect_menu, text_font, WIDTH, HEIGHT):
     """Se charge d'afficher le menu de départ, avec les personnages à choisir et les instructions pour jouer"""
@@ -382,8 +404,7 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
 
         # Générer les personnages
     screen.blit(perso1_image, perso1_rect_menu)                                                           # Afficher l'image de l'archer
-    screen.blit(perso2_image, perso2_rect_menu)                                                           # Afficher l'image de l'épéiste
-
+    screen.blit(perso2_image, perso2_rect_menu)                                                           # Afficher l'image de l'épéisted
         # Afficher le texte, 
     selection = text_font.render("Clique sur ton personnage", True, (200, 200, 200))                      # Pour définir le texte
     revenir_au_menu = text_font.render("Appuie sur M pour revenir sur cette page", True, (200, 200, 200)) # Pour définir le texte
@@ -393,23 +414,40 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
     screen.blit(pour_pauser, (WIDTH//2 - pour_pauser.get_width()//2, HEIGHT - 60))                        # Pour afficher le texte
     pygame.display.flip()                                                                                 # Tout générer sur la fenêtre
 
-def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat):
+def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, walk_timer, walk_index, walk_speed, walk_images, walk_images_left):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     # --- Mouvements du joueur ---
         # Gauche
+    moving = False
+    
     if key[pygame.K_LEFT]:                         # Si la touche de gauche est appuyée
         hitbox.x -= player_speed                   # Déplacer la hitbox vers la gauche en fonction de la vitesse du joueur
-        if direction == "right":
-            selected_image = selected_image_left   # Si la direction précédente était à droite, changer l'image sélectionnée par celle du profil gauche
         direction = "left"                         # Mettre à jour la direction comme étant la gauche gauche
+        moving = True
 
         # Droite
     if key[pygame.K_RIGHT]:                        # Si la touche de droite est appuyée
         hitbox.x += player_speed                   # Déplacer la hitbox vers la droite en fonction de la vitesse du joueur
-        if direction == "left":
-            selected_image = selected_image_right  # Si la direction précédente était à gauche, changer l'image sélectionnée par celle du profil droit
         direction = "right"                        # Mettre à jour la direction comme étant la droite
-    
+        moving = True
+
+    if moving and walk_images and not attack: 
+        if time - walk_timer > walk_speed:
+            walk_timer = time
+            walk_index = (walk_index + 1) % len(walk_images)
+
+        if direction == "right" : 
+            selected_image = walk_images[walk_index]
+        else : 
+            selected_image = walk_images_left[walk_index]
+        perso_rect = selected_image.get_rect(center = hitbox.center)
+    else : 
+        walk_index = 0
+        if direction == "right":
+            selected_image = walk_images[0]
+        else :
+            selected_image = walk_images_left[0]
+
         # Le saut
     if key[pygame.K_SPACE] and on_ground:          # Si la touche de saut est appuyée et que le joueur est au sol
         velocity += jump_power                     # Appliquer la puissance de saut à la variable de vitesse
@@ -546,7 +584,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
 
 
     
-    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat
+    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, walk_index, walk_speed, walk_timer, walk_images, walk_images_left
 
 def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
@@ -682,7 +720,7 @@ while running:
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life, regenaration_time, degat = menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life, regenaration_time, degat)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
+            selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, attack_delay, attack_animation_time, player_speed, max_life, life, regenaration_time, degat, walk_images, walk_images_left = menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, selected_attack, perso_rect, state, player, perso1_rect_menu, perso2_rect_menu, perso1_image, perso2_image, event, attack_delay, attack_animation_time, player_speed, max_life, regenaration_time, degat, walk_images, walk_images_left)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
@@ -703,7 +741,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, walk_timer, walk_index, walk_speed, walk_images, walk_images_left = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, walk_timer, walk_index, walk_speed, walk_images, walk_images_left)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
