@@ -493,12 +493,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
             if hitbox.left + player_speed >= plateform.right:               # Si le joueur se déplace vers la gauche et que sa hitbox est juste à droite de la plateforme
                 hitbox.left = plateform.right                               # Aligner le côté gauche de la hitbox avec le côté droit de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la gauche
             
-    pick_up = False
-    # Ramassage des items avec E
-    if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
-        pick_up = True
-
-    if pick_up:
+    if key[pygame.K_e]:
         for item in items[:]:
             if hitbox.colliderect(item.rect):
                 inventory[item.name] = inventory.get(item.name, 0) + item.quantity
@@ -584,15 +579,21 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
     
     return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory
 
-def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut):
+def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut, level, inventory, items):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
     if restart_rect_death.collidepoint(event.pos):
         state = "menu_de_debut"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
     elif end_rect_death.collidepoint(event.pos):
         state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
     xp = 0
+    level = 0
     point_attribut = 0
-    return state, xp, point_attribut
+    inventory = {}
+    items = [
+    Item("Potion", 260, 320, potion_img),
+    Item("Potion", 550, 120, potion_img),
+    ]
+    return state, xp, point_attribut, level, inventory, items
 
 def death2(screen, WIDTH, HEIGHT, restart_rect_death, death_txt_font, WHITE, end_rect_death, monsters):
     """S'occupe d'afficher l'écran de mort, avec les boutons pour recommencer ou arrêter le jeu, et de réinitialiser les variables du jeu pour pouvoir recommencer à zéro si le joueur choisit de rejouer"""
@@ -722,7 +723,7 @@ while running:
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, xp, point_attribut = death(state, event, restart_rect_death, end_rect_death, xp, point_attribut)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
+            state, xp, point_attribut, level, inventory, items = death(state, event, restart_rect_death, end_rect_death, xp, point_attribut, level, inventory, items)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance = menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, level, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance
@@ -788,7 +789,7 @@ while running:
     for item in items:
         item.draw(screen, camera_y)
 
-    inventory_text = text_font.render(f"Inventaire: {inventory}", True, WHITE)
+    inventory_text = text_font.render("Inventaire : " + str(inventory), True, WHITE)
     screen.blit(inventory_text, (20, 60))
     pygame.display.flip()
 pygame.quit()  # Arrêter Pygame et fermer la fenêtre du jeu
