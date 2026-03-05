@@ -17,11 +17,13 @@ fleches droite-gauche = déplacement du personnage
 
 touche space = saut
 
-touche D = attaque dague
+touche D = attaque
 
-touche F = attaque magique
+touche F = inventaire
 
-touche C = menu des attribus
+touche M = menu des attributs
+
+touche E = ramasser objet(s)
 
 # Planning
 Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
@@ -33,7 +35,7 @@ Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
 - dans le cas échéant, il faut recommencer à 0
 
 # Les différentes animations
-- personnage: marche, saut, attaques (dague et magique)
+- personnage: marche, saut, attaques
 - ennemis: déplacement, attaque et mort
 - projectlies: apparition, déplacement et impact
 
@@ -41,10 +43,10 @@ Aller sur le lien suivant, vous dirigeant vers notre planning sur Trello
 # Cahier des Charges
 - jeu de plateforme
 - un seul joueur dont le personnage évoluera au cours du jeu
-- choix entre 4 personnages possibles au début du jeu
+- choix entre 3 personnages possibles au début du jeu
 - un seul joueur par machine
 - le jeu n'est pas sauvegardé
-- les capacités sont la force (dégâts bruts), l'agilité (vitesse de déplacement et d'attaque), l'intelligence (dégats magique), et la vitalité (la vie quoi)
+- les capacités sont la puissance (dégâts bruts), l'agilité (vitesse de déplacement et d'attaque), l'intelligence (dégats magique), et la vitalité (la vie quoi)
 - le personnage à le choix entre un attaque physique (corps à corps) et magique (à distance) en accord avec les capacités du perssonnage
 - le level up dépend du nombre de points d'expérience, et à chaque level up le joueur se voit attribué des points d'abilité
 - les points d'expérience augmente grâce au nombre d'ennemis tués et leurs niveaux (si plus fort, alors plus de points)
