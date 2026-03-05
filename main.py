@@ -106,7 +106,7 @@ monster_right = monster_img                                                     
 monster_left = pygame.transform.flip(monster_img, True, False)                                     # Le profil gauche du monstre est l'image de base retournée horizontalement
 
 class Monster:
-    def __init__(self, x, y, image_right = None, life = 0, speed = 0):
+    def __init__(self, x, y, image_right = None, life = 0, speed = 0, xp_reward = 10):
         self.spawn_x = x                                   # La position de spawn du monstre, qui est utilisée pour réinitialiser sa position quand il meurt
         self.spawn_y = y                                   # La position de spawn du monstre, qui est utilisée pour réinitialiser sa position quand il meurt
         self.image_right = image_right                   # Le profil droit du monstre est l'image du profil droit
@@ -117,7 +117,7 @@ class Monster:
         self.max_life = life                                  # Le monstre a un maximum de 3 vies, et cette variable est utilisée pour réinitialiser la vie du monstre quand il meurt
         self.alive = True                                  # Le monstre est vivant au début du jeu, et cette variable est utilisée pour déterminer s'il doit être affiché et s'il peut interagir avec le joueur
         self.speed = speed                                     # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
-        puissance = degat*speed
+        self.xp_reward = xp_reward                          # Quantité d'XP donnée quand ce monstre est vaincu
     def overlap(self, monsters, horizontal_only = False):
         for other in monsters:
             if other is self or not other.alive or other.__class__ is not self.__class__:
@@ -178,7 +178,8 @@ class Slug(Monster):
             y, 
             image_right=slug_img,  # Image spécifique
             life=1500,                # Vie spécifique du Slug
-            speed=2                # Vitesse spécifique du Slug
+            speed=2,                # Vitesse spécifique du Slug
+            xp_reward = 8
         )
 
 class Bat(Monster):
@@ -188,7 +189,8 @@ class Bat(Monster):
             y,
             image_right=bat_img,  # Image spécifique
             life=300,               # Moins de vie qu'un slug
-            speed=3               # Plus rapide qu'un slug
+            speed=3,               # Plus rapide qu'un slug
+            xp_reward = 2
         )
     def update(self, player_rect, monsters):
         if not self.alive:
@@ -495,9 +497,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
 
                 if monster.life <= 0:                                                    # Quand le monstre n'a plus de vies
                     monster.alive = False                                                # Il est retiré du jeu
-                    xp += 10
-                    if level<xp//10:
-                        point_attribut += 5
+                    xp += monster.xp_reward
             
             else:                                                                        # Si le joueur n'attaque pas
                 if time - last_damage_time >= invincibility_time:
@@ -519,9 +519,8 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                 arrows.remove(arrow)                                                     # Retirer la flèche du jeu
                 if monster.life <= 0:
                     monster.alive = False                                                # Quand le monstre n'a plus de vies, il est retiré du jeu
-                    xp += 10
-                    if level<xp//10:
-                        point_attribut += 5
+                    xp += monster.xp_reward
+
     
     # --- Lorsque le héro n'a plus de vies ---
     if life <= 0:
@@ -541,8 +540,12 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
     # --- Mort si le personnage est en dehors de l'écran ---
     if hitbox.top > HEIGHT + camera_y:
         state = "death"  # Si le personnage tombe en dessous de l'écran, passer à l'écran de mort
-
-    level = xp // 10
+    xp_lvl_up = 0
+    for i in range(level + 1):
+        xp_lvl_up += i*2
+    if xp >= xp_lvl_up:
+        level += 1
+        point_attribut += 5
 
 
     
