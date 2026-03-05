@@ -215,6 +215,28 @@ class Bat(Monster):
         
         self.overlap(monsters)
 
+# --- Items / Inventaire ---
+potion_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (32, 32))
+
+class Item:
+    def __init__(self, name, x, y, image, quantity=1):
+        self.name = name
+        self.image = image
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.quantity = quantity
+
+    def draw(self, screen, camera_y=0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+
+# Liste des objets présents dans le monde
+items = [
+    Item("Potion", 260, 320, potion_img),
+    Item("Potion", 550, 120, potion_img),
+]
+
+# Inventaire du joueur
+inventory = {}
+pickup_pressed = False   # évite de ramasser 60 fois si E reste appuyé
 
 # --- Dictionnaires ---
     # Plateformes
@@ -395,7 +417,7 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
     screen.blit(pour_pauser, (WIDTH//2 - pour_pauser.get_width()//2, HEIGHT - 60))                        # Pour afficher le texte
     pygame.display.flip()                                                                                 # Tout générer sur la fenêtre
 
-def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance):
+def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     # --- Mouvements du joueur ---
         # Gauche
@@ -471,6 +493,17 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
             if hitbox.left + player_speed >= plateform.right:               # Si le joueur se déplace vers la gauche et que sa hitbox est juste à droite de la plateforme
                 hitbox.left = plateform.right                               # Aligner le côté gauche de la hitbox avec le côté droit de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la gauche
             
+    pick_up = False
+    # Ramassage des items avec E
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+        pick_up = True
+
+    if pick_up:
+        for item in items[:]:
+            if hitbox.colliderect(item.rect):
+                inventory[item.name] = inventory.get(item.name, 0) + item.quantity
+                items.remove(item)
+
 
     # --- Monster movement ---
     for monster in monsters:
@@ -549,7 +582,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
 
 
     
-    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat
+    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory
 
 def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
@@ -706,7 +739,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -751,9 +784,13 @@ while running:
     for arrow in arrows:
         screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les flèches à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     txt = text_font.render("Vie : " + str(life) + "/" + str(max_life), True, WHITE)
-    screen.blit(txt, (20, 20))
-    pygame.display.flip()                                                                                                  # Tout générer sur la fenêtre
+    screen.blit(txt, (20, 20))                                                                                                  # Tout générer sur la fenêtre
+    for item in items:
+        item.draw(screen, camera_y)
 
+    inventory_text = text_font.render(f"Inventaire: {inventory}", True, WHITE)
+    screen.blit(inventory_text, (20, 60))
+    pygame.display.flip()
 pygame.quit()  # Arrêter Pygame et fermer la fenêtre du jeu
 
 
