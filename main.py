@@ -467,7 +467,7 @@ def menu_de_debut(selected_image, hitbox, selected_image_left, selected_image_ri
         degat = 600
     
     if perso2_rect_menu.collidepoint(event.pos):
-        attack_delay = 300                                                                          # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
+        attack_delay = 300                                                                           # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
         attack_animation_time = 300
         player = "swordsman"                                                                         # Le joueur choisi est l'épéiste
         selected_image = perso2_image                                                                # L'image sélectionnée est celle de l'épéiste
@@ -784,34 +784,34 @@ def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puiss
 
 def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay):
    
-    screen.fill((0, 0, 100))                                                      # Remplir l'écran d'une couleur de base
-    txt = text_font.render("ATTRIBUT", True, RED)                                 # Définir le texte de l'écran
-    screen.blit(txt, txt.get_rect(center = (WIDTH//2, HEIGHT//5)))                # Afficher le texte de l'écran
-    txt = text_font.render("level " + str(level), True, WHITE)                                    # Définir le texte de l'écran
-    screen.blit(txt, txt.get_rect(center = (WIDTH//3, HEIGHT//4)))                # Afficher le texte de l'écran
-    txt = text_font.render("point(s) d'attribut(s) " + str(point_attribut), True, WHITE)                                    # Définir le texte de l'écran
-    screen.blit(txt, txt.get_rect(center = (WIDTH//3*2, HEIGHT//4)))                # Afficher le texte de l'écran
+    screen.fill((0, 0, 100))                                                              # Remplir l'écran d'une couleur de base
+    txt = text_font.render("ATTRIBUT", True, RED)                                         # Définir le texte de l'écran
+    screen.blit(txt, txt.get_rect(center = (WIDTH//2, HEIGHT//5)))                        # Afficher le texte de l'écran
+    txt = text_font.render("level " + str(level), True, WHITE)                            # Définir le texte de l'écran
+    screen.blit(txt, txt.get_rect(center = (WIDTH//3, HEIGHT//4)))                        # Afficher le texte de l'écran
+    txt = text_font.render("point(s) d'attribut(s) " + str(point_attribut), True, WHITE)  # Définir le texte de l'écran
+    screen.blit(txt, txt.get_rect(center = (WIDTH//3*2, HEIGHT//4)))                      # Afficher le texte de l'écran
 
 
     # --- Pour les boutons ---
         # Leur rect
-    pygame.draw.rect(screen, (200, 0, 0), continue_rect)                         # Dessiner un rectangle rouge pour le bouton de recommencer
-    pygame.draw.rect(screen, (0, 0, 200), speed_rect)                             # Dessiner un rectangle bleu pour le bouton d'arrêter
+    pygame.draw.rect(screen, (200, 0, 0), continue_rect)  # Dessiner un rectangle rouge pour le bouton de recommencer
+    pygame.draw.rect(screen, (0, 0, 200), speed_rect)     # Dessiner un rectangle bleu pour le bouton d'arrêter
     pygame.draw.rect(screen, (0, 0, 200), vitality_rect)
     pygame.draw.rect(screen, (0, 0, 200), puissance_rect)
     pygame.draw.rect(screen, (0, 0, 200), attack_delay_rect)
 
 
         # Leur texte
-    txt_continue = text_font.render("Continuer", True, WHITE)                            # Définir le texte du bouton pour recommencer
-    txt_speed = text_font.render("vitesse : " + str(player_speed), True, WHITE)                                # Définir le texte du bouton pour arrêter
+    txt_continue = text_font.render("Continuer", True, WHITE)                    # Définir le texte du bouton pour recommencer
+    txt_speed = text_font.render("vitesse : " + str(player_speed), True, WHITE)  # Définir le texte du bouton pour arrêter
     txt_vitality = text_font.render("vie : " + str(max_life), True, WHITE)
     txt_puissance = text_font.render("puissance : " + str(puissance*40//100), True, WHITE)
     txt_attack_delay = text_font.render("vitesse d'attaque : " + str((1000 - attack_delay)/50), True, WHITE)
 
         # Les afficher
     screen.blit(txt_continue, txt_continue.get_rect(center=continue_rect.center))  # Afficher le texte du bouton pour recommencer
-    screen.blit(txt_speed, txt_speed.get_rect(center=speed_rect.center))              # Afficher le texte du bouton pour arrêter
+    screen.blit(txt_speed, txt_speed.get_rect(center=speed_rect.center))           # Afficher le texte du bouton pour arrêter
     screen.blit(txt_vitality, txt_vitality.get_rect(center=vitality_rect.center))
     screen.blit(txt_puissance, txt_puissance.get_rect(center=puissance_rect.center))
     screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center=attack_delay_rect.center))

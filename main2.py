@@ -59,65 +59,72 @@ perso2_rect_menu = perso2_image.get_rect(center = (WIDTH//2 + 150, HEIGHT//2))  
 class Player:
     def __init__(self, on_ground):
         """Définit les variables requises par le joueur et importe la viariable on_ground pour en avoir une spécialement pour le joueur."""
-        self.speed = 0            # vitesse du joueur
-        self.jump_power = -15     # puissance de saut
-        self.attack = False       # le héro n'attaque pas encore
-        self.direction = "right"  # direction initiale
-        self.attack_delay = 0     # le temps qu'il faut attendre avant de pouvoir rattaquer
-        self.max_life = 0         # Nombres de vies de départ
-        self.last_attack_time = 0
-        self.attack_animation_time = 0
-        self.can_attack = True
-        self.level = 0
-        self.point_attribut = 0
-        self.last_damage_time = 0
-        self.regeneration_time = 0
-        self.invincibility_time = 1000
-        self.degat = 0
-        self.puissance = 0
+        
+        # --- Variables de mouvement du joueur ---
+        self.speed = 0                     # Vitesse du joueur
+        self.jump_power = -15              # Puissance de saut
+        self.direction = "right"           # Direction initiale
+        self.perso_rect = None             # Rect de l'image selectionnée, non-definie pour l'instant
+        self.hitbox = None                 # Hitbox du personnage ( pour les collisions), non-definie pour l'instant
+        self.on_ground = on_ground         # Variable pour savoir si le joueur est au sol, qui est importée de la variable on_ground définie plus haut, et qui est utilisée pour permettre au joueur de sauter seulement quand il est au sol
+        
+        # --- Variables d'attaque du joueur ---
+        self.attack = False                # Le héro n'attaque pas encore
+        self.attack_delay = 0              # Le temps qu'il faut attendre avant de pouvoir rattaquer
+        self.max_life = 0                  # Nombres de vies de départ
+        self.last_attack_time = 0          # Temps du dernier coup infligé par le joueur, utilisé pour gérer le délai entre les attaques et pour les attaques à distance de l'archer
+        self.attack_animation_time = 0     # Durée de l'animation d'attaque, qui est utilisée pour gérer le moment où le joueur peut infliger des dégâts aux monstres pendant son attaque, et qui est définie en fonction du personnage choisi
+        self.can_attack = True             # Le joueur peut attaquer au début du jeu, et cette variable est utilisée pour gérer le délai entre les attaques
+        self.last_damage_time = 0          # Temps du dernier coup reçu par le joueur, utilisé pour gérer l'invincibilité temporaire après avoir été touché et la régénération de vie
+        self.regeneration_time = 0         # Temps qu'il faut attendre après avoir été touché pour régénérer une vie, et qui est réinitialisé à chaque fois que le joueur est touché
+        self.invincibility_time = 1000     # Temps d'invincibilité après avoir été touché, pendant lequel le joueur ne peut pas être touché à nouveau
+        self.degat = 0                     # Dégâts de base du joueur, qui peuvent être augmentés en améliorant la puissance dans l'écran d'attributs en dépensant des points d'attributs gagnés en montant de niveau
+        self.puissance = 0                 # Variable d'attribut qui augmente les dégâts du joueur, et qui peut être améliorée dans l'écran d'attributs en dépensant des points d'attributs gagnés en montant de niveau
 
+        # --- Variables d'images du joueur ---
         self.selected_image = None         # Image selectionnée, non-definie pour l'instant
         self.selected_image_left = None    # Profil gauche de l'image selectionnée, non-definie pour l'instant
         self.selected_image_right = None   # Profil droit de l'image sélectionnée, non-definie pour l'instant
         self.selected_attack = None        # Image de base de l'attaque, non-definie pour l'instant
         self.selected_attack_left = None   # Profil gauche de l'image attaquant, non-definie pour l'instant
         self.selected_attack_right = None  # Profil droit de l'image attaquant, non-definie pour l'instant
-        self.perso_rect = None             # Rect de l'image selectionnée, non-definie pour l'instant
-        self.hero = None                   # Qui sera le héro, non-definie pour l'instant
-        self.hitbox = None                 # Hitbox du personnage ( pour les collisions), non-definie pour l'instant
-        self.xp = 0
-        self.on_ground = on_ground
-        self.xp_lvl_up = 0
+        self.hero = None                   # Qui sera le héro, non-defini pour l'instant
+        
+        # --- Variables d'XP et de niveau du joueur ---
+        self.xp = 0                        # XP du joueur, qui commence à 0 et augmente en tuant des monstres, et qui est utilisée pour faire monter le niveau du joueur quand il atteint le nombre d'XP requis pour monter de niveau
+        self.xp_lvl_up = 0                 # Nombre d'XP requis pour monter de niveau, qui augmente à chaque niveau en fonction de la formule xp_lvl_up += i*2, où i est le niveau actuel du joueur
+        self.level = 0                     # Niveau du joueur, qui commence à 0 et augmente en fonction de l'XP gagnée en tuant des monstres
+        self.point_attribut = 0            # Nombre de points d'attributs que le joueur peut dépenser pour améliorer ses caractéristiques dans l'écran d'attributs
     
     def select_the_player(self):
         """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi."""
         
         if self.hero == "archer":
-            self.attack_delay = 800                                                                           # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
-            self.selected_image = perso1_image                                                                # L'image sélectionnée est celle de l'archer
-            self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("Assets/Images/Archer/post_attacking_archer.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
+            self.attack_delay = 800                                                             # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
+            self.selected_image = perso1_image                                                  # L'image sélectionnée est celle de l'archer
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
+            self.selected_attack = pygame.image.load("Assets/Images/Archer/post_attacking_archer.png").convert_alpha()  # Télécharge l'image de l'attaque de l'archer
             self.speed = 3
             self.max_life = 4
             self.regeneration_time = 25000
             self.degat = 600
         
         elif self.hero == "swordsman":
-            self.attack_delay = 300                                                                           # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
-            self.selected_image = perso2_image                                                                # L'image sélectionnée est celle de l'épéiste
-            self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("Assets/Images/Swordsman/attacking_swordsman.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
+            self.attack_delay = 300                                                             # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
+            self.selected_image = perso2_image                                                  # L'image sélectionnée est celle de l'épéiste
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
+            self.selected_attack = pygame.image.load("Assets/Images/Swordsman/attacking_swordsman.png").convert_alpha()  # Télécharge l'image de l'attaque de l'épéiste
             self.speed = 4
             self.max_life = 5
             self.regeneration_time = 20000
             self.degat = 500
 
         self.attack_animation_time = 300
-        self.selected_attack_right = self.selected_attack                                                          # Profil droit de l'image attaquant
-        self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)                       # Profil gauche de l'image attaquant
-        self.perso_rect = self.selected_image.get_rect(topleft=(200, 300))                                         # Rect de l'image
+        self.selected_attack_right = self.selected_attack                                     # Profil droit de l'image attaquant
+        self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)  # Profil gauche de l'image attaquant
+        self.perso_rect = self.selected_image.get_rect(topleft=(200, 300))                    # Rect de l'image
         self.hitbox = pygame.Rect(self.perso_rect.x, self.perso_rect.y, self.perso_rect.width - 60, self.perso_rect.height - 10)  # Hitbox du personnage
         self.life = self.max_life
     
@@ -153,7 +160,7 @@ class Player:
             # Attaque
         if key[pygame.K_d] and not self.attack and self.can_attack and state == "game":  # Si la touche D est appuyée et que le joueur n''est pas déjà en train d''attaquer
             self.attack = True
-            start_time = time        # Enregistrer le temps de début de l''attaque pour gérer le délai entre les attaques
+            start_time = time  # Enregistrer le temps de début de l''attaque pour gérer le délai entre les attaques
             self.last_attack_time = time
             if self.direction == "left":
                 self.selected_image = self.selected_attack_left   # Si la direction est à gauche, changer l''image sélectionnée par celle de l''attaque du profil gauche
@@ -170,10 +177,10 @@ class Player:
         # Délai avant la prochaine attaque
         if self.attack and time - start_time >= self.attack_animation_time:
             if self.direction == "left":
-                self.selected_image = self.selected_image_left       # L'image revient à celle du profil gauche de l'image selectionnée
+                self.selected_image = self.selected_image_left   # L'image revient à celle du profil gauche de l'image selectionnée
             else:
-                self.selected_image = self.selected_image_right   # L'image revient à celle du profil droit de l'image selectionnée
-            self.attack = False                                   # Après le délai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient à celle de base
+                self.selected_image = self.selected_image_right  # L'image revient à celle du profil droit de l'image selectionnée
+            self.attack = False                                  # Après le délai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient à celle de base
         
         if time - start_time >= self.attack_animation_time + self.attack_delay:  # Après le délai d'attaque plus le temps entre les attaques, le joueur peut à nouveau attaquer
             self.can_attack = True
