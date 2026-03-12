@@ -446,7 +446,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
     
     # --- Le joueur attaquant ---
         # Attaque
-    if key[pygame.K_d] and not attack and can_attack and state == "game":         # Si la touche D est appuyée et que le joueur n'est pas déjà en train d'attaquer
+    if key[pygame.K_d] and not attack and can_attack and state == "game":  # Si la touche D est appuyée et que le joueur n'est pas déjà en train d'attaquer
         attack = True
         start_time = time        # Enregistrer le temps de début de l'attaque pour gérer le délai entre les attaques
         if direction == "left":

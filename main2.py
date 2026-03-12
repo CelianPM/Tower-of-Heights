@@ -13,11 +13,11 @@ pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, 
 
 # --- Pour les bruitages ---
     # Pour la musique de fond
-pygame.mixer.music.load("Assets/Sounds/MusiqueDeBase.mp3")  # Télécharger la musique de fond
+pygame.mixer.music.load("MusiqueDeBase.mp3")  # Télécharger la musique de fond
 pygame.mixer.music.set_volume(0.7)            # Régler le volume de la musique de fond à 70%
 
     # Pour le son du saut
-jump_sound = pygame.mixer.Sound("Assets/Sounds/Saut.wav")   # Son très moche qui va changer, mais qui est pour l'instant le son du saut
+jump_sound = pygame.mixer.Sound("Saut.wav")   # Son très moche qui va changer, mais qui est pour l'instant le son du saut
 jump_sound.set_volume(1)                      # Régler le volume du son du saut à 100%
 
 # --- Pour la fenêtre ---
@@ -50,8 +50,8 @@ PUSHBACK = 100     # La distance de recul quand le joueur ou le monstre est touc
 
 # --- Images et classes---
     # Heros
-perso1_image = pygame.image.load("Assets/Images/archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
-perso2_image = pygame.image.load("Assets/Images/epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
+perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
+perso2_image = pygame.image.load("epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
 
 perso1_rect_menu = perso1_image.get_rect(center = (WIDTH//2 - 150, HEIGHT//2))  # Rect de l'image de l'archer dans le menu de départ
 perso2_rect_menu = perso2_image.get_rect(center = (WIDTH//2 + 150, HEIGHT//2))  # Rect de l'image de l'épéiste dans le menu de départ
@@ -87,8 +87,9 @@ class Player:
         self.hitbox = None                 # Hitbox du personnage ( pour les collisions), non-definie pour l'instant
         self.xp = 0
         self.on_ground = on_ground
+        self.xp_lvl_up = 0
     
-    def select_the_image(self):
+    def select_the_player(self):
         """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi."""
         
         if self.hero == "archer":
@@ -96,7 +97,7 @@ class Player:
             self.selected_image = perso1_image                                                                # L'image sélectionnée est celle de l'archer
             self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("Assets/Images/archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
+            self.selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
             self.speed = 3
             self.max_life = 4
             self.regeneration_time = 25000
@@ -107,7 +108,7 @@ class Player:
             self.selected_image = perso2_image                                                                # L'image sélectionnée est celle de l'épéiste
             self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("Assets/Images/epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
+            self.selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
             self.speed = 4
             self.max_life = 5
             self.regeneration_time = 20000
@@ -122,17 +123,18 @@ class Player:
     
     def move(self, jump_sound, state, time, key, velocity, start_time):
         """Se charge de définir les mouvements du joueur et ses attaques."""
-            # --- Mouvements du joueur ---
+            
+        # --- Mouvements du joueur ---
             # Gauche
         if key[pygame.K_LEFT]:                                   # Si la touche de gauche est appuyée
-            self.hitbox.x -= self.speed                   # Déplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+            self.hitbox.x -= self.speed                          # Déplacer la hitbox vers la gauche en fonction de la vitesse du joueur
             if self.direction == "right":
                 self.selected_image = self.selected_image_left   # Si la direction précédente était à droite, changer l'image sélectionnée par celle du profil gauche
             self.direction = "left"                              # Mettre à jour la direction comme étant la gauche gauche
 
             # Droite
         if key[pygame.K_RIGHT]:                                  # Si la touche de droite est appuyée
-            self.hitbox.x += self.speed                   # Déplacer la hitbox vers la droite en fonction de la vitesse du joueur
+            self.hitbox.x += self.speed                          # Déplacer la hitbox vers la droite en fonction de la vitesse du joueur
             if self.direction == "left":
                 self.selected_image = self.selected_image_right  # Si la direction précédente était à gauche, changer l'image sélectionnée par celle du profil droit
             self.direction = "right"                             # Mettre à jour la direction comme étant la droite
@@ -145,29 +147,27 @@ class Player:
 
             # La gravité
         if not self.on_ground:
-            velocity += GRAVITY                             # Appliquer la gravité à la variable de vitesse pour faire retomber le joueur quand il n'est pas sur le sol
+            velocity += GRAVITY  # Appliquer la gravité à la variable de vitesse pour faire retomber le joueur quand il n'est pas sur le sol
 
-        # --- Le joueur attaquant ---
+        # --- L'attaque du joueur ---
             # Attaque
-        if key[pygame.K_d] and not self.attack and self.can_attack and state == "game":  # Si la touche D est appuyée et que le joueur n'est pas déjà en train d'attaquer
+        if key[pygame.K_d] and not self.attack and self.can_attack and state == "game":  # Si la touche D est appuyée et que le joueur n''est pas déjà en train d''attaquer
             self.attack = True
-            start_time = time                                                       # Enregistrer le temps de début de l'attaque pour gérer le délai entre les attaques
+            start_time = time        # Enregistrer le temps de début de l''attaque pour gérer le délai entre les attaques
             self.last_attack_time = time
-            self.can_attack = False
-            
             if self.direction == "left":
-                self.selected_image = self.selected_attack_left                          # Si la direction est à gauche, changer l'image sélectionnée par celle de l'attaque du profil gauche
+                self.selected_image = self.selected_attack_left   # Si la direction est à gauche, changer l''image sélectionnée par celle de l''attaque du profil gauche
             else:
-                self.selected_image = self.selected_attack_right                         # Si la direction est à droite, changer l'image sélectionnée par celle de l'attaque du profil droit
-
+                self.selected_image = self.selected_attack_right  # Si la direction est à droite, changer l''image sélectionnée par celle de l''attaque du profil droit
+            
             # Tirer une flèche uniquement si le cooldown est terminé
             if self.hero == "archer" and self.can_attack:
                 arrows.append(Arrow(self.hitbox.centerx, self.hitbox.centery, self))
                 self.last_attack_time = time        
-
+                    
             self.can_attack = False
 
-            # Délai avant la prochaine attaque
+        # Délai avant la prochaine attaque
         if self.attack and time - start_time >= self.attack_animation_time:
             if self.direction == "left":
                 self.selected_image = self.selected_image_left       # L'image revient à celle du profil gauche de l'image selectionnée
@@ -177,72 +177,90 @@ class Player:
         if not self.can_attack:
             if time - self.last_attack_time >= self.attack_delay:
                 self.can_attack = True
-            
-        self.hitbox.y += velocity  # Appliquer la variable de vitesse à la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
         return velocity, start_time
 
     def platform_collisions(self, platforms, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""
+        self.on_ground = False                                                      # Par défaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
         for platform in platforms :
-            if self.hitbox.colliderect(platform):  # Si la hitbox du personnage (et donc le personnage) est en collision avec une plateforme
-                # Collisions de chaque côté de la plateforme
+            if self.hitbox.colliderect(platform):                                   # Si la hitbox du personnage (et donc le personnage) est en collision avec une plateforme
+                
+                # Collisions du haut de la plateforme
                 if velocity > 0 and self.hitbox.bottom - velocity <= platform.top:  # Si le joueur est en train de tomber et que sa hitbox est juste au-dessus de la plateforme
                     self.hitbox.bottom = platform.top                               # Aligner le bas de la hitbox avec le dessus de la plateforme pour que le joueur puisse marcher dessus
-                    self.on_ground = True                                                 # Lorsqu'une plateforme est en dessous du joueur, il est au sol
-                    velocity = 0                                                          # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
-                if velocity < 0 and self.hitbox.top - velocity >= platform.bottom:       # Si le joueur est en train de sauter et que sa hitbox est juste en dessous de la plateforme
-                    self.hitbox.top = platform.bottom                                    # Aligner le haut de la hitbox avec le bas de la plateforme, de sorte à ce que cette plateforme crée un plafond que le joueur ne peut pas traverser en sautant
-                    velocity = 0                                                          # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
-                if self.hitbox.right - self.speed <= platform.left:               # Si le joueur se déplace vers la droite et que sa hitbox est juste à gauche de la plateforme
-                    self.hitbox.right = platform.left                                    # Aligner le côté droit de la hitbox avec le côté gauche de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la droite
-                if self.hitbox.left + self.speed >= platform.right:               # Si le joueur se déplace vers la gauche et que sa hitbox est juste à droite de la plateforme
-                    self.hitbox.left = platform.right                                    # Aligner le côté gauche de la hitbox avec le côté droit de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la gauche
+                    self.on_ground = True                                           # Lorsqu'une plateforme est en dessous du joueur, il est au sol
+                    velocity = 0                                                    # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
+                
+                # Collisions du bas de la plateforme
+                if velocity < 0 and self.hitbox.top - velocity >= platform.bottom:  # Si le joueur est en train de sauter et que sa hitbox est juste en dessous de la plateforme
+                    self.on_ground = False
+                    self.hitbox.top = platform.bottom                               # Aligner le haut de la hitbox avec le bas de la plateforme, de sorte à ce que cette plateforme crée un plafond que le joueur ne peut pas traverser en sautant
+                    velocity = 0                                                    # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
+                
+                # Collisions des côtés de la plateforme
+                if self.hitbox.right - self.speed <= platform.left:                 # Si le joueur se déplace vers la droite et que sa hitbox est juste à gauche de la plateforme
+                    self.hitbox.right = platform.left                               # Aligner le côté droit de la hitbox avec le côté gauche de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la droite
+                    self.on_ground = False
+                if self.hitbox.left + self.speed >= platform.right:                 # Si le joueur se déplace vers la gauche et que sa hitbox est juste à droite de la plateforme
+                    self.hitbox.left = platform.right                               # Aligner le côté gauche de la hitbox avec le côté droit de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la gauche
+                    self.on_ground = False
+        
+        self.hitbox.y += velocity  # Appliquer le mouvement vertical du joueur à sa hitbox après avoir géré les collisions avec les plateformes pour éviter que le joueur ne traverse les plateformes
+
         return velocity
 
     def monster_collisions(self, monsters, time, arrows):
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
-            if monster.alive and self.hitbox.colliderect(monster.rect):                           # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
+            if monster.alive and self.hitbox.colliderect(monster.rect):                                   # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
 
                 if self.attack:
                     if self.selected_image == self.selected_attack_left and self.hero == "swordsman":     # Si le joueur attaque vers la gauche avec l'épée
-                        if monster.rect.x < self.hitbox.x:                                        # Si le monstre est à gauche du joueur
-                            monster.life -= self.degat + self.puissance                                                # Le monstre perd une vie
+                        if monster.rect.x < self.hitbox.x:                                                # Si le monstre est à gauche du joueur
+                            monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x -= PUSHBACK
                     elif self.selected_image == self.selected_attack_right and self.hero == "swordsman":  # Si le joueur attaque vers la droite avec l'épée
-                        if monster.rect.x > self.hitbox.x:                                        # Si le monstre est à droite du joueur
-                            monster.life -= self.degat + self.puissance                                                # Le monstre perd une vie
+                        if monster.rect.x > self.hitbox.x:                                                # Si le monstre est à droite du joueur
+                            monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x += PUSHBACK
                     else:
                         if time - self.last_damage_time >= self.invincibility_time:
                             self.life -= 1
                             self.last_damage_time = time
 
-                    if monster.life <= 0:                                                    # Quand le monstre n'a plus de vies
-                        monster.alive = False                                                # Il est retiré du jeu
+                    if monster.life <= 0:                                   # Quand le monstre n'a plus de vies
+                        monster.alive = False                               # Il est retiré du jeu
                         self.xp += monster.xp_reward
                 
-                else:                                                                        # Si le joueur n'attaque pas
+                else:                                                       # Si le joueur n'attaque pas
                     if time - self.last_damage_time >= self.invincibility_time:
                         self.life -= 1
                         self.last_damage_time = time
 
                         if self.hitbox.x < monster.rect.x:
-                            self.hitbox.x -= PUSHBACK                                                 # Si le joueur est à gauche du monstre, il recule vers la gauche
+                            self.hitbox.x -= PUSHBACK                       # Si le joueur est à gauche du monstre, il recule vers la gauche
                         else:
-                            self.hitbox.x += PUSHBACK                                                 # Si le joueur est à droite du monstre, il recule vers la droite
+                            self.hitbox.x += PUSHBACK                       # Si le joueur est à droite du monstre, il recule vers la droite
             
             for arrow in arrows[:]:
-                if monster.alive and arrow.rect.colliderect(monster.rect):                   # Si la hitbox de la flèche est en collision avec celle du monstre
-                    monster.life -= self.degat + self.puissance                                                        # Le monstre perd une vie
+                if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la flèche est en collision avec celle du monstre
+                    monster.life -= self.degat + self.puissance             # Le monstre perd une vie
                     if arrow.direction == "right":
-                        monster.rect.x += PUSHBACK                                           # Si la flèche va vers la droite, le monstre recule vers la droite
+                        monster.rect.x += PUSHBACK                          # Si la flèche va vers la droite, le monstre recule vers la droite
                     else:
-                        monster.rect.x -= PUSHBACK                                           # Si la flèche va vers la gauche, le monstre recule vers la gauche
-                    arrows.remove(arrow)                                                     # Retirer la flèche du jeu
+                        monster.rect.x -= PUSHBACK                          # Si la flèche va vers la gauche, le monstre recule vers la gauche
+                    arrows.remove(arrow)                                    # Retirer la flèche du jeu
                     if monster.life <= 0:
-                        monster.alive = False                                                # Quand le monstre n'a plus de vies, il est retiré du jeu
+                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retiré du jeu
                         self.xp += monster.xp_reward
+    
+    def player_xp(self):
+        """Se charge de gérer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
+        for i in range(self.level + 1):
+            self.xp_lvl_up += i*2
+        if self.xp >= self.xp_lvl_up:
+            self.level += 1
+            self.point_attribut += 5
 
     def player_death(self, time, camera_y, state):
         """Se charge de dire quand le joueur est mort : lorsqu'il est hors de la fenêtre ou lorsqu'il n'a plus de vies (à cause des monstres)."""
@@ -264,27 +282,27 @@ player = Player(on_ground)  # Définit le joueur comme étant membre de la class
 
 
     # Fleche
-arrow_img = pygame.image.load("Assets/Images/fleche.png").convert_alpha()  # Charger l'image de la flèche
+arrow_img = pygame.image.load("fleche.png").convert_alpha()  # Charger l'image de la flèche
 arrow_right = arrow_img                                      # Le profil droit de la flèche est l'image de base
 arrow_left = pygame.transform.flip(arrow_img, True, False)   # Le profil gauche de la flèche est l'image de base retournée horizontalement
 
 class Arrow:
     def __init__(self, x, y, player):
-        self.direction = player.direction     # La direction de la flèche est définie par la direction du joueur au moment du tir, et ne change pas après
-        self.speed = 10                # La vitesse de la flèche, qui est constante et ne change pas selon la direction
+        self.direction = player.direction  # La direction de la flèche est définie par la direction du joueur au moment du tir, et ne change pas après
+        self.speed = 10                    # La vitesse de la flèche, qui est constante et ne change pas selon la direction
 
         if self.direction == "right":
-            self.image = arrow_right   # Le profil droit de la flèche est utilisé si la direction est à droite
+            self.image = arrow_right       # Le profil droit de la flèche est utilisé si la direction est à droite
             self.rect = self.image.get_rect(midleft = (x, y))
         else:
-            self.image = arrow_left    # Le profil gauche de la flèche est utilisé si la direction est à gauche
+            self.image = arrow_left        # Le profil gauche de la flèche est utilisé si la direction est à gauche
             self.rect = self.image.get_rect(midright = (x, y))
 
     def update(self):
         if self.direction == "right":
-            self.rect.x += self.speed  # La flèche se déplace vers la droite si sa direction est à droite
+            self.rect.x += self.speed      # La flèche se déplace vers la droite si sa direction est à droite
         else:
-            self.rect.x -= self.speed  # La flèche se déplace vers la gauche si sa direction est à gauche
+            self.rect.x -= self.speed      # La flèche se déplace vers la gauche si sa direction est à gauche
         if self.rect.right < 0 or self.rect.left > WIDTH:  # Si la flèche sort de l'écran, elle est retirée du jeu
             if self in arrows:
                 arrows.remove(self)
@@ -298,7 +316,7 @@ class Arrow:
         screen.blit(self.image, self.rect)  # Afficher la flèche à sa position actuelle sur l'écran
 
     # Monstre
-monster_img = pygame.transform.scale(pygame.image.load("Assets/Images/slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du monstre et la redimensionner à une taille plus appropriée
+monster_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du monstre et la redimensionner à une taille plus appropriée
 monster_right = monster_img                                                                        # Le profil droit du monstre est l'image de base
 monster_left = pygame.transform.flip(monster_img, True, False)                                     # Le profil gauche du monstre est l'image de base retournée horizontalement
 
@@ -365,8 +383,8 @@ class Monster:
         screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre à sa position actuelle sur l'écran, en tenant compte du décalage de la caméra
 
 
-slug_img = pygame.transform.scale(pygame.image.load("Assets/Images/slug.png").convert_alpha(), (150, 112))
-bat_img = pygame.transform.scale(pygame.image.load("Assets/Images/bat.png").convert_alpha(), (60, 28))
+slug_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112))
+bat_img = pygame.transform.scale(pygame.image.load("bat.png").convert_alpha(), (60, 28))
 
 class Slug(Monster):
     def __init__(self, x, y):
@@ -519,7 +537,7 @@ def menu_de_debut(state, perso1_rect_menu, perso2_rect_menu, event, player):
         player.hero = "swordsman"  # Le joueur choisi est l'épéiste
     
     if player.hero is not None:
-        player.select_the_image()
+        player.select_the_player()
 
     if player.selected_attack is None:
         return state, player
@@ -559,12 +577,9 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     velocity, start_time = player.move(jump_sound, state, time, key, velocity, start_time)
     velocity = player.platform_collisions(platforms, velocity)
     player.monster_collisions(monsters, time,arrows)
+    player.player_xp()
     state = player.player_death(time, camera_y,state)
 
-        # --- Gestion du cooldown de l'archer ---
-    if player.hero == "archer" and not player.can_attack:
-        if time - player.last_attack_time >= player.attack_delay:
-            player.can_attack = True  # Cooldown terminé, le joueur peut tirer à nouveau            
 
     # --- Monster movement ---
     for monster in monsters:
@@ -575,15 +590,8 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     if key[pygame.K_m]:
         state = "menu_attribut"    # Passer à l'état correspondant à celui du menu de départ
         pygame.mixer.music.stop()  # Arrêter la musique de fond
-
-    xp_lvl_up = 0
-    for i in range(player.level + 1):
-        xp_lvl_up += i*2
-    if player.xp >= xp_lvl_up:
-        player.level += 1
-        player.point_attribut += 5
     
-    return velocity, state, camera_y, player
+    return velocity, state, camera_y, player, start_time
 
 def death(state, event, restart_rect_death, end_rect_death, player):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
@@ -738,7 +746,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, camera_y, player = game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        velocity, state, camera_y, player, start_time = game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -799,3 +807,6 @@ pygame.quit()  # Arrêter Pygame et fermer la fenêtre du jeu
         - William
         - Samuel
 """
+
+
+
