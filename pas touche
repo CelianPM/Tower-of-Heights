@@ -243,7 +243,7 @@ class Item:
 # Liste des objets présents dans le monde
 items = [
     Item("Potion_vie", 260, 320, fiole_vie_img, quantity=1, usable=True, heal_amount=1),
-    Item("Potion_puissance", 550, 120, fiole_puissance_img, quantity=1, usable=True, heal_amount=1),
+    Item("Potion_puissance", 550, 120, fiole_puissance_img, quantity=1, usable=True, heal_amount=100),
     Item("Potion_vitesse", 260, 320, fiole_vitesse_img, quantity=1, usable=True, heal_amount=1),
     Item("rune_vie", 550, 120, rune_vie_img, quantity=1, usable=False, heal_amount=0),
     Item("rune_puissance", 260, 320, rune_puissance_img, quantity=1, usable=False, heal_amount=0),
@@ -356,30 +356,62 @@ def add_item_to_inventory(inventory, item):
     return False
 
 
-def use_inventory_slot(inventory, slot_index, life, max_life):
+def use_inventory_slot(inventory, slot_index, life, max_life, player_speed, puissance):
     """Utilise le slot demandé si utilisable et retourne (life, message)."""
     slot = inventory[slot_index]
     if slot is None:
-        return life, f"Slot {slot_index + 1} vide"
+        return life, player_speed, puissance, f"Slot {slot_index + 1} vide"
 
     if not slot.get("usable", False):
-        return life, f"{slot['name']} non utilisable"
+        return life, player_speed, puissance, f"{slot['name']} non utilisable"
 
     used = False
-    if slot.get("usable", False):
+    item_name = slot.get("name")
+
+    if item_name == "Potion_vie":
         if life < max_life:
             life = min(max_life, life + slot.get("heal_amount", 0))
             used = True
         else:
-            return life, "Vie déjà au maximum"
+            return life, player_speed, puissance, "Vie déjà au maximum"
+    elif item_name == "Potion_vitesse":
+        player_speed += slot.get("heal_amount", 0)
+        used = True
+    elif item_name == "Potion_puissance":
+        puissance += slot.get("heal_amount", 0)
+        used = True
 
     if used:
         slot["quantity"] -= 1
         if slot["quantity"] <= 0:
             inventory[slot_index] = None
-        return life, f"{slot['name']} utilisé"
+        return life, player_speed, puissance, f"{slot['name']} utilisé"
 
-    return life, "Aucun effet"
+    return life, player_speed, puissance, "Aucun effet"
+
+
+def drop_inventory_slot(inventory, slot_index, items, x, y):
+    """Jette 1 objet du slot donné au sol proche du joueur."""
+    slot = inventory[slot_index]
+    if slot is None:
+        return "Rien à jeter"
+
+    item = Item(
+        slot["name"],
+        x,
+        y,
+        slot["image"],
+        quantity=1,
+        usable=slot.get("usable", False),
+        heal_amount=slot.get("heal_amount", 0)
+    )
+    items.append(item)
+
+    slot["quantity"] -= 1
+    if slot["quantity"] <= 0:
+        inventory[slot_index] = None
+
+    return f"{item.name} jeté"
 
 
 def draw_inventory_hud(screen, inventory, slot_hold_start, slot_use_lock, current_time):
@@ -615,13 +647,23 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
                 slot_use_lock[slot_index] = False
 
             if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= ITEM_USE_HOLD_MS):
-                life, feedback = use_inventory_slot(inventory, slot_index, life, max_life)
+                life, player_speed, puissance, feedback = use_inventory_slot(inventory, slot_index, life, max_life, player_speed, puissance)
                 last_inventory_feedback = feedback
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
         else:
             slot_hold_start[slot_index] = None
             slot_use_lock[slot_index] = False
+
+    # Jeter un objet: maintenir A + numéro du slot (1..5)
+    if key[pygame.K_a]:
+        for slot_index, key_code in enumerate(slot_keys):
+            if key[key_code] and not slot_use_lock[slot_index]:
+                dropped_x = hitbox.centerx
+                dropped_y = hitbox.bottom
+                last_inventory_feedback = drop_inventory_slot(inventory, slot_index, items, dropped_x, dropped_y)
+                last_inventory_feedback_time = time
+                slot_use_lock[slot_index] = True
 
     # --- Monster movement ---
     for monster in monsters:
@@ -700,7 +742,8 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
 
 
     
-    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
+    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, player_speed, puissance, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
+
 
 def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut, level, inventory, items):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
@@ -711,14 +754,14 @@ def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut, 
     xp = 0
     level = 0
     point_attribut = 0
-    inventory = {}
+    inventory = [None] * INVENTORY_SLOTS
     items = [
-    Item("Potion_vie", 260, 320, fiole_vie_img),
-    Item("Potion_puissance", 550, 120, fiole_puissance_img),
-    Item("Potion_vitesse", 260, 320, fiole_vitesse_img),
-    Item("rune_vie", 550, 120, rune_vie_img),
-    Item("rune_puissance", 260, 320, rune_puissance_img),
-    Item("rune_vitesse", 550, 120, rune_vitesse_img),
+    Item("Potion_vie", 260, 320, fiole_vie_img, quantity=1, usable=True, heal_amount=1),
+    Item("Potion_puissance", 550, 120, fiole_puissance_img, quantity=1, usable=True, heal_amount=100),
+    Item("Potion_vitesse", 260, 320, fiole_vitesse_img, quantity=1, usable=True, heal_amount=1),
+    Item("rune_vie", 550, 120, rune_vie_img, quantity=1, usable=False, heal_amount=0),
+    Item("rune_puissance", 260, 320, rune_puissance_img, quantity=1, usable=False, heal_amount=0),
+    Item("rune_vitesse", 550, 120, rune_vitesse_img, quantity=1, usable=False, heal_amount=0),
     ]
     return state, xp, point_attribut, level, inventory, items
 
@@ -782,7 +825,7 @@ def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puiss
             attack_delay -= 10
     return level, state, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance
 
-def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay):
+def menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay, puissance):
    
     screen.fill((0, 0, 100))                                                      # Remplir l'écran d'une couleur de base
     txt = text_font.render("ATTRIBUT", True, RED)                                 # Définir le texte de l'écran

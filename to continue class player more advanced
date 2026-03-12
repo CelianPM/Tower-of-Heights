@@ -49,7 +49,7 @@ PUSHBACK = 100       # La distance de recul quand le joueur ou le monstre est to
 
 # --- Images et classes---
     # Heros
-perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
+perso1_image = pygame.image.load("archer_attack.png").convert_alpha()   # Charger l'image de l'archer
 perso2_image = pygame.image.load("epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
 perso3_image = pygame.image.load("ninja_ash.png").convert_alpha()
 
@@ -225,20 +225,35 @@ class Player:
         return velocity, start_time
 
     def platform_collisions(self, platforms, velocity):
-        for platform in platforms :
-            if self.hitbox.colliderect(platform):  # Si la hitbox du personnage (et donc le personnage) est en collision avec une plateforme
-                # Collisions de chaque côté de la plateforme
-                if velocity > 0 and self.hitbox.bottom - velocity <= platform.top:  # Si le joueur est en train de tomber et que sa hitbox est juste au-dessus de la plateforme
-                    self.hitbox.bottom = platform.top                               # Aligner le bas de la hitbox avec le dessus de la plateforme pour que le joueur puisse marcher dessus
-                    self.on_ground = True                                                 # Lorsqu'une plateforme est en dessous du joueur, il est au sol
-                    velocity = 0                                                          # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
-                if velocity < 0 and self.hitbox.top - velocity >= platform.bottom:       # Si le joueur est en train de sauter et que sa hitbox est juste en dessous de la plateforme
-                    self.hitbox.top = platform.bottom                                    # Aligner le haut de la hitbox avec le bas de la plateforme, de sorte à ce que cette plateforme crée un plafond que le joueur ne peut pas traverser en sautant
-                    velocity = 0                                                          # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
-                if self.hitbox.right - self.speed <= platform.left:               # Si le joueur se déplace vers la droite et que sa hitbox est juste à gauche de la plateforme
-                    self.hitbox.right = platform.left                                    # Aligner le côté droit de la hitbox avec le côté gauche de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la droite
-                if self.hitbox.left + self.speed >= platform.right:               # Si le joueur se déplace vers la gauche et que sa hitbox est juste à droite de la plateforme
-                    self.hitbox.left = platform.right                                    # Aligner le côté gauche de la hitbox avec le côté droit de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la gauche
+        # On recalcule l'état "au sol" à chaque frame pour tomber correctement en sortant d'un bord.
+        self.on_ground = False
+
+        for platform in platforms:
+            horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
+
+            # Collision verticale descendante (atterrissage), y compris si on traverse un tile en une frame.
+            if velocity >= 0 and horizontal_overlap:
+                previous_bottom = self.hitbox.bottom - velocity
+                if previous_bottom <= platform.top <= self.hitbox.bottom:
+                    self.hitbox.bottom = platform.top
+                    self.on_ground = True
+                    velocity = 0
+                    continue
+
+            # Collision verticale montante (plafond).
+            if velocity < 0 and horizontal_overlap:
+                previous_top = self.hitbox.top - velocity
+                if self.hitbox.top <= platform.bottom <= previous_top:
+                    self.hitbox.top = platform.bottom
+                    velocity = 0
+                    continue
+
+            # Collisions latérales uniquement en cas de recouvrement réel.
+            if self.hitbox.colliderect(platform):
+                if self.hitbox.right - self.speed <= platform.left:
+                    self.hitbox.right = platform.left
+                if self.hitbox.left + self.speed >= platform.right:
+                    self.hitbox.left = platform.right
         return velocity
 
     def monster_collisions(self, monsters, time, arrows):
@@ -482,20 +497,53 @@ class Bat(Monster):
         
         self.overlap(monsters)
 
+tile_size = 32
+map_design = [
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"................................",
+"........###.....................",
+"........###.....................",
+"...........###..................",
+"...........###..................",
+"......###.......................",
+"......###.......................",
+"################################"
+]
+def create_platforms_from_map(map_design):
+    platforms = []
 
+    map_height_pixels = len(map_design) * tile_size
+    offset_y = HEIGHT - map_height_pixels
+
+
+    for row_index, row in enumerate(map_design):
+        for col_index, cell in enumerate(row):
+
+            if cell == "#":
+                x = col_index * tile_size
+                y = row_index * tile_size + offset_y
+
+                rect = pygame.Rect(x, y, tile_size, tile_size)
+                platforms.append(rect)
+
+    return platforms
+
+platforms = create_platforms_from_map(map_design)
 # --- Dictionnaires ---
     # Plateformes
-platforms = [
-    pygame.Rect(0, HEIGHT - 25, WIDTH, 25),
-    pygame.Rect(100, 950, 80, 25),
-    pygame.Rect(100, 850, 80, 25),
-    pygame.Rect(100, 700, 80, 25),
-    pygame.Rect(100, 550, 80, 25),
-    pygame.Rect(120, 450, 80, 25),
-    pygame.Rect(260, 350, 80, 25),
-    pygame.Rect(400, 250, 80, 25),
-    pygame.Rect(550, 150, 80, 25),
-]
+
 
     # Monstres
 monsters = [
@@ -844,6 +892,8 @@ while running:
         target_camera = player.hitbox.y - HEIGHT//2             # La position cible de la caméra est calculée pour que le personnage soit toujours à la moitié de l'écran en hauteur, sauf si le personnage est en dessous de cette moitié, auquel cas la caméra ne descend pas plus bas que le sol (camera_y = 0)
         camera_y += (target_camera - camera_y) * CAMERA_SMOOTH  # Pour faire en sorte que la caméra suive le joueur de manière lissée, on calcule la position cible de la caméra en fonction de la position du joueur, et on ajuste progressivement la position actuelle de la caméra vers cette position cible en utilisant un facteur de lissage (CAMERA_SMOOTH)
     
+    camera_y = max(camera_y, 0)
+
     if state == "game" :
         for arrow in arrows[:]: 
             arrow.update()  # Mettre à jour la position de chaque flèche en fonction de sa direction et de sa vitesse, et retirer les flèches qui sortent de l'écran pour éviter d'avoir trop de flèches inutiles dans la liste des flèches
