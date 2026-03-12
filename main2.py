@@ -1,5 +1,6 @@
-import pygame # Importer la bibliothèque
-import math
+import pygame # Importer la bibliothèque pygame pour créer le jeu
+import math   # Impoter la bibliothèque math pour les calculs de distance et de direction des monstres volants
+
 # Initialier pygame
 pygame.init()        # Initialiser tous les modules de pygame
 pygame.mixer.init()  # Initialiser le module de son de pygame
@@ -38,14 +39,14 @@ WIDTH = screen.get_width()    # Largeur de l'ecran
 HEIGHT = screen.get_height()  # Hauteur de l'ecran
 camera_y = 0                  # Position verticale de la caméra, qui va suivre le joueur quand il monte
 CAMERA_SMOOTH = 0.1           # Facteur de lissage pour le mouvement de la caméra, plus il est élevé, plus la caméra suit rapidement le joueur
-state = "menu_de_debut" # Le jeu demarre sur la fenêtre de menu
+state = "menu_de_debut"       # Le jeu demarre sur la fenêtre de menu
 
 # --- Variables communes ---
-GRAVITY = 0.4        # vitesse de chute --non
-velocity = 0         # variable = vitesse de saut - vitesse de chute --non
-on_ground = False    # contact avec le sol --non
-start_time = 0       # Lorsque le jeu commence, le temps de départ est à 0 --non
-PUSHBACK = 100       # La distance de recul quand le joueur ou le monstre est touché --non
+GRAVITY = 0.4      # vitesse de chute --non
+velocity = 0       # variable = vitesse de saut - vitesse de chute --non
+on_ground = False  # contact avec le sol --non
+start_time = 0     # Lorsque le jeu commence, le temps de départ est à 0 --non
+PUSHBACK = 100     # La distance de recul quand le joueur ou le monstre est touché --non
 
 # --- Images et classes---
     # Heros
