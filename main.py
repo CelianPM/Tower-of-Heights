@@ -216,6 +216,10 @@ class Bat(Monster):
         self.overlap(monsters)
 
 # --- Items / Inventaire ---
+INVENTORY_SLOTS = 5
+ITEM_USE_HOLD_MS = 1000
+slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
+
 fiole_vie_img = pygame.transform.scale(pygame.image.load("fiole_vie.png").convert_alpha(), (32, 32))
 fiole_puissance_img = pygame.transform.scale(pygame.image.load("fiole_puissance.png").convert_alpha(), (32, 32))
 fiole_vitesse_img = pygame.transform.scale(pygame.image.load("fiole_vitesse.png").convert_alpha(), (32, 32))
@@ -224,28 +228,34 @@ rune_puissance_img = pygame.transform.scale(pygame.image.load("rune_puissance.pn
 rune_vitesse_img = pygame.transform.scale(pygame.image.load("rune_vitesse.png").convert_alpha(), (32, 32))
 
 class Item:
-    def __init__(self, name, x, y, image, quantity=1):
+    def __init__(self, name, x, y, image, quantity=1, usable=False, heal_amount=0):
         self.name = name
         self.image = image
         self.rect = self.image.get_rect(topleft=(x, y))
         self.quantity = quantity
+        self.usable = usable
+        self.heal_amount = heal_amount
+
 
     def draw(self, screen, camera_y=0):
         screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
 # Liste des objets présents dans le monde
 items = [
-    Item("Potion_vie", 260, 320, fiole_vie_img),
-    Item("Potion_puissance", 550, 120, fiole_puissance_img),
-    Item("Potion_vitesse", 260, 320, fiole_vitesse_img),
-    Item("rune_vie", 550, 120, rune_vie_img),
-    Item("rune_puissance", 260, 320, rune_puissance_img),
-    Item("rune_vitesse", 550, 120, rune_vitesse_img),
+    Item("Potion_vie", 260, 320, fiole_vie_img, quantity=1, usable=True, heal_amount=1),
+    Item("Potion_puissance", 550, 120, fiole_puissance_img, quantity=1, usable=True, heal_amount=1),
+    Item("Potion_vitesse", 260, 320, fiole_vitesse_img, quantity=1, usable=True, heal_amount=1),
+    Item("rune_vie", 550, 120, rune_vie_img, quantity=1, usable=False, heal_amount=0),
+    Item("rune_puissance", 260, 320, rune_puissance_img, quantity=1, usable=False, heal_amount=0),
+    Item("rune_vitesse", 550, 120, rune_vitesse_img, quantity=1, usable=False, heal_amount=0),
 ]
 
-# Inventaire du joueur
-inventory = {}
-pickup_pressed = False   # évite de ramasser 60 fois si E reste appuyé
+# Inventaire limité à 5 slots
+inventory = [None] * INVENTORY_SLOTS
+slot_hold_start = [None] * INVENTORY_SLOTS
+slot_use_lock = [False] * INVENTORY_SLOTS
+last_inventory_feedback = ""
+last_inventory_feedback_time = 0
 
 # --- Dictionnaires ---
     # Plateformes
@@ -323,6 +333,89 @@ quit_button = pygame.Rect(WIDTH//2 + 20, HEIGHT//2 + 40, 180, 60)       # Celui 
 
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
 title_rect = title_surface.get_rect(center=(WIDTH//2, 120))
+
+
+def add_item_to_inventory(inventory, item):
+    """Ajoute un item à l'inventaire (max 5 slots). Stack d'abord, sinon premier slot libre."""
+    for slot in inventory:
+        if slot and slot["name"] == item.name:
+            slot["quantity"] += item.quantity
+            return True
+
+    for index, slot in enumerate(inventory):
+        if slot is None:
+            inventory[index] = {
+                "name": item.name,
+                "image": item.image,
+                "quantity": item.quantity,
+                "usable": item.usable,
+                "heal_amount": item.heal_amount
+            }
+            return True
+
+    return False
+
+
+def use_inventory_slot(inventory, slot_index, life, max_life):
+    """Utilise le slot demandé si utilisable et retourne (life, message)."""
+    slot = inventory[slot_index]
+    if slot is None:
+        return life, f"Slot {slot_index + 1} vide"
+
+    if not slot.get("usable", False):
+        return life, f"{slot['name']} non utilisable"
+
+    used = False
+    if slot.get("usable", False):
+        if life < max_life:
+            life = min(max_life, life + slot.get("heal_amount", 0))
+            used = True
+        else:
+            return life, "Vie déjà au maximum"
+
+    if used:
+        slot["quantity"] -= 1
+        if slot["quantity"] <= 0:
+            inventory[slot_index] = None
+        return life, f"{slot['name']} utilisé"
+
+    return life, "Aucun effet"
+
+
+def draw_inventory_hud(screen, inventory, slot_hold_start, slot_use_lock, current_time):
+    """Affiche 5 slots avec icônes, quantités et progression de maintien (1s)."""
+    slot_size = 60
+    spacing = 12
+    start_x = 20
+    y = 70
+
+    for i in range(INVENTORY_SLOTS):
+        x = start_x + i * (slot_size + spacing)
+        slot_rect = pygame.Rect(x, y, slot_size, slot_size)
+        pygame.draw.rect(screen, (35, 35, 50), slot_rect)
+        pygame.draw.rect(screen, WHITE, slot_rect, 2)
+
+        num_txt = text_font.render(str(i + 1), True, WHITE)
+        screen.blit(num_txt, (x + 4, y + 2))
+
+        slot = inventory[i]
+        if slot:
+            icon_rect = slot["image"].get_rect(center=slot_rect.center)
+            screen.blit(slot["image"], icon_rect)
+            qty_txt = text_font.render(str(slot["quantity"]), True, WHITE)
+            screen.blit(qty_txt, (x + slot_size - qty_txt.get_width() - 4, y + slot_size - qty_txt.get_height() - 2))
+
+        # Barre de progression pour maintenir la touche 1 seconde
+        if slot_hold_start[i] is not None and slot and not slot_use_lock[i]:
+            progress = (current_time - slot_hold_start[i]) / ITEM_USE_HOLD_MS
+            progress = max(0.0, min(1.0, progress))
+            bar_bg = pygame.Rect(x, y + slot_size + 4, slot_size, 6)
+            bar_fill = pygame.Rect(x, y + slot_size + 4, int(slot_size * progress), 6)
+            pygame.draw.rect(screen, (80, 80, 80), bar_bg)
+            pygame.draw.rect(screen, GREEN, bar_fill)
+
+
+
 
 
 # ===============================
@@ -426,7 +519,7 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
     screen.blit(pour_pauser, (WIDTH//2 - pour_pauser.get_width()//2, HEIGHT - 60))                        # Pour afficher le texte
     pygame.display.flip()                                                                                 # Tout générer sur la fenêtre
 
-def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory):
+def game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     # --- Mouvements du joueur ---
         # Gauche
@@ -502,12 +595,33 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
             if hitbox.left + player_speed >= plateform.right:               # Si le joueur se déplace vers la gauche et que sa hitbox est juste à droite de la plateforme
                 hitbox.left = plateform.right                               # Aligner le côté gauche de la hitbox avec le côté droit de la plateforme, de sorte à ce que cette plateforme crée un mur que le joueur ne peut pas traverser en se déplaçant vers la gauche
             
+    # Ramassage des items avec E (respecte la limite de 5 slots)
     if key[pygame.K_e]:
         for item in items[:]:
             if hitbox.colliderect(item.rect):
-                inventory[item.name] = inventory.get(item.name, 0) + item.quantity
-                items.remove(item)
+                if add_item_to_inventory(inventory, item):
+                    items.remove(item)
+                    last_inventory_feedback = f"{item.name} ramassé"
+                else:
+                    last_inventory_feedback = "Inventaire plein (5 slots)"
+                last_inventory_feedback_time = time
 
+    # Utilisation d'objets: maintenir 1..5 pendant 1 seconde
+    for slot_index, key_code in enumerate(slot_keys):
+        slot = inventory[slot_index]
+        if key[key_code] and slot is not None and slot.get("usable", False):
+            if slot_hold_start[slot_index] is None:
+                slot_hold_start[slot_index] = time
+                slot_use_lock[slot_index] = False
+
+            if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= ITEM_USE_HOLD_MS):
+                life, feedback = use_inventory_slot(inventory, slot_index, life, max_life)
+                last_inventory_feedback = feedback
+                last_inventory_feedback_time = time
+                slot_use_lock[slot_index] = True
+        else:
+            slot_hold_start[slot_index] = None
+            slot_use_lock[slot_index] = False
 
     # --- Monster movement ---
     for monster in monsters:
@@ -586,7 +700,7 @@ def game(start_time, direction, attack, on_ground, velocity, max_life, state, se
 
 
     
-    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory
+    return start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
 def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut, level, inventory, items):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
@@ -753,8 +867,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
-
+        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
     # --- Pour generer l'ecran de mort ---
     if state == "death":
         death2(screen, WIDTH, HEIGHT, restart_rect_death, death_txt_font, WHITE, end_rect_death, monsters)  # Pour appeler la fonction death2() pour afficher l'écran de mort, et récupérer les variables mises à jour par cette fonction
@@ -802,8 +915,11 @@ while running:
     for item in items:
         item.draw(screen, camera_y)
 
-    inventory_text = text_font.render("Inventaire : " + str(inventory), True, WHITE)
-    screen.blit(inventory_text, (20, 60))
+    draw_inventory_hud(screen, inventory, slot_hold_start, slot_use_lock, time)
+    if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
+        feedback_text = text_font.render(last_inventory_feedback, True, WHITE)
+        screen.blit(feedback_text, (20, 150))
+
     pygame.display.flip()
 pygame.quit()  # Arrêter Pygame et fermer la fenêtre du jeu
 
