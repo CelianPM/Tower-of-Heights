@@ -867,14 +867,14 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
-    # --- Pour generer l'ecran de mort ---
+                start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, camera_y, last_attack_time, last_damage_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, player_speed, puissance, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = game(start_time, direction, attack, on_ground, velocity, max_life, state, selected_image, selected_image_left, selected_image_right, selected_attack_left, selected_attack_right, hitbox, player, monsters, arrows, GRAVITY, jump_power, player_speed, PUSHBACK, camera_y, HEIGHT, time, key, last_attack_time, last_damage_time, attack_delay, attack_animation_time, can_attack, xp, level, point_attribut, life, regenaration_time, degat, puissance, items, inventory, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        # --- Pour generer l'ecran de mort ---
     if state == "death":
         death2(screen, WIDTH, HEIGHT, restart_rect_death, death_txt_font, WHITE, end_rect_death, monsters)  # Pour appeler la fonction death2() pour afficher l'écran de mort, et récupérer les variables mises à jour par cette fonction
         continue
 
     if state == "menu_attribut":
-        menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay)
+        menu_attribut(screen, text_font, WIDTH, HEIGHT, RED, level, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player_speed, point_attribut, max_life, regenaration_time, attack_delay, , puissance)
         continue
 
     if state == "end":
