@@ -13,11 +13,11 @@ pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, 
 
 # --- Pour les bruitages ---
     # Pour la musique de fond
-pygame.mixer.music.load("MusiqueDeBase.mp3")  # Télécherger la musique de fond
+pygame.mixer.music.load("Assets/Sounds/MusiqueDeBase.mp3")  # Télécharger la musique de fond
 pygame.mixer.music.set_volume(0.7)            # Régler le volume de la musique de fond à 70%
 
     # Pour le son du saut
-jump_sound = pygame.mixer.Sound("Saut.wav")   # Son très moche qui va changer, mais qui est pour l'instant le son du saut
+jump_sound = pygame.mixer.Sound("Assets/Sounds/Saut.wav")   # Son très moche qui va changer, mais qui est pour l'instant le son du saut
 jump_sound.set_volume(1)                      # Régler le volume du son du saut à 100%
 
 # --- Pour la fenêtre ---
@@ -50,8 +50,8 @@ PUSHBACK = 100     # La distance de recul quand le joueur ou le monstre est touc
 
 # --- Images et classes---
     # Heros
-perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
-perso2_image = pygame.image.load("epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
+perso1_image = pygame.image.load("Assets/Images/archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
+perso2_image = pygame.image.load("Assets/Images/epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
 
 perso1_rect_menu = perso1_image.get_rect(center = (WIDTH//2 - 150, HEIGHT//2))  # Rect de l'image de l'archer dans le menu de départ
 perso2_rect_menu = perso2_image.get_rect(center = (WIDTH//2 + 150, HEIGHT//2))  # Rect de l'image de l'épéiste dans le menu de départ
@@ -60,7 +60,7 @@ class Player:
     def __init__(self, on_ground):
         """Définit les variables requises par le joueur et importe la viariable on_ground pour en avoir une spécialement pour le joueur."""
         self.speed = 0            # vitesse du joueur
-        self.jump_power = -15     # puisssance de saut
+        self.jump_power = -15     # puissance de saut
         self.attack = False       # le héro n'attaque pas encore
         self.direction = "right"  # direction initiale
         self.attack_delay = 0     # le temps qu'il faut attendre avant de pouvoir rattaquer
@@ -96,7 +96,7 @@ class Player:
             self.selected_image = perso1_image                                                                # L'image sélectionnée est celle de l'archer
             self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
+            self.selected_attack = pygame.image.load("Assets/Images/archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
             self.speed = 3
             self.max_life = 4
             self.regeneration_time = 25000
@@ -107,7 +107,7 @@ class Player:
             self.selected_image = perso2_image                                                                # L'image sélectionnée est celle de l'épéiste
             self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
+            self.selected_attack = pygame.image.load("Assets/Images/epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
             self.speed = 4
             self.max_life = 5
             self.regeneration_time = 20000
@@ -264,7 +264,7 @@ player = Player(on_ground)  # Définit le joueur comme étant membre de la class
 
 
     # Fleche
-arrow_img = pygame.image.load("fleche.png").convert_alpha()  # Charger l'image de la flèche
+arrow_img = pygame.image.load("Assets/Images/fleche.png").convert_alpha()  # Charger l'image de la flèche
 arrow_right = arrow_img                                      # Le profil droit de la flèche est l'image de base
 arrow_left = pygame.transform.flip(arrow_img, True, False)   # Le profil gauche de la flèche est l'image de base retournée horizontalement
 
@@ -298,7 +298,7 @@ class Arrow:
         screen.blit(self.image, self.rect)  # Afficher la flèche à sa position actuelle sur l'écran
 
     # Monstre
-monster_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du monstre et la redimensionner à une taille plus appropriée
+monster_img = pygame.transform.scale(pygame.image.load("Assets/Images/slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du monstre et la redimensionner à une taille plus appropriée
 monster_right = monster_img                                                                        # Le profil droit du monstre est l'image de base
 monster_left = pygame.transform.flip(monster_img, True, False)                                     # Le profil gauche du monstre est l'image de base retournée horizontalement
 
@@ -365,8 +365,8 @@ class Monster:
         screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre à sa position actuelle sur l'écran, en tenant compte du décalage de la caméra
 
 
-slug_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112))
-bat_img = pygame.transform.scale(pygame.image.load("bat.png").convert_alpha(), (60, 28))
+slug_img = pygame.transform.scale(pygame.image.load("Assets/Images/slug.png").convert_alpha(), (150, 112))
+bat_img = pygame.transform.scale(pygame.image.load("Assets/Images/bat.png").convert_alpha(), (60, 28))
 
 class Slug(Monster):
     def __init__(self, x, y):
