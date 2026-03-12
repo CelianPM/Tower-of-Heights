@@ -13,11 +13,11 @@ pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, 
 
 # --- Pour les bruitages ---
     # Pour la musique de fond
-pygame.mixer.music.load("MusiqueDeBase.mp3")  # Télécharger la musique de fond
+pygame.mixer.music.load("Assets/Sounds/MusiqueDeBase.mp3")  # Télécharger la musique de fond
 pygame.mixer.music.set_volume(0.7)            # Régler le volume de la musique de fond à 70%
 
     # Pour le son du saut
-jump_sound = pygame.mixer.Sound("Saut.wav")   # Son très moche qui va changer, mais qui est pour l'instant le son du saut
+jump_sound = pygame.mixer.Sound("Assets/Sounds/Saut.wav")   # Son très moche qui va changer, mais qui est pour l'instant le son du saut
 jump_sound.set_volume(1)                      # Régler le volume du son du saut à 100%
 
 # --- Pour la fenêtre ---
@@ -50,8 +50,8 @@ PUSHBACK = 100     # La distance de recul quand le joueur ou le monstre est touc
 
 # --- Images et classes---
     # Heros
-perso1_image = pygame.image.load("archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
-perso2_image = pygame.image.load("epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
+perso1_image = pygame.image.load("Assets/Images/archer-attaque.png").convert_alpha()   # Charger l'image de l'archer
+perso2_image = pygame.image.load("Assets/Images/epeiste_couleur.png").convert_alpha()  # Charger l'image de l'épéiste
 
 perso1_rect_menu = perso1_image.get_rect(center = (WIDTH//2 - 150, HEIGHT//2))  # Rect de l'image de l'archer dans le menu de départ
 perso2_rect_menu = perso2_image.get_rect(center = (WIDTH//2 + 150, HEIGHT//2))  # Rect de l'image de l'épéiste dans le menu de départ
@@ -97,7 +97,7 @@ class Player:
             self.selected_image = perso1_image                                                                # L'image sélectionnée est celle de l'archer
             self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
+            self.selected_attack = pygame.image.load("Assets/Images/archer_post_attaque.png").convert_alpha()               # Télécharge l'image de l'attaque de l'archer
             self.speed = 3
             self.max_life = 4
             self.regeneration_time = 25000
@@ -108,7 +108,7 @@ class Player:
             self.selected_image = perso2_image                                                                # L'image sélectionnée est celle de l'épéiste
             self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = pygame.image.load("epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
+            self.selected_attack = pygame.image.load("Assets/Images/epeiste_attaque.png").convert_alpha()                   # Télécharge l'image de l'attaque de l'épéiste
             self.speed = 4
             self.max_life = 5
             self.regeneration_time = 20000
@@ -174,8 +174,12 @@ class Player:
             else:
                 self.selected_image = self.selected_image_right   # L'image revient à celle du profil droit de l'image selectionnée
             self.attack = False                                   # Après le délai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient à celle de base
+        
+        if time - start_time >= self.attack_animation_time + self.attack_delay:  # Après le délai d'attaque plus le temps entre les attaques, le joueur peut à nouveau attaquer
+            self.can_attack = True
+
         if not self.can_attack:
-            if time - self.last_attack_time >= self.attack_delay:
+            if player == "archer" and time - self.last_attack_time >= self.attack_delay:
                 self.can_attack = True
         return velocity, start_time
 
@@ -261,6 +265,15 @@ class Player:
         if self.xp >= self.xp_lvl_up:
             self.level += 1
             self.point_attribut += 5
+    
+    def player_inventory(self, items, inventory, key):
+        if key[pygame.K_e]:
+            for item in items[:]:
+                if player.hitbox.colliderect(item.rect):
+                    inventory[item.name] = inventory.get(item.name, 0) + item.quantity
+                    items.remove(item)
+        
+        return items, inventory
 
     def player_death(self, time, camera_y, state):
         """Se charge de dire quand le joueur est mort : lorsqu'il est hors de la fenêtre ou lorsqu'il n'a plus de vies (à cause des monstres)."""
@@ -282,7 +295,7 @@ player = Player(on_ground)  # Définit le joueur comme étant membre de la class
 
 
     # Fleche
-arrow_img = pygame.image.load("fleche.png").convert_alpha()  # Charger l'image de la flèche
+arrow_img = pygame.image.load("Assets/Images/fleche.png").convert_alpha()  # Charger l'image de la flèche
 arrow_right = arrow_img                                      # Le profil droit de la flèche est l'image de base
 arrow_left = pygame.transform.flip(arrow_img, True, False)   # Le profil gauche de la flèche est l'image de base retournée horizontalement
 
@@ -316,7 +329,7 @@ class Arrow:
         screen.blit(self.image, self.rect)  # Afficher la flèche à sa position actuelle sur l'écran
 
     # Monstre
-monster_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du monstre et la redimensionner à une taille plus appropriée
+monster_img = pygame.transform.scale(pygame.image.load("Assets/Images/slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du monstre et la redimensionner à une taille plus appropriée
 monster_right = monster_img                                                                        # Le profil droit du monstre est l'image de base
 monster_left = pygame.transform.flip(monster_img, True, False)                                     # Le profil gauche du monstre est l'image de base retournée horizontalement
 
@@ -383,8 +396,8 @@ class Monster:
         screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre à sa position actuelle sur l'écran, en tenant compte du décalage de la caméra
 
 
-slug_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (150, 112))
-bat_img = pygame.transform.scale(pygame.image.load("bat.png").convert_alpha(), (60, 28))
+slug_img = pygame.transform.scale(pygame.image.load("Assets/Images/slug.png").convert_alpha(), (150, 112))
+bat_img = pygame.transform.scale(pygame.image.load("Assets/Images/bat.png").convert_alpha(), (60, 28))
 
 class Slug(Monster):
     def __init__(self, x, y):
@@ -430,6 +443,30 @@ class Bat(Monster):
         
         self.overlap(monsters)
 
+
+# --- Items / Inventaire ---
+potion_img = pygame.transform.scale(pygame.image.load("Assets/Images/fiole_puissance.png").convert_alpha(), (32, 32))
+
+class Item:
+    def __init__(self, name, x, y, image, quantity=1):
+        self.name = name
+        self.image = image
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.quantity = quantity
+
+    def draw(self, screen, camera_y=0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+
+# Liste des objets présents dans le monde
+items = [
+    Item("Potion", 260, 320, potion_img),
+    Item("Potion", 550, 120, potion_img),
+]
+
+
+# Inventaire du joueur
+inventory = {}
+pickup_pressed = False   # évite de ramasser 60 fois si E reste appuyé
 
 # --- Dictionnaires ---
     # Plateformes
@@ -571,13 +608,14 @@ def menu_de_debut2(screen, title_surface, title_rect, perso1_image, perso1_rect_
     screen.blit(pour_pauser, (WIDTH//2 - pour_pauser.get_width()//2, HEIGHT - 60))                        # Pour afficher le texte
     pygame.display.flip()                                                                                 # Tout générer sur la fenêtre
 
-def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player):
+def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory, items):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
     velocity, start_time = player.move(jump_sound, state, time, key, velocity, start_time)
     velocity = player.platform_collisions(platforms, velocity)
     player.monster_collisions(monsters, time,arrows)
     player.player_xp()
+    items, inventory = player.player_inventory(items, inventory, key)
     state = player.player_death(time, camera_y,state)
 
 
@@ -591,17 +629,23 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
         state = "menu_attribut"    # Passer à l'état correspondant à celui du menu de départ
         pygame.mixer.music.stop()  # Arrêter la musique de fond
     
-    return velocity, state, camera_y, player, start_time
+    return velocity, state, camera_y, player, start_time, inventory, items
 
-def death(state, event, restart_rect_death, end_rect_death, player):
+def death(state, event, restart_rect_death, end_rect_death, player, inventory, items):
     """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
     if restart_rect_death.collidepoint(event.pos):
         state = "menu_de_debut"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
     elif end_rect_death.collidepoint(event.pos):
         state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
     player.xp = 0
+    player.level = 0
     player.point_attribut = 0
-    return state, player
+    items = [
+    Item("Potion", 260, 320, potion_img),
+    Item("Potion", 550, 120, potion_img),
+    ]
+
+    return state, player, inventory, items
 
 def death2(screen, restart_rect_death, death_txt_font, end_rect_death, monsters):
     """S'occupe d'afficher l'écran de mort, avec les boutons pour recommencer ou arrêter le jeu, et de réinitialiser les variables du jeu pour pouvoir recommencer à zéro si le joueur choisit de rejouer"""
@@ -729,7 +773,7 @@ while running:
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = death(state, event, restart_rect_death, end_rect_death, player)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
+            state, player, inventory, items = death(state, event, restart_rect_death, end_rect_death, player, inventory, items)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             state, player = menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player)    
@@ -746,7 +790,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, camera_y, player, start_time = game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        velocity, state, camera_y, player, start_time, inventory, items = game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory, items)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -790,6 +834,10 @@ while running:
             screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     for arrow in arrows:
         screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les flèches à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
+    for item in items:
+        item.draw(screen, camera_y) 
+    inventory_text = text_font.render("Inventaire : " + str(inventory), True, WHITE)  # Afficher le texte de l'inventaire du joueur en bas à gauche de l'écran, avec la liste des objets présents dans l'inventaire (sous la forme d'un dictionnaire avec le nom de l'objet comme clé et la quantité de cet objet comme valeur)
+    screen.blit(inventory_text, (20, 50))
     txt = text_font.render("Vie : " + str(player.life) + "/" + str(player.max_life), True, WHITE)
     screen.blit(txt, (20, 20))
     pygame.display.flip()                                                                                                  # Tout générer sur la fenêtre
