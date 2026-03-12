@@ -216,7 +216,12 @@ class Bat(Monster):
         self.overlap(monsters)
 
 # --- Items / Inventaire ---
-potion_img = pygame.transform.scale(pygame.image.load("slug.png").convert_alpha(), (32, 32))
+fiole_vie_img = pygame.transform.scale(pygame.image.load("fiole_vie.png").convert_alpha(), (32, 32))
+fiole_puissance_img = pygame.transform.scale(pygame.image.load("fiole_puissance.png").convert_alpha(), (32, 32))
+fiole_vitesse_img = pygame.transform.scale(pygame.image.load("fiole_vitesse.png").convert_alpha(), (32, 32))
+rune_vie_img = pygame.transform.scale(pygame.image.load("rune_vie.png").convert_alpha(), (32, 32))
+rune_puissance_img = pygame.transform.scale(pygame.image.load("rune_puissance.png").convert_alpha(), (32, 32))
+rune_vitesse_img = pygame.transform.scale(pygame.image.load("rune_vitesse.png").convert_alpha(), (32, 32))
 
 class Item:
     def __init__(self, name, x, y, image, quantity=1):
@@ -230,8 +235,12 @@ class Item:
 
 # Liste des objets présents dans le monde
 items = [
-    Item("Potion", 260, 320, potion_img),
-    Item("Potion", 550, 120, potion_img),
+    Item("Potion_vie", 260, 320, fiole_vie_img),
+    Item("Potion_puissance", 550, 120, fiole_puissance_img),
+    Item("Potion_vitesse", 260, 320, fiole_vitesse_img),
+    Item("rune_vie", 550, 120, rune_vie_img),
+    Item("rune_puissance", 260, 320, rune_puissance_img),
+    Item("rune_vitesse", 550, 120, rune_vitesse_img),
 ]
 
 # Inventaire du joueur
@@ -244,7 +253,7 @@ plateforms = [
     pygame.Rect(0, HEIGHT - 25, WIDTH, 25),
     pygame.Rect(100, 950, 80, 25),
     pygame.Rect(100, 850, 80, 25),
-    pygame.Rect(100, 700, 80, 25),
+    pygame.Rect(100, 700, 120, 25),
     pygame.Rect(100, 550, 80, 25),
     pygame.Rect(120, 450, 80, 25),
     pygame.Rect(260, 350, 80, 25),
@@ -590,8 +599,12 @@ def death(state, event, restart_rect_death, end_rect_death, xp, point_attribut, 
     point_attribut = 0
     inventory = {}
     items = [
-    Item("Potion", 260, 320, potion_img),
-    Item("Potion", 550, 120, potion_img),
+    Item("Potion_vie", 260, 320, fiole_vie_img),
+    Item("Potion_puissance", 550, 120, fiole_puissance_img),
+    Item("Potion_vitesse", 260, 320, fiole_vitesse_img),
+    Item("rune_vie", 550, 120, rune_vie_img),
+    Item("rune_puissance", 260, 320, rune_puissance_img),
+    Item("rune_vitesse", 550, 120, rune_vitesse_img),
     ]
     return state, xp, point_attribut, level, inventory, items
 
