@@ -92,7 +92,8 @@ class Player:
         self.xp_lvl_up = 0
 
         self.frame_index = 0
-        self.animation_speed = 0
+        self.animation_speed = 0.1
+        self.prev_hitbox = None
     
     def select_the_player(self):
         """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi."""
@@ -176,6 +177,13 @@ class Player:
                 self.selected_image = self.selected_image_right  # Si la direction précédente était à gauche, changer l'image sélectionnée par celle du profil droit
             self.direction = "right"                             # Mettre à jour la direction comme étant la droite
 
+        is_moving = key[pygame.K_LEFT] or key[pygame.K_RIGHT]
+        if is_moving and not self.attack:
+            if self.direction == "left":
+                self.selected_image = self.animate(self.walk_frames_left)
+            else:
+                self.selected_image = self.animate(self.walk_frames_right)
+
             # Le saut
         if key[pygame.K_SPACE] and self.on_ground:               # Si la touche de saut est appuyée et que le joueur est au sol
             velocity += self.jump_power                          # Appliquer la puissance de saut à la variable de vitesse
@@ -199,19 +207,17 @@ class Player:
             self.attack = True
             start_time = time        # Enregistrer le temps de début de l''attaque pour gérer le délai entre les attaques
             self.last_attack_time = time
-            self.can_attack = False
 
             if self.direction == "left":
                 self.selected_image = self.selected_attack_left   # Si la direction est à gauche, changer l''image sélectionnée par celle de l''attaque du profil gauche
             else:
                 self.selected_image = self.selected_attack_right  # Si la direction est à droite, changer l''image sélectionnée par celle de l''attaque du profil droit
             
-            # Tirer une flèche uniquement si le cooldown est terminé
-            if self.hero == "archer" and self.can_attack:
+            if self.hero == "archer":
                 arrows.append(Arrow(self.hitbox.centerx, self.hitbox.centery, self))
                 self.last_attack_time = time 
 
-            if self.hero =="ninja" and self.can_attack:
+            if self.hero =="ninja":
                 shuris.append(Shuri(self.hitbox.centerx, self.hitbox.centery, self))
                 self.last_attack_time = time
 
@@ -229,42 +235,43 @@ class Player:
             self.can_attack = True
 
         if not self.can_attack:
-            if player == "archer" and time - self.last_attack_time >= self.attack_delay:
+            if self.hero == "archer" and time - self.last_attack_time >= self.attack_delay:
                 self.can_attack = True
 
+        self.prev_hitbox = self.hitbox.copy()
         self.hitbox.y += velocity  # Appliquer la variable de vitesse à la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
         return velocity, start_time
 
     def platform_collisions(self, platforms, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""
         self.on_ground = False                                                      # Par défaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
-        
-        for platform in platforms :
-            horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right                
+        previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
+
+        for platform in platforms:
+            if not self.hitbox.colliderect(platform):
+                continue
+
+            horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
+                
             # Collisions du haut de la plateforme
-            if velocity >= 0 and horizontal_overlap:
-                previous_bottom = self.hitbox.bottom - velocity
-                if previous_bottom <= platform.top <= self.hitbox.bottom:
-                    self.hitbox.bottom = platform.top
-                    self.on_ground = True
-                    velocity = 0
-                    continue                                                   # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
-                
+            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
+                self.hitbox.bottom = platform.top
+                self.on_ground = True
+                velocity = 0
+                continue                                                   # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
+   
             # Collisions du bas de la plateforme
-            if velocity < 0 and horizontal_overlap:
-                previous_top = self.hitbox.top - velocity
-                if self.hitbox.top <= platform.bottom <= previous_top:
-                    self.hitbox.top = platform.bottom
-                    velocity = 0
-                    continue                                                   # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
-                
+            if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
+                self.hitbox.top = platform.bottom
+                velocity = 0
+                continue                                                   # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
+
             # Collisions des côtés de la plateforme
-            if self.hitbox.colliderect(platform):
-                if self.hitbox.right - self.speed <= platform.left:
-                    self.hitbox.right = platform.left
-                if self.hitbox.left + self.speed >= platform.right:
-                    self.hitbox.left = platform.right
-        
+            if previous_hitbox.right <= platform.left:
+                self.hitbox.right = platform.left
+            elif previous_hitbox.left >= platform.right:
+                self.hitbox.left = platform.right
+
         return velocity
 
     def monster_collisions(self, monsters, time, arrows):
@@ -381,11 +388,15 @@ class Projectile:
         if self.rect.right < 0 or self.rect.left > WIDTH:  # Si la flèche sort de l'écran, elle est retirée du jeu
             if self in arrows:
                 arrows.remove(self)
+            if self in shuris:
+                shuris.remove(self)
         for platform in platforms:
             if self.rect.colliderect(platform):
                 if self in arrows:
                     arrows.remove(self)
-                    break
+                if self in shuris:
+                    shuris.remove(self)
+                break
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)  # Afficher la flèche à sa position actuelle sur l'écran
@@ -432,7 +443,9 @@ class Monster:
         self.alive = True                                                                                # Le monstre est vivant au début du jeu, et cette variable est utilisée pour déterminer s'il doit être affiché et s'il peut interagir avec le joueur
         self.speed = speed                                                                               # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
         self.xp_reward = xp_reward                                                                       # Quantité d'XP donnée quand ce monstre est vaincu
-    
+        self.frame_index = 0
+        self.animation_speed = 0.15
+
     def overlap(self, monsters, horizontal_only = False):
         for other in monsters:
             if other is self or not other.alive or other.__class__ is not self.__class__:
@@ -483,7 +496,8 @@ class Monster:
 
 
 slug_img = pygame.transform.scale(pygame.image.load("Images/Monsters/slug.png").convert_alpha(), (150, 112))
-bat_img = pygame.transform.scale(pygame.image.load("Images/Monsters/bat1.png").convert_alpha(), (60, 28))
+bat_img_1 = pygame.transform.scale(pygame.image.load("Images/Monsters/bat1.png").convert_alpha(), (60, 28))
+bat_img_2 = pygame.transform.scale(pygame.image.load("Images/Monsters/bat2.png").convert_alpha(), (60, 28))
 
 class Slug(Monster):
     def __init__(self, x, y):
@@ -501,11 +515,14 @@ class Bat(Monster):
         super().__init__(
             x,
             y,
-            image_right=bat_img,  # Image spécifique
+            image_right=bat_img_1,  # Image spécifique
             life=300,             # Moins de vie qu'un slug
             speed=3,              # Plus rapide qu'un slug
             xp_reward = 2
         )
+        self.frames_right = [bat_img_1, bat_img_2]
+        self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+
     def update(self, player_rect, monsters):
         if not self.alive:
             return
@@ -522,10 +539,15 @@ class Bat(Monster):
             self.rect.x += dx * self.speed
             self.rect.y += dy * self.speed
 
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(self.frames_right):
+            self.frame_index = 0
+        current_frame = int(self.frame_index)
+
         if dx < 0:
-            self.image = self.image_left
+            self.image = self.frames_left[current_frame]
         else:
-            self.image = self.image_right
+            self.image = self.frames_left[current_frame]
         
         self.overlap(monsters)
 
@@ -871,7 +893,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     state = player.player_death(time, camera_y,state)
 
     # --- Gestion du cooldown de l'archer ---
-    if player.hero == "archer" or player.hero == "ninja" and not player.can_attack:
+    if player.hero in ("archer", "ninja") and not player.can_attack:
         if time - player.last_attack_time >= player.attack_delay:
             player.can_attack = True  # Cooldown terminé, le joueur peut tirer à nouveau
 
