@@ -14,9 +14,13 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
 
+# --- Pour les touches ---
+key = pygame.key.get_pressed()  # Pour quand on appuie sur une touche
+
+
 # --- Le FPS ---
 clock = pygame.time.Clock() # Variable de FPS
-
+FPS = 60                    # Nombre de frames par seconde
 
 # --- Constantes pour la fenêtre ---
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Definit la taille de la fenêtre (plein ecran)

@@ -50,11 +50,11 @@ class Player:
         """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi."""
         
         if self.hero == "archer":
-            self.attack_delay = 800                                                                           # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
-            self.selected_image = imports.archer_image                                                                # L'image sélectionnée est celle de l'archer
-            self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = imports.attacking_archer               # Télécharge l'image de l'attaque de l'archer
+            self.attack_delay = 800                                                             # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
+            self.selected_image = imports.archer_image                                          # L'image sélectionnée est celle de l'archer
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
+            self.selected_attack = imports.attacking_archer                                     # Télécharge l'image de l'attaque de l'archer
             self.speed = 3
             self.max_life = 4
             self.regeneration_time = 25000
@@ -65,11 +65,11 @@ class Player:
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
         elif self.hero == "swordsman":
-            self.attack_delay = 300                                                                           # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
-            self.selected_image = imports.swordsman_image                                                                # L'image sélectionnée est celle de l'épéiste
-            self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = imports.attacking_swordsman                   # Télécharge l'image de l'attaque de l'épéiste
+            self.attack_delay = 300                                                             # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
+            self.selected_image = imports.swordsman_image                                       # L'image sélectionnée est celle de l'épéiste
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
+            self.selected_attack = imports.attacking_swordsman                                  # Télécharge l'image de l'attaque de l'épéiste
             self.speed = 4
             self.max_life = 5
             self.regeneration_time = 20000
@@ -82,11 +82,11 @@ class Player:
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
         elif self.hero == "ninja":
-            self.attack_delay = 200                                                                           # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
-            self.selected_image = imports.ninja_image                                                                # L'image sélectionnée est celle de l'épéiste
-            self.selected_image_right = self.selected_image                                                        # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)                     # Profil gauche de l'image sélectionnée
-            self.selected_attack = imports.ninja                   # Télécharge l'image de l'attaque de l'épéiste
+            self.attack_delay = 200                                                             # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
+            self.selected_image = imports.ninja_image                                           # L'image sélectionnée est celle de l'épéiste
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
+            self.selected_attack = imports.ninja                                                # Télécharge l'image de l'attaque de l'épéiste
             self.speed = 5
             self.max_life = 3
             self.regeneration_time = 20000
@@ -110,7 +110,7 @@ class Player:
         
         return frames[int(self.frame_index)]
     
-    def move(self, jump_sound, state, time, key, velocity, start_time):
+    def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens):
         """Se charge de définir les mouvements du joueur et ses attaques."""
         self.prev_hitbox = self.hitbox.copy()
 
@@ -279,6 +279,7 @@ class Player:
     
     def player_xp(self):
         """Se charge de gérer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
+        self.xp_lvl_up = 0
         for i in range(self.level + 1):
             self.xp_lvl_up += i*2
         if self.xp >= self.xp_lvl_up:
@@ -288,7 +289,7 @@ class Player:
     def player_inventory(self, items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed):
         """Gère le ramassage d'objet avec E et un feedback simple à l'écran."""
 
-        if key[pygame.K_e] and not pickup_pressed:
+        if globals.key[pygame.K_e] and not pickup_pressed:
             pickup_pressed = True
             for item in items[:]:
                 if self.hitbox.colliderect(item.rect):
@@ -300,7 +301,7 @@ class Player:
                     last_inventory_feedback_time = time
                     break
 
-        if not key[pygame.K_e]:
+        if not globals.key[pygame.K_e]:
             pickup_pressed = False
 
         return items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed

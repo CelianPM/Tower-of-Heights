@@ -1,17 +1,15 @@
 import pygame
-import buttons
-import globals, imports, inventory, classes_and_lists
+import globals, imports, buttons, inventory, classes_and_lists
 
 pygame.init()
 
 
-player = classes_and_lists.Player(globals.on_ground)  # Définit le joueur comme étant membre de la classe Player
 
 # =================================
-# FONCTIONS
+# PAUSE
 # =================================
 
-# --- Pause ---
+# --- Gere les boutons ---
 def paused__buttons_manager(state, event, continue_button, quit_button):
     """Gère les clics sur les boutons affichés boutons pour continuer ou arrêter le jeu lorsqu'il est mis en pause"""
     if buttons.continue_button.collidepoint(event.pos): # Si on appuie sur le bouton pour continuer
@@ -22,6 +20,7 @@ def paused__buttons_manager(state, event, continue_button, quit_button):
         state = "end"                           # Arrêter le jeu
     return state
 
+# --- Affiche les boutons ---
 def paused__buttons_displayer(screen, pause_box, text_font, continue_button, quit_button):
     """Affiche les boutons pour continuer ou arrêter le jeu lorsqu'il est mis en pause"""
     # Dessiner le rectangle de pause avec la question
@@ -42,8 +41,12 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
     pygame.display.flip() # Pour charger la fenêtre
 
 
-# --- Beginning menu ---
-def beginning_menu__manager(state, event, player):
+# =================================
+# PAUSE
+# =================================
+
+# --- Gere les boutons ---
+def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, event, player):
     """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi"""
     if imports.archer_menu_rect.collidepoint(event.pos):
         player.hero = "archer"     # Le joueur choisi est l'archer
@@ -69,6 +72,7 @@ def beginning_menu__manager(state, event, player):
     player.life = player.max_life
     return state, player
 
+# --- Affiche les boutons ---
 def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, archer_menu_rect, swordsman_image, swordsman_menu_rect, ninja_image, ninja_menu_rect, text_font):
     """Se charge d'afficher le menu de départ, avec les personnages à choisir et les instructions pour jouer"""
     # --- Remplir l'écran ---
@@ -90,14 +94,14 @@ def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, a
 
 
 # --- Game ---
-def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time):
+def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, shurikens):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
-    velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time)
-    velocity = player.platform_collisions(classes_and_lists.platforms, velocity)
+    velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens)
+    velocity = player.platform_collisions(platforms, velocity)
     player.monster_collisions(monsters, time,arrows)
     player.player_xp()
-    items, inventory_list, last_inventory_feedback, last_inventory_feedback_time = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time)
+    items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed)
     state = player.player_death(time, camera_y,state)
 
     # --- Gestion du cooldown de l'archer ---
@@ -118,8 +122,8 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     
     
     # --- Utilisation des slots (maintenir 1..5 pendant 1s) ---
-    for slot_index, key_code in enumerate(classes_and_lists.slot_keys):
-        if key[key_code]:
+    for slot_index, key_code in enumerate(inventory.slot_keys):
+        if globals.key[key_code]:
             if slot_hold_start[slot_index] is None:
                 slot_hold_start[slot_index] = time
                 slot_use_lock[slot_index] = False
@@ -133,16 +137,16 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
             slot_use_lock[slot_index] = False
 
     # --- Jet d'objet (Shift + 1..5) ---
-    if key[pygame.K_LSHIFT] or key[pygame.K_RSHIFT]:
-        for slot_index, key_code in enumerate(classes_and_lists.slot_keys):
-            if key[key_code] and not slot_use_lock[slot_index]:
+    if globals.key[pygame.K_LSHIFT] or globals.key[pygame.K_RSHIFT]:
+        for slot_index, key_code in enumerate(inventory.slot_keys):
+            if globals.key[key_code] and not slot_use_lock[slot_index]:
                 dropped_x = player.hitbox.centerx + 25
                 dropped_y = player.hitbox.bottom - 20
                 last_inventory_feedback = inventory.drop_inventory_slot(inventory_list, slot_index, items, dropped_x, dropped_y)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
 
-    return velocity, state, camera_y, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
+    return velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed
 
 
 # --- Musique de fond ---

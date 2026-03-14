@@ -8,13 +8,9 @@ pygame.mixer.init()  # Initialiser le module de son de pygame
 
 pygame.display.set_caption("Tower of Heights") # Quand la fenêtre est ouverte, afficher "Tower of Heights" dans la barre de titre
 
-# ================================
-# VARIABLES GLOBALES
-# ================================
 
 # --- Pour les bruitages ---
     # Pour la musique de fond
-pygame.mixer.music.load("Sounds/background_music.mp3")  # Télécharger la musique de fond
 pygame.mixer.music.set_volume(0.7)                      # Régler le volume de la musique de fond à 70%
 
 # --- Pour la fenêtre ---
@@ -29,7 +25,7 @@ functions.background_music()  # Lancer la musique de fond
     # Heros
 player = classes_and_lists.Player(globals.on_ground)  # Définit le joueur comme étant membre de la classe Player
 
-
+# --- Plateformes ---
 tile_size = 32
 with open("map.txt") as map_layout:
     map_design = map_layout.read().splitlines()
@@ -55,15 +51,18 @@ def create_platforms_from_map(map_design):
 
 platforms = create_platforms_from_map(map_design)
 
-# --- Items / Inventaire ---
-    # Inventaire du joueur (5 slots)
+
+# --- Variables importees ---
 last_inventory_feedback = ""
 last_inventory_feedback_time = 0
-
-
-# ===============================
-# FONCTIONS
-# ===============================
+velocity = globals.velocity
+camera_y = globals.camera_y
+start_time = globals.start_time
+inventory_list = inventory.inventory_list
+items = inventory.items
+slot_hold_start = inventory.slot_hold_start
+slot_use_lock = inventory.slot_use_lock
+pickup_pressed = False
 
 
 # ===============================
@@ -73,10 +72,9 @@ last_inventory_feedback_time = 0
 running = True # Variable du jeu
 
 while running:
-    globals.clock.tick(60) # FPS
-    time = pygame.time.get_ticks()  # pour relever le temps écoulé depuis le début du jeu (en millisecondes)
-
-    key = pygame.key.get_pressed()  # Pour quand on appuie sur une touche
+    globals.clock.tick(globals.FPS)          # FPS
+    time = pygame.time.get_ticks()           # pour relever le temps écoulé depuis le début du jeu (en millisecondes)
+    globals.key = pygame.key.get_pressed()  # Pour relever les touches actuellement appuyées
 
     for event in pygame.event.get():
         # --- Pour quitter le jeu ---
@@ -94,11 +92,11 @@ while running:
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = functions.beginning_menu__manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, event, player)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
+            state, player = functions.beginning_menu__manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, imports.ninja_menu_rect, event, player)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
+            state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory.inventory_list, inventory.items, inventory.slot_hold_start, inventory.slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             state, player = functions.attributes_menu__manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
@@ -110,12 +108,12 @@ while running:
         
     # --- Pour creer la page du menu de depart ---
     if state == "menu_de_debut":
-        functions.beginning_menu__displayer(globals.screen, buttons.title_surface, buttons.title_rect, imports.archer_image, imports.archer_menu_rect, imports.swordsman_image, imports.swordsman_menu_rect, buttons.text_font)  # Pour appeler la fonction menu_de_debut2() pour afficher la page du menu de départ
+        functions.beginning_menu__displayer(globals.screen, buttons.title_surface, buttons.title_rect, imports.archer_image, imports.archer_menu_rect, imports.swordsman_image, imports.swordsman_menu_rect, imports.ninja_image, imports.ninja_menu_rect, buttons.text_font)  # Pour appeler la fonction menu_de_debut2() pour afficher la page du menu de départ
         continue
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, camera_y, player, start_time, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.game(velocity, state, classes_and_lists.monsters, classes_and_lists.arrows, camera_y, time, key, start_time, player, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes_and_lists.monsters, classes_and_lists.arrows, camera_y, time, globals.key, start_time, player, inventory.inventory_list, inventory.items, inventory.slot_hold_start, inventory.slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes_and_lists.shurikens)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
 
     # --- Pour generer l'ecran de mort ---
@@ -148,9 +146,9 @@ while running:
     
     if state == "game" :
         for arrow in classes_and_lists.arrows[:]: 
-            arrow.update()  # Mettre à jour la position de chaque flèche en fonction de sa direction et de sa vitesse, et retirer les flèches qui sortent de l'écran pour éviter d'avoir trop de flèches inutiles dans la liste des flèches
-        for shuri in classes_and_lists.shurikens[:]: 
-            shuri.update()  # Mettre à jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'écran pour éviter d'avoir trop de shurikens inutiles dans la liste des shurikens
+            arrow.update(platforms, classes_and_lists.arrows, classes_and_lists.shurikens)  # Mettre à jour la position de chaque flèche en fonction de sa direction et de sa vitesse, et retirer les flèches qui sortent de l'écran pour éviter d'avoir trop de flèches inutiles dans la liste des flèches
+        for shuriken in classes_and_lists.shurikens[:]: 
+            shuriken.update(platforms, classes_and_lists.arrows, classes_and_lists.shurikens)  # Mettre à jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'écran pour éviter d'avoir trop de shurikens inutiles dans la liste des shurikens
 
     # --- Générer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'écran avec une couleur de base pour le jeu
@@ -162,9 +160,9 @@ while running:
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     for arrow in classes_and_lists.arrows:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les flèches à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
-    for item in classes_and_lists.items:
+    for item in inventory.items:
         item.draw(globals.screen, camera_y) 
-    inventory.draw_inventory_hud(globals.screen, inventory, slot_hold_start, slot_use_lock, time)
+    inventory.draw_inventory_hud(globals.screen, inventory.inventory_list, inventory.slot_hold_start, inventory.slot_use_lock, time)
     if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
         feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, 50))
