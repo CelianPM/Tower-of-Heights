@@ -696,7 +696,7 @@ def add_item_to_inventory(inventory, item):
                 "heal_amount": item.heal_amount,
             }
             return True
-
+        
     return False
 
 def use_inventory_slot(inventory, slot_index, player):
