@@ -12,7 +12,7 @@ player = classes_and_lists.Player(globals.on_ground)  # Définit le joueur comme
 # =================================
 
 # --- Pause ---
-def paused__buttons_manager(state, event, buttons.continue_button, buttons.quit_button):
+def paused__buttons_manager(state, event, continue_button, quit_button):
     """Gère les clics sur les boutons affichés boutons pour continuer ou arrêter le jeu lorsqu'il est mis en pause"""
     if buttons.continue_button.collidepoint(event.pos): # Si on appuie sur le bouton pour continuer
         state = "game"                          # Continuer le jeu
@@ -22,22 +22,22 @@ def paused__buttons_manager(state, event, buttons.continue_button, buttons.quit_
         state = "end"                           # Arrêter le jeu
     return state
 
-def paused__buttons_displayer(global_variables.screen, buttons.pause_box, text_font, buttons.continue_button, buttons.quit_button):
+def paused__buttons_displayer(screen, pause_box, text_font, continue_button, quit_button):
     """Affiche les boutons pour continuer ou arrêter le jeu lorsqu'il est mis en pause"""
     # Dessiner le rectangle de pause avec la question
-    pygame.draw.rect(global_variables.screen, global_variables.WHITE, buttons.pause_box)                                                                # Pour dessiner un rectangle blanc...
-    pygame.draw.rect(global_variables.screen, global_variables.BLACK, buttons.pause_box, 3)                                                             # ...et sa bordure noire
-    global_variables.screen.blit(buttons.text_font.render("Que veux-tu faire ?", True, global_variables.BLACK), (buttons.pause_box.x + 100, buttons.pause_box.y + 40))  # Pour afficher le texte
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_box)                                                                # Pour dessiner un rectangle blanc...
+    pygame.draw.rect(globals.screen, globals.BLACK, buttons.pause_box, 3)                                                             # ...et sa bordure noire
+    globals.screen.blit(buttons.text_font.render("Que veux-tu faire ?", True, globals.BLACK), (buttons.pause_box.x + 100, buttons.pause_box.y + 40))  # Pour afficher le texte
 
     # Bouton pour continuer
-    pygame.draw.rect(global_variables.screen, global_variables.GREEN, buttons.continue_button)                                                           # Pour dessiner un rectangle vert...
-    pygame.draw.rect(global_variables.screen, global_variables.BLACK, buttons.continue_button, 2)                                                        # ...et sa bordure noire
-    global_variables.screen.blit(buttons.text_font.render("Continuer", True, global_variables.BLACK), (buttons.continue_button.x + 20, buttons.continue_button.y + 15))  # Pour afficher le texte
+    pygame.draw.rect(globals.screen, globals.GREEN, buttons.continue_button)                                                           # Pour dessiner un rectangle vert...
+    pygame.draw.rect(globals.screen, globals.BLACK, buttons.continue_button, 2)                                                        # ...et sa bordure noire
+    globals.screen.blit(buttons.text_font.render("Continuer", True, globals.BLACK), (buttons.continue_button.x + 20, buttons.continue_button.y + 15))  # Pour afficher le texte
 
     # Bouton pour arrêter
-    pygame.draw.rect(global_variables.screen, global_variables.RED, buttons.quit_button)                                                                 # Pour dessiner un rectangle rouge...
-    pygame.draw.rect(global_variables.screen, global_variables.BLACK, buttons.quit_button, 2)                                                            # ...et sa bordure noire
-    global_variables.screen.blit(buttons.text_font.render("Quitter", True, global_variables.BLACK), (buttons.quit_button.x + 40, buttons.quit_button.y + 15))            # Pour afficher le texte
+    pygame.draw.rect(globals.screen, globals.RED, buttons.quit_button)                                                                 # Pour dessiner un rectangle rouge...
+    pygame.draw.rect(globals.screen, globals.BLACK, buttons.quit_button, 2)                                                            # ...et sa bordure noire
+    globals.screen.blit(buttons.text_font.render("Quitter", True, globals.BLACK), (buttons.quit_button.x + 40, buttons.quit_button.y + 15))            # Pour afficher le texte
 
     pygame.display.flip() # Pour charger la fenêtre
 
@@ -69,7 +69,7 @@ def beginning_menu__manager(state, event, player):
     player.life = player.max_life
     return state, player
 
-def beginning_menu__displayer(screen, title_surface, title_rect, perso1_image, perso1_rect_menu, perso2_image, perso2_rect_menu, text_font):
+def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, archer_menu_rect, swordsman_image, swordsman_menu_rect, ninja_image, ninja_menu_rect, text_font):
     """Se charge d'afficher le menu de départ, avec les personnages à choisir et les instructions pour jouer"""
     # --- Remplir l'écran ---
         # Avec la couleur
@@ -180,7 +180,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
-def death__displayer(globals.screen, buttons.restart_rect_death, buttons.death_text_font, buttons.end_rect_death, classes_and_lists.monsters):
+def death__displayer(screen, restart_rect_death, death_text_font, end_rect_death, monsters):
     """S'occupe d'afficher l'écran de mort, avec les boutons pour recommencer ou arrêter le jeu, et de réinitialiser les variables du jeu pour pouvoir recommencer à zéro si le joueur choisit de rejouer"""
     globals.screen.fill(globals.BLACK)  # Remplir l'écran de noir pour l'écran de mort
     pygame.mixer.music.stop()           # Arrêter la musique de fond quand le joueur meurt
@@ -207,7 +207,7 @@ def death__displayer(globals.screen, buttons.restart_rect_death, buttons.death_t
 
 
 # --- Menu des attributs ---
-def attributes_menu__displayer(globals.screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
+def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
    
     globals.screen.fill((0, 0, 100))                                                                     # Remplir l'écran d'une couleur de base
     txt = buttons.text_font.render("ATTRIBUT", True, globals.RED)                                                # Définir le texte de l'écran
