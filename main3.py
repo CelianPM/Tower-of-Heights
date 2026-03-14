@@ -161,7 +161,8 @@ class Player:
     
     def move(self, jump_sound, state, time, key, velocity, start_time):
         """Se charge de définir les mouvements du joueur et ses attaques."""
-            
+        self.prev_hitbox = self.hitbox.copy()
+
         # --- Mouvements du joueur ---
             # Gauche
         if key[pygame.K_LEFT]:                                   # Si la touche de gauche est appuyée
@@ -269,7 +270,7 @@ class Player:
             # Collisions des côtés de la plateforme
             if previous_hitbox.right <= platform.left:
                 self.hitbox.right = platform.left
-            elif previous_hitbox.left >= platform.right:
+            else:
                 self.hitbox.left = platform.right
 
         return velocity
