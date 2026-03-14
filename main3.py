@@ -239,7 +239,6 @@ class Player:
             if self.hero == "archer" and time - self.last_attack_time >= self.attack_delay:
                 self.can_attack = True
 
-        self.prev_hitbox = self.hitbox.copy()
         self.hitbox.y += velocity  # Appliquer la variable de vitesse à la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
         return velocity, start_time
 
@@ -268,11 +267,18 @@ class Player:
                 continue                                                   # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
 
             # Collisions des côtés de la plateforme
-            if previous_hitbox.right <= platform.left:
+            if previous_hitbox.right <= platform.left and self.hitbox.right > platform.left:
                 self.hitbox.right = platform.left
-            else:
+            elif previous_hitbox.left >= platform.right and self.hitbox.left < platform.right:
                 self.hitbox.left = platform.right
-
+            else:
+                overlap_left = self.hitbox.right - platform.left
+                overlap_right = platform.right - self.hitbox.left
+                if overlap_left < overlap_right:
+                    self.hitbox.right = platform.left
+                else:
+                    self.hitbox.left = platform.right
+                    
         return velocity
 
     def monster_collisions(self, monsters, time, arrows):
