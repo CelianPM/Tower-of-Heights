@@ -19,8 +19,6 @@ touche space = saut
 
 touche D = attaque
 
-touche F = inventaire
-
 touche M = menu des attributs
 
 touche E = ramasser objet(s)
