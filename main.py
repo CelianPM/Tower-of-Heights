@@ -379,7 +379,7 @@ arrow_img = pygame.image.load("Images/Archer/arrow.png").convert_alpha()  # Char
 arrow_right = arrow_img                                      # Le profil droit de la flèche est l'image de base
 arrow_left = pygame.transform.flip(arrow_img, True, False)   # Le profil gauche de la flèche est l'image de base retournée horizontalement
 
-shuri_img = pygame.image.load("Images/Monsters/slug.png").convert_alpha()  # Charger l'image du shuriken
+shuri_img = pygame.image.load("Images/Archer/shuriken.png").convert_alpha()  # Charger l'image du shuriken
 shuri_right = shuri_img                                      # Le profil droit du shuriken est l'image de base
 shuri_left = pygame.transform.flip(shuri_img, True, False)   # Le profil gauche du shuriken est l'image de base retournée horizontalement
   
