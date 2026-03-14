@@ -1,39 +1,43 @@
 import pygame
+import buttons
 import globals, imports, inventory, classes_and_lists
 
 pygame.init()
+
+
+player = classes_and_lists.Player(globals.on_ground)  # Définit le joueur comme étant membre de la classe Player
 
 # =================================
 # FONCTIONS
 # =================================
 
 # --- Pause ---
-def paused__buttons_manager(state, event, continue_button, quit_button):
+def paused__buttons_manager(state, event, buttons.continue_button, buttons.quit_button):
     """Gère les clics sur les boutons affichés boutons pour continuer ou arrêter le jeu lorsqu'il est mis en pause"""
-    if continue_button.collidepoint(event.pos): # Si on appuie sur le bouton pour continuer
+    if buttons.continue_button.collidepoint(event.pos): # Si on appuie sur le bouton pour continuer
         state = "game"                          # Continuer le jeu
         pygame.mixer.music.unpause()            # Continuer la musique
     
-    if quit_button.collidepoint(event.pos):     # Si on appuie sur le bouton pour quitter
+    if buttons.quit_button.collidepoint(event.pos):     # Si on appuie sur le bouton pour quitter
         state = "end"                           # Arrêter le jeu
     return state
 
-def paused__buttons_displayer(screen, pause_box, text_font, continue_button, quit_button):
+def paused__buttons_displayer(global_variables.screen, buttons.pause_box, text_font, buttons.continue_button, buttons.quit_button):
     """Affiche les boutons pour continuer ou arrêter le jeu lorsqu'il est mis en pause"""
     # Dessiner le rectangle de pause avec la question
-    pygame.draw.rect(screen, globals.WHITE, pause_box)                                                                # Pour dessiner un rectangle blanc...
-    pygame.draw.rect(screen, globals.BLACK, pause_box, 3)                                                             # ...et sa bordure noire
-    screen.blit(text_font.render("Que veux-tu faire ?", True, globals.BLACK), (pause_box.x + 100, pause_box.y + 40))  # Pour afficher le texte
+    pygame.draw.rect(global_variables.screen, global_variables.WHITE, buttons.pause_box)                                                                # Pour dessiner un rectangle blanc...
+    pygame.draw.rect(global_variables.screen, global_variables.BLACK, buttons.pause_box, 3)                                                             # ...et sa bordure noire
+    global_variables.screen.blit(buttons.text_font.render("Que veux-tu faire ?", True, global_variables.BLACK), (buttons.pause_box.x + 100, buttons.pause_box.y + 40))  # Pour afficher le texte
 
     # Bouton pour continuer
-    pygame.draw.rect(screen, globals.GREEN, continue_button)                                                           # Pour dessiner un rectangle vert...
-    pygame.draw.rect(screen, globals.BLACK, continue_button, 2)                                                        # ...et sa bordure noire
-    screen.blit(text_font.render("Continuer", True, globals.BLACK), (continue_button.x + 20, continue_button.y + 15))  # Pour afficher le texte
+    pygame.draw.rect(global_variables.screen, global_variables.GREEN, buttons.continue_button)                                                           # Pour dessiner un rectangle vert...
+    pygame.draw.rect(global_variables.screen, global_variables.BLACK, buttons.continue_button, 2)                                                        # ...et sa bordure noire
+    global_variables.screen.blit(buttons.text_font.render("Continuer", True, global_variables.BLACK), (buttons.continue_button.x + 20, buttons.continue_button.y + 15))  # Pour afficher le texte
 
     # Bouton pour arrêter
-    pygame.draw.rect(screen, globals.RED, quit_button)                                                                 # Pour dessiner un rectangle rouge...
-    pygame.draw.rect(screen, globals.BLACK, quit_button, 2)                                                            # ...et sa bordure noire
-    screen.blit(text_font.render("Quitter", True, globals.BLACK), (quit_button.x + 40, quit_button.y + 15))            # Pour afficher le texte
+    pygame.draw.rect(global_variables.screen, global_variables.RED, buttons.quit_button)                                                                 # Pour dessiner un rectangle rouge...
+    pygame.draw.rect(global_variables.screen, global_variables.BLACK, buttons.quit_button, 2)                                                            # ...et sa bordure noire
+    global_variables.screen.blit(buttons.text_font.render("Quitter", True, global_variables.BLACK), (buttons.quit_button.x + 40, buttons.quit_button.y + 15))            # Pour afficher le texte
 
     pygame.display.flip() # Pour charger la fenêtre
 
@@ -86,14 +90,14 @@ def beginning_menu__displayer(screen, title_surface, title_rect, perso1_image, p
 
 
 # --- Game ---
-def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time):
+def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time):
     """S'occupe de gérer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
     velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time)
     velocity = player.platform_collisions(classes_and_lists.platforms, velocity)
     player.monster_collisions(monsters, time,arrows)
     player.player_xp()
-    items, inventory, last_inventory_feedback, last_inventory_feedback_time = player.player_inventory(items, inventory, key, time, last_inventory_feedback, last_inventory_feedback_time)
+    items, inventory_list, last_inventory_feedback, last_inventory_feedback_time = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time)
     state = player.player_death(time, camera_y,state)
 
     # --- Gestion du cooldown de l'archer ---
@@ -112,12 +116,6 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
         state = "menu_attribut"    # Passer à l'état correspondant à celui du menu de départ
         pygame.mixer.music.stop()  # Arrêter la musique de fond
     
-    xp_lvl_up = 0
-    for i in range(player.level + 1):
-        xp_lvl_up += i*2
-    if player.xp >= xp_lvl_up:
-        player.level += 1
-        player.point_attribut += 5
     
     # --- Utilisation des slots (maintenir 1..5 pendant 1s) ---
     for slot_index, key_code in enumerate(classes_and_lists.slot_keys):
@@ -127,7 +125,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
                 slot_use_lock[slot_index] = False
 
             if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= globals.ITEM_USE_HOLD_MS):
-                last_inventory_feedback = inventory.use_inventory_slot(inventory, slot_index, player)
+                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
         else:
@@ -140,8 +138,106 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
             if key[key_code] and not slot_use_lock[slot_index]:
                 dropped_x = player.hitbox.centerx + 25
                 dropped_y = player.hitbox.bottom - 20
-                last_inventory_feedback = inventory.drop_inventory_slot(inventory, slot_index, items, dropped_x, dropped_y)
+                last_inventory_feedback = inventory.drop_inventory_slot(inventory_list, slot_index, items, dropped_x, dropped_y)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
 
-    return velocity, state, camera_y, player, start_time, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
+    return velocity, state, camera_y, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
+
+
+# --- Musique de fond ---
+def background_music():
+    pygame.mixer.music.load("Sounds/background_music.mp3")
+    pygame.mixer.music.set_volume(0.7)
+    pygame.mixer.music.play(-1)
+
+
+# --- Mort du joueur ---
+def death__manager(state, event, restart_rect_death, end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time):
+    """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
+
+    if restart_rect_death.collidepoint(event.pos):
+        state = "menu_de_debut"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
+    elif end_rect_death.collidepoint(event.pos):
+        state = "end"            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
+    player.xp = 0
+    player.level = 0
+    player.point_attribut = 0
+    inventory_list = [None] * globals.INVENTORY_SLOTS
+    slot_hold_start = [None] * globals.INVENTORY_SLOTS
+    slot_use_lock = [False] * globals.INVENTORY_SLOTS
+    last_inventory_feedback = ""
+    last_inventory_feedback_time = 0
+
+    items = [
+        inventory.Item("Potion_vie", 260, 320, imports.life_potion, quantity = 1, usable = True, heal_amount = 1),
+        inventory.Item("Potion_puissance", 550, 120, imports.power_potion, quantity = 1, usable = True, heal_amount = 100),
+        inventory.Item("Potion_vitesse", 260, 220, imports.speed_potion, quantity = 1, usable = True, heal_amount = 1),
+        inventory.Item("rune_vie", 550, 220, imports.life_rune, quantity = 1, usable = False, heal_amount = 0),
+        inventory.Item("rune_puissance", 260, 120, imports.power_rune, quantity = 1, usable = False, heal_amount = 0),
+        inventory.Item("rune_vitesse", 550, 20, imports.speed_rune, quantity = 1, usable = False, heal_amount = 0),
+    ]
+
+    return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
+
+def death__displayer(globals.screen, buttons.restart_rect_death, buttons.death_text_font, buttons.end_rect_death, classes_and_lists.monsters):
+    """S'occupe d'afficher l'écran de mort, avec les boutons pour recommencer ou arrêter le jeu, et de réinitialiser les variables du jeu pour pouvoir recommencer à zéro si le joueur choisit de rejouer"""
+    globals.screen.fill(globals.BLACK)  # Remplir l'écran de noir pour l'écran de mort
+    pygame.mixer.music.stop()           # Arrêter la musique de fond quand le joueur meurt
+
+    txt = buttons.death_text_font.render("Bienvenue au Royaume des Defunts", True, (150, 20, 40))  # Définir le texte de l'écran de mort
+    globals.screen.blit(txt, txt.get_rect(center = (globals.WIDTH//2, globals.HEIGHT//2 - 100)))   # Afficher le texte de l'écran de mort
+
+    # --- Pour les boutons ---
+        # Leur rect
+    pygame.draw.rect(globals.screen, (200, 0, 0), buttons.restart_rect_death)  # Dessiner un rectangle rouge pour le bouton de recommencer
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.end_rect_death)      # Dessiner un rectangle bleu pour le bouton d'arrêter
+
+        # Leur texte
+    txt_restart = buttons.text_font.render("Rejouer", True, globals.WHITE)  # Définir le texte du bouton pour recommencer
+    txt_end = buttons.text_font.render("Quitter", True, globals.WHITE)      # Définir le texte du bouton pour arrêter
+    
+        # Les afficher
+    globals.screen.blit(txt_restart, txt_restart.get_rect(center = buttons.restart_rect_death.center))  # Afficher le texte du bouton pour recommencer
+    globals.screen.blit(txt_end, txt_end.get_rect(center = buttons.end_rect_death.center))              # Afficher le texte du bouton pour arrêter
+    
+    for monster in classes_and_lists.monsters:
+        monster.reset()    # Faire recommencer à 0 les monstres avec les 3 vies de chaque monstre
+    pygame.display.flip()  # Tout générer sur la fenêtre
+
+
+# --- Menu des attributs ---
+def attributes_menu(globals.screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
+   
+    globals.screen.fill((0, 0, 100))                                                                     # Remplir l'écran d'une couleur de base
+    txt = buttons.text_font.render("ATTRIBUT", True, globals.RED)                                                # Définir le texte de l'écran
+    globals.screen.blit(txt, txt.get_rect(center = (globals.WIDTH//2, globals.HEIGHT//5)))               # Afficher le texte de l'écran
+    txt = buttons.text_font.render("level " + str(player.level), True, globals.WHITE)                            # Définir le texte de l'écran
+    globals.screen.blit(txt, txt.get_rect(center = (globals.WIDTH//3, globals.HEIGHT//4)))               # Afficher le texte de l'écran
+    txt = buttons.text_font.render("point(s) d'attribut(s) " + str(player.point_attribut), True, globals.WHITE)  # Définir le texte de l'écran
+    globals.screen.blit(txt, txt.get_rect(center = (globals.WIDTH//3*2, globals.HEIGHT//4)))             # Afficher le texte de l'écran
+
+
+    # --- Pour les boutons ---
+        # Leur rect
+    pygame.draw.rect(globals.screen, (200, 0, 0), buttons.continue_rect)  # Dessiner un rectangle rouge pour le bouton de recommencer
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.speed_rect)     # Dessiner un rectangle bleu pour le bouton d'arrêter
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.vitality_rect)
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.puissance_rect)
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.attack_delay_rect)
+
+        # Leur texte
+    txt_continue = buttons.text_font.render("Continuer", True, globals.WHITE)                    # Définir le texte du bouton pour recommencer
+    txt_speed = buttons.text_font.render("vitesse : " + str(player.speed), True, globals.WHITE)  # Définir le texte du bouton pour arrêter
+    txt_vitality = buttons.text_font.render("vie : " + str(player.max_life), True, globals.WHITE)
+    txt_puissance = buttons.text_font.render("puissance : " + str(player.puissance*40//100), True, globals.WHITE)
+    txt_attack_delay = buttons.text_font.render("vitesse d'attaque : " + str((1000 - player.attack_delay)/50), True, globals.WHITE)
+
+        # Les afficher
+    globals.screen.blit(txt_continue, txt_continue.get_rect(center = buttons.continue_rect.center))  # Afficher le texte du bouton pour recommencer
+    globals.screen.blit(txt_speed, txt_speed.get_rect(center = buttons.speed_rect.center))           # Afficher le texte du bouton pour arrêter
+    globals.screen.blit(txt_vitality, txt_vitality.get_rect(center = buttons.vitality_rect.center))
+    globals.screen.blit(txt_puissance, txt_puissance.get_rect(center = buttons.puissance_rect.center))
+    globals.screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center = buttons.attack_delay_rect.center))
+    
+    pygame.display.flip()  # Tout générer sur la fenêtre

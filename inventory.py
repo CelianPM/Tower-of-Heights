@@ -8,16 +8,16 @@ pygame.init()
 # FUNCTIONS
 # =================================
 
-def add_item_to_inventory(inventory, item):
+def add_item_to_inventory(inventory_list, item):
     """Ajoute un item à l'inventaire (max 5 slots). Stack d'abord, sinon premier slot libre."""
-    for slot in inventory:
+    for slot in inventory_list:
         if slot and slot["name"] == item.name:
             slot["quantity"] += item.quantity
             return True
 
-    for index, slot in enumerate(inventory):
+    for index, slot in enumerate(inventory_list):
         if slot is None:
-            inventory[index] = {
+            inventory_list[index] = {
                 "name": item.name,
                 "image": item.image,
                 "quantity": item.quantity,
@@ -28,9 +28,9 @@ def add_item_to_inventory(inventory, item):
         
     return False
 
-def use_inventory_slot(inventory, slot_index, player):
+def use_inventory_slot(inventory_list, slot_index, player):
     """Utilise le slot demandé si possible et retourne un message de feedback."""
-    slot = inventory[slot_index]
+    slot = inventory_list[slot_index]
     if slot is None:
         return f"Slot {slot_index + 1} vide"
 
@@ -57,14 +57,14 @@ def use_inventory_slot(inventory, slot_index, player):
         item_name_for_msg = slot["name"]
         slot["quantity"] -= 1
         if slot["quantity"] <= 0:
-            inventory[slot_index] = None
+            inventory_list[slot_index] = None
         return f"{item_name_for_msg} utilisé"
 
     return "Impossible d'utiliser cet objet"
 
-def drop_inventory_slot(inventory, slot_index, items, x, y):
+def drop_inventory_slot(inventory_list, slot_index, items, x, y):
     """Jette 1 objet du slot donné au sol proche du joueur."""
-    slot = inventory[slot_index]
+    slot = inventory_list[slot_index]
     if slot is None:
         return "Rien à jeter"
 
@@ -82,11 +82,11 @@ def drop_inventory_slot(inventory, slot_index, items, x, y):
     item_name_for_msg = slot["name"]
     slot["quantity"] -= 1
     if slot["quantity"] <= 0:
-        inventory[slot_index] = None
+        inventory_list[slot_index] = None
 
     return f"{item_name_for_msg} jeté"
 
-def draw_inventory_hud(screen, inventory, slot_hold_start, slot_use_lock, current_time):
+def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, current_time):
     """Affiche 5 slots avec icônes, quantités et progression de maintien (1s)."""
     slot_size = 60
     spacing = 12
@@ -103,7 +103,7 @@ def draw_inventory_hud(screen, inventory, slot_hold_start, slot_use_lock, curren
         label = buttons.text_font.render(str(i + 1), True, globals.WHITE)
         screen.blit(label, (x + 4, y + 2))
 
-        slot = inventory[i]
+        slot = inventory_list[i]
         if slot:
             icon_rect = slot["image"].get_rect(center=slot_rect.center)
             screen.blit(slot["image"], icon_rect)
@@ -145,16 +145,16 @@ slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
 
 # --- Liste des objets présents dans le monde ---
 items = [
-    Item("Potion_vie", 260, 320, imports.life_potion, quantity=1, usable=True, heal_amount=1),
-    Item("Potion_puissance", 550, 120, imports.power_potion, quantity=1, usable=True, heal_amount=100),
-    Item("Potion_vitesse", 260, 220, imports.speed_potion, quantity=1, usable=True, heal_amount=1),
-    Item("rune_vie", 550, 220, imports.life_rune, quantity=1, usable=False, heal_amount=0),
-    Item("rune_puissance", 260, 120, imports.power_rune, quantity=1, usable=False, heal_amount=0),
-    Item("rune_vitesse", 550, 20, imports.speed_rune, quantity=1, usable=False, heal_amount=0),
+    Item("Potion_vie", 260, 320, imports.life_potion, quantity = 1, usable = True, heal_amount = 1),
+    Item("Potion_puissance", 550, 120, imports.power_potion, quantity = 1, usable = True, heal_amount = 100),
+    Item("Potion_vitesse", 260, 220, imports.speed_potion, quantity = 1, usable = True, heal_amount = 1),
+    Item("rune_vie", 550, 220, imports.life_rune, quantity = 1, usable = False, heal_amount = 0),
+    Item("rune_puissance", 260, 120, imports.power_rune, quantity = 1, usable = False, heal_amount = 0),
+    Item("rune_vitesse", 550, 20, imports.speed_rune, quantity = 1, usable = False, heal_amount = 0),
 ]
 
 
 # --- Inventaire du joueur (5 slots) ---
-inventory = [None] * globals.INVENTORY_SLOTS
+inventory_list = [None] * globals.INVENTORY_SLOTS
 slot_hold_start = [None] * globals.INVENTORY_SLOTS
 slot_use_lock = [False] * globals.INVENTORY_SLOTS

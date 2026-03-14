@@ -285,14 +285,14 @@ class Player:
             self.level += 1
             self.point_attribut += 5
     
-    def player_inventory(self, items, inventory, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed):
+    def player_inventory(self, items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed):
         """Gère le ramassage d'objet avec E et un feedback simple à l'écran."""
 
         if key[pygame.K_e] and not pickup_pressed:
             pickup_pressed = True
             for item in items[:]:
                 if self.hitbox.colliderect(item.rect):
-                    if inventory.add_item_to_inventory(inventory, item):
+                    if inventory.add_item_to_inventory(inventory_list, item):
                         last_inventory_feedback = f"{item.name} ramassé"
                         items.remove(item)
                     else:
@@ -303,7 +303,7 @@ class Player:
         if not key[pygame.K_e]:
             pickup_pressed = False
 
-        return items, inventory, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed
+        return items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed
 
     def player_death(self, time, camera_y, state):
         """Se charge de dire quand le joueur est mort : lorsqu'il est hors de la fenêtre ou lorsqu'il n'a plus de vies (à cause des monstres)."""
