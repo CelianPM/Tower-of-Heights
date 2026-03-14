@@ -64,39 +64,7 @@ last_inventory_feedback_time = 0
 # ===============================
 # FONCTIONS
 # ===============================
-def end(running, screen, text_font):
-    """Se charge d'afficher l'écran de fin du jeu, avec un message de remerciement, et de fermer la fenêtre après quelques secondes"""
-    screen.fill((0, 0, 100))                                                      # Remplir l'écran d'une couleur de base pour l'écran de fin
-    txt = text_font.render("Merci d'avoir joue à Tower Of Heights", True, globals.WHITE)  # Définir le texte de l'écran de fin
-    screen.blit(txt, txt.get_rect(center = (globals.WIDTH//2, globals.HEIGHT//2)))                # Afficher le texte de l'écran de fin
-    pygame.display.flip()                                                         # Tout générer sur la fenêtre
-    pygame.time.wait(2500)                                                        # Attendre 2.5 secondes avant de fermer la fenêtre
-    running = False                                                               # Sortir de la boucle principale
-    return running
 
-def menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
-    """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
-    if continue_rect.collidepoint(event.pos):
-        state = "game"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
-        pygame.mixer.music.play()
-    elif speed_rect.collidepoint(event.pos):
-        if player.point_attribut > 0:
-            player.point_attribut -= 1            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
-            player.speed = (player.speed * 10 + 1) / 10
-    elif vitality_rect.collidepoint(event.pos):
-        if player.point_attribut > 0:
-            player.point_attribut -= 1
-            player.max_life += 1
-            player.regeneration_time -= 500
-    elif puissance_rect.collidepoint(event.pos):
-        if player.point_attribut > 0:
-            player.point_attribut -= 1
-            player.puissance += player.degat//40
-    elif attack_delay_rect.collidepoint(event.pos):
-        if player.point_attribut > 0:
-            player.point_attribut -= 1
-            player.attack_delay -= 10
-    return state, player
 
 # ===============================
 # BOUCLE PRINCIPALE
@@ -133,7 +101,7 @@ while running:
             state, player, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = menu_attribut2(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
+            state, player = functions.attributes_menu__manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
     
     # --- Pause ---
     if state == "paused":
@@ -156,11 +124,11 @@ while running:
         continue
 
     if state == "menu_attribut":
-        functions.attributes_menu(globals.screen, buttons.text_font, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)
+        functions.attributes_menu__displayer(globals.screen, buttons.text_font, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)
         continue
 
     if state == "end":
-        running = end(running, globals.screen, buttons.text_font)  # Pour appeler la fonction end() pour afficher l'écran de fin, et récupérer les variables mises à jour par cette fonction
+        running = functions.end(running, globals.screen, buttons.text_font)  # Pour appeler la fonction end() pour afficher l'écran de fin, et récupérer les variables mises à jour par cette fonction
     if player.perso_rect is None:
         continue                                                         # Si le rect du personnage n'est pas encore défini (c'est-à-dire que le joueur n'a pas encore choisi son personnage), ne rien faire et continuer la boucle principale jusqu'à ce que le joueur choisisse son personnage pour que le rect du personnage soit défini et que le jeu puisse commencer
 

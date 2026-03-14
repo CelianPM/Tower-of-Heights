@@ -207,7 +207,7 @@ def death__displayer(globals.screen, buttons.restart_rect_death, buttons.death_t
 
 
 # --- Menu des attributs ---
-def attributes_menu(globals.screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
+def attributes_menu__displayer(globals.screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
    
     globals.screen.fill((0, 0, 100))                                                                     # Remplir l'écran d'une couleur de base
     txt = buttons.text_font.render("ATTRIBUT", True, globals.RED)                                                # Définir le texte de l'écran
@@ -241,3 +241,39 @@ def attributes_menu(globals.screen, text_font, continue_rect, speed_rect, vitali
     globals.screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center = buttons.attack_delay_rect.center))
     
     pygame.display.flip()  # Tout générer sur la fenêtre
+
+def attributes_menu__manager(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
+    """Se charge de gérer les clics sur les boutons pour recommencer ou arrêter le jeu lorsqu'on est sur l'écran de mort"""
+    if continue_rect.collidepoint(event.pos):
+        state = "game"  # Si le joueur clique sur le bouton pour recommencer, retourner à l'état du menu de départ
+        pygame.mixer.music.play()
+    elif speed_rect.collidepoint(event.pos):
+        if player.point_attribut > 0:
+            player.point_attribut -= 1            # Si le joueur clique sur le bouton pour arrêter, passer à l'état de fin du jeu
+            player.speed = (player.speed * 10 + 1) / 10
+    elif vitality_rect.collidepoint(event.pos):
+        if player.point_attribut > 0:
+            player.point_attribut -= 1
+            player.max_life += 1
+            player.regeneration_time -= 500
+    elif puissance_rect.collidepoint(event.pos):
+        if player.point_attribut > 0:
+            player.point_attribut -= 1
+            player.puissance += player.degat//40
+    elif attack_delay_rect.collidepoint(event.pos):
+        if player.point_attribut > 0:
+            player.point_attribut -= 1
+            player.attack_delay -= 10
+    return state, player
+
+
+# --- Fin du jeu ---
+def end(running, screen, text_font):
+    """Se charge d'afficher l'écran de fin du jeu, avec un message de remerciement, et de fermer la fenêtre après quelques secondes"""
+    screen.fill((0, 0, 100))                                                      # Remplir l'écran d'une couleur de base pour l'écran de fin
+    txt = text_font.render("Merci d'avoir joue à Tower Of Heights", True, globals.WHITE)  # Définir le texte de l'écran de fin
+    screen.blit(txt, txt.get_rect(center = (globals.WIDTH//2, globals.HEIGHT//2)))                # Afficher le texte de l'écran de fin
+    pygame.display.flip()                                                         # Tout générer sur la fenêtre
+    pygame.time.wait(2500)                                                        # Attendre 2.5 secondes avant de fermer la fenêtre
+    running = False                                                               # Sortir de la boucle principale
+    return running
