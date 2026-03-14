@@ -1,6 +1,6 @@
-import pygame                               # Importer la bibliothèque pygame pour créer le jeu
-import math                                 # Impoter la bibliothèque math pour les calculs de distance et de direction des monstres volants
-import globals, imports, classes_and_lists, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
+import pygame                                                              # Importer la bibliothèque pygame pour créer le jeu
+import math                                                                # Impoter la bibliothèque math pour les calculs de distance et de direction des monstres volants
+import globals, imports, buttons, inventory, classes_and_lists, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
 
 # Initialier pygame
 pygame.init()        # Initialiser tous les modules de pygame
@@ -64,155 +64,6 @@ last_inventory_feedback = ""
 last_inventory_feedback_time = 0
 
 
-# --- Polices de texte ---
-title_font = pygame.font.SysFont(None, 100)  # Police du titre
-text_font = pygame.font.SysFont(None, 40)    # Police du texte
-
-# --- Boutons ---
-    # Celui dans l'écran de mort pour recommencer
-restart_rect_death = pygame.Rect(0, 255, 200, 60)
-restart_rect_death.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2 + 120)
-
-continue_rect = pygame.Rect(0, 255, 200, 60)
-continue_rect.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2)
-
-speed_rect = pygame.Rect(0, 255, 300, 30)
-speed_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 8)
-
-vitality_rect = pygame.Rect(0, 255, 300, 30)
-vitality_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 9)
-
-puissance_rect = pygame.Rect(0, 255, 300, 30)
-puissance_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 10)
-
-attack_delay_rect = pygame.Rect(0,255, 300, 30)
-attack_delay_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 11)
-
-    # Celui dans l'écran de mort pour arrêter
-end_rect_death = pygame.Rect(255, 0, 200, 60)
-end_rect_death.center = (globals.WIDTH//2 + 150, globals.HEIGHT//2 + 120)
-
-    # Ceux pour quand on pause le jeu
-pause_box = pygame.Rect(globals.WIDTH//2 - 250, globals.HEIGHT//2 - 150, 500, 300)      # Rectangle dans lquel se situeront les boutons
-continue_button = pygame.Rect(globals.WIDTH//2 - 200, globals.HEIGHT//2 + 40, 180, 60)  # Celui pour continuer
-quit_button = pygame.Rect(globals.WIDTH//2 + 20, globals.HEIGHT//2 + 40, 180, 60)       # Celui pour arrêter
-
-title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
-title_rect = title_surface.get_rect(center=(globals.WIDTH//2, 120))
-
-
-def add_item_to_inventory(inventory, item):
-    """Ajoute un item à l'inventaire (max 5 slots). Stack d'abord, sinon premier slot libre."""
-    for slot in inventory:
-        if slot and slot["name"] == item.name:
-            slot["quantity"] += item.quantity
-            return True
-
-    for index, slot in enumerate(inventory):
-        if slot is None:
-            inventory[index] = {
-                "name": item.name,
-                "image": item.image,
-                "quantity": item.quantity,
-                "usable": item.usable,
-                "heal_amount": item.heal_amount,
-            }
-            return True
-        
-    return False
-
-def use_inventory_slot(inventory, slot_index, player):
-    """Utilise le slot demandé si possible et retourne un message de feedback."""
-    slot = inventory[slot_index]
-    if slot is None:
-        return f"Slot {slot_index + 1} vide"
-
-    if not slot.get("usable", False):
-        return f"{slot['name']} non utilisable"
-
-    used = False
-    item_name = slot.get("name")
-
-    if item_name == "Potion_vie":
-        if player.life < player.max_life:
-            player.life = min(player.max_life, player.life + slot.get("heal_amount", 0))
-            used = True
-        else:
-            return "Vie déjà au maximum"
-    elif item_name == "Potion_vitesse":
-        player.speed += slot.get("heal_amount", 0)
-        used = True
-    elif item_name == "Potion_puissance":
-        player.puissance += slot.get("heal_amount", 0)
-        used = True
-
-    if used:
-        item_name_for_msg = slot["name"]
-        slot["quantity"] -= 1
-        if slot["quantity"] <= 0:
-            inventory[slot_index] = None
-        return f"{item_name_for_msg} utilisé"
-
-    return "Impossible d'utiliser cet objet"
-
-def drop_inventory_slot(inventory, slot_index, items, x, y):
-    """Jette 1 objet du slot donné au sol proche du joueur."""
-    slot = inventory[slot_index]
-    if slot is None:
-        return "Rien à jeter"
-
-    item = classes_and_lists.Item(
-        slot["name"],
-        x,
-        y,
-        slot["image"],
-        quantity=1,
-        usable=slot.get("usable", False),
-        heal_amount=slot.get("heal_amount", 0),
-    )
-    items.append(item)
-
-    item_name_for_msg = slot["name"]
-    slot["quantity"] -= 1
-    if slot["quantity"] <= 0:
-        inventory[slot_index] = None
-
-    return f"{item_name_for_msg} jeté"
-
-def draw_inventory_hud(screen, inventory, slot_hold_start, slot_use_lock, current_time):
-    """Affiche 5 slots avec icônes, quantités et progression de maintien (1s)."""
-    slot_size = 60
-    spacing = 12
-    total_width = globals.INVENTORY_SLOTS * slot_size + (globals.INVENTORY_SLOTS - 1) * spacing
-    start_x = globals.WIDTH // 2 - total_width // 2
-    y = globals.HEIGHT - slot_size - 15
-
-    for i in range(globals.INVENTORY_SLOTS):
-        x = start_x + i * (slot_size + spacing)
-        slot_rect = pygame.Rect(x, y, slot_size, slot_size)
-        pygame.draw.rect(screen, (35, 35, 50), slot_rect)
-        pygame.draw.rect(screen, globals.WHITE, slot_rect, 2)
-
-        label = text_font.render(str(i + 1), True, globals.WHITE)
-        screen.blit(label, (x + 4, y + 2))
-
-        slot = inventory[i]
-        if slot:
-            icon_rect = slot["image"].get_rect(center=slot_rect.center)
-            screen.blit(slot["image"], icon_rect)
-            qty_txt = text_font.render(str(slot["quantity"]), True, globals.WHITE)
-            screen.blit(qty_txt, (x + slot_size - qty_txt.get_width() - 4, y + slot_size - qty_txt.get_height() - 2))
-
-        if slot_hold_start[i] is not None and slot and not slot_use_lock[i]:
-            progress = (current_time - slot_hold_start[i]) / globals.ITEM_USE_HOLD_MS
-            progress = max(0.0, min(1.0, progress))
-            bar_bg = pygame.Rect(x, y + slot_size + 4, slot_size, 6)
-            bar_fill = pygame.Rect(x, y + slot_size + 4, int(slot_size * progress), 6)
-            pygame.draw.rect(screen, (80, 80, 80), bar_bg)
-            pygame.draw.rect(screen, globals.GREEN, bar_fill)
-
-
-
 # ===============================
 # FONCTIONS
 # ===============================
@@ -258,8 +109,8 @@ def death2(screen, restart_rect_death, death_txt_font, end_rect_death, monsters)
     pygame.draw.rect(screen, (0, 0, 200), end_rect_death)                             # Dessiner un rectangle bleu pour le bouton d'arrêter
 
         # Leur texte
-    txt_restart = text_font.render("Rejouer", True, globals.WHITE)                            # Définir le texte du bouton pour recommencer
-    txt_end = text_font.render("Quitter", True, globals.WHITE)                                # Définir le texte du bouton pour arrêter
+    txt_restart = buttons.text_font.render("Rejouer", True, globals.WHITE)                            # Définir le texte du bouton pour recommencer
+    txt_end = buttons.text_font.render("Quitter", True, globals.WHITE)                                # Définir le texte du bouton pour arrêter
     
         # Les afficher
     screen.blit(txt_restart, txt_restart.get_rect(center=restart_rect_death.center))  # Afficher le texte du bouton pour recommencer
@@ -362,27 +213,27 @@ while running:
         
         # --- Boutons de pause ---
         if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
-            state = functions.paused__buttons_manager(state, event, continue_button, quit_button)  # Si le jeu est mis en pause, faire appel à la fonction paused() pour gérer les interactions avec les boutons de la fenêtre de pause
+            state = functions.paused__buttons_manager(state, event, buttons.continue_button, buttons.quit_button)  # Si le jeu est mis en pause, faire appel à la fonction paused() pour gérer les interactions avec les boutons de la fenêtre de pause
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = functions.beginning_menu__manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, event, player)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
+            state, player = functions.beginning_menu__manager(state, buttons.archer_menu_rect, buttons.swordsman_menu_rect, event, player)  # Appeler la fonction menu_de_debut() pour gérer les interactions avec les personnages sur la page du menu de départ, et récupérer les variables mises à jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player, inventory, items = death(state, event, restart_rect_death, end_rect_death, player, inventory, items)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
+            state, player, inventory, items = death(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory, items)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = menu_attribut2(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player)    
+            state, player = menu_attribut2(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
     
     # --- Pause ---
     if state == "paused":
-        functions.paused__character_displayer(globals.screen, pause_box, text_font, continue_button, quit_button)  # Appeler la fonction paused2() pour afficher la fenêtre de pause
+        functions.paused__character_displayer(globals.screen, buttons.pause_box, buttons.text_font, buttons.continue_button, buttons.quit_button)  # Appeler la fonction paused2() pour afficher la fenêtre de pause
         continue
         
     # --- Pour creer la page du menu de depart ---
     if state == "menu_de_debut":
-        functions.beginning_menu__displayer(globals.screen, title_surface, title_rect, imports.archer_image, imports.archer_menu_rect, imports.swordsman_image, imports.swordsman_menu_rect, text_font)  # Pour appeler la fonction menu_de_debut2() pour afficher la page du menu de départ
+        functions.beginning_menu__displayer(globals.screen, buttons.title_surface, buttons.title_rect, imports.archer_image, imports.archer_menu_rect, imports.swordsman_image, imports.swordsman_menu_rect, buttons.text_font)  # Pour appeler la fonction menu_de_debut2() pour afficher la page du menu de départ
         continue
 
     # --- Pour jouer ---
@@ -392,15 +243,15 @@ while running:
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
-        death2(globals.screen, restart_rect_death, imports.death_text_font, end_rect_death, classes_and_lists.monsters)  # Pour appeler la fonction death2() pour afficher l'écran de mort, et récupérer les variables mises à jour par cette fonction
+        death2(globals.screen, buttons.restart_rect_death, buttons.death_text_font, buttons.end_rect_death, classes_and_lists.monsters)  # Pour appeler la fonction death2() pour afficher l'écran de mort, et récupérer les variables mises à jour par cette fonction
         continue
 
     if state == "menu_attribut":
-        menu_attribut(globals.screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player)
+        menu_attribut(globals.screen, buttons.text_font, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)
         continue
 
     if state == "end":
-        running = end(running, globals.screen, text_font)  # Pour appeler la fonction end() pour afficher l'écran de fin, et récupérer les variables mises à jour par cette fonction
+        running = end(running, globals.screen, buttons.text_font)  # Pour appeler la fonction end() pour afficher l'écran de fin, et récupérer les variables mises à jour par cette fonction
     if player.perso_rect is None:
         continue                                                         # Si le rect du personnage n'est pas encore défini (c'est-à-dire que le joueur n'a pas encore choisi son personnage), ne rien faire et continuer la boucle principale jusqu'à ce que le joueur choisisse son personnage pour que le rect du personnage soit défini et que le jeu puisse commencer
 
@@ -436,12 +287,12 @@ while running:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les flèches à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     for item in classes_and_lists.items:
         item.draw(globals.screen, camera_y) 
-    draw_inventory_hud(globals.screen, inventory, slot_hold_start, slot_use_lock, time)
+    inventory.draw_inventory_hud(globals.screen, inventory, slot_hold_start, slot_use_lock, time)
     if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
-        feedback_text = text_font.render(last_inventory_feedback, True, globals.WHITE)
+        feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, 50))
 
-    txt = text_font.render("Vie : " + str(player.life) + "/" + str(player.max_life), True, globals.WHITE)
+    txt = buttons.text_font.render("Vie : " + str(player.life) + "/" + str(player.max_life), True, globals.WHITE)
     globals.screen.blit(txt, (20, 20))
     pygame.display.flip()                                                                                                  # Tout générer sur la fenêtre
 

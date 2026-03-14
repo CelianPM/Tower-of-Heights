@@ -83,11 +83,3 @@ dark_slab = pygame.image.load("Images/dark_slab.png").convert_alpha()  # Charger
 # La musique de saut
 jump_sound = pygame.mixer.Sound("Sounds/jump_sound.wav")  # Charger le son de saut
 jump_sound.set_volume(1)                                  # Régler le volume du son du saut à 100%
-
-
-
-# =================================
-# POLICES DE TEXTE
-# =================================
-
-death_text_font = pygame.font.SysFont("Fonts/youmurdererbb_reg.ttf", 64)  # Police du texte de mort

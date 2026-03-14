@@ -1,5 +1,5 @@
 import pygame, math
-import globals, imports
+import globals, imports, inventory
 
 pygame.init()
 
@@ -292,7 +292,7 @@ class Player:
             pickup_pressed = True
             for item in items[:]:
                 if self.hitbox.colliderect(item.rect):
-                    if add_item_to_inventory(inventory, item):
+                    if inventory.add_item_to_inventory(inventory, item):
                         last_inventory_feedback = f"{item.name} ramassé"
                         items.remove(item)
                     else:
@@ -497,43 +497,10 @@ class Shuriken(Projectile):
             self.rect = self.image.get_rect(midright = (x, y))
 
 
-# --- Items & Inventaire ---
-class Item:
-    def __init__(self, name, x, y, image, quantity=1, usable=False, heal_amount=0):
-        self.name = name
-        self.image = image
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.quantity = quantity
-        self.usable = usable
-        self.heal_amount = heal_amount
-
-    def draw(self, screen, camera_y=0):
-        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
-
-
 
 # =================================
 # LISTES
 # =================================
-
-# --- Items & Inventaire ---
-slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
-
-    # Liste des objets présents dans le monde
-items = [
-    Item("Potion_vie", 260, 320, imports.life_potion, quantity=1, usable=True, heal_amount=1),
-    Item("Potion_puissance", 550, 120, imports.power_potion, quantity=1, usable=True, heal_amount=100),
-    Item("Potion_vitesse", 260, 220, imports.speed_potion, quantity=1, usable=True, heal_amount=1),
-    Item("rune_vie", 550, 220, imports.life_rune, quantity=1, usable=False, heal_amount=0),
-    Item("rune_puissance", 260, 120, imports.power_rune, quantity=1, usable=False, heal_amount=0),
-    Item("rune_vitesse", 550, 20, imports.speed_rune, quantity=1, usable=False, heal_amount=0),
-]
-
-    # Inventaire du joueur (5 slots)
-inventory = [None] * globals.INVENTORY_SLOTS
-slot_hold_start = [None] * globals.INVENTORY_SLOTS
-slot_use_lock = [False] * globals.INVENTORY_SLOTS
-
 
 # --- Listes des monstres ---
 monsters = [

@@ -1,5 +1,5 @@
 import pygame
-import globals, imports, classes_and_lists
+import globals, imports, inventory, classes_and_lists
 
 pygame.init()
 
@@ -127,7 +127,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
                 slot_use_lock[slot_index] = False
 
             if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= globals.ITEM_USE_HOLD_MS):
-                last_inventory_feedback = use_inventory_slot(inventory, slot_index, player)
+                last_inventory_feedback = inventory.use_inventory_slot(inventory, slot_index, player)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
         else:
@@ -140,7 +140,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
             if key[key_code] and not slot_use_lock[slot_index]:
                 dropped_x = player.hitbox.centerx + 25
                 dropped_y = player.hitbox.bottom - 20
-                last_inventory_feedback = drop_inventory_slot(inventory, slot_index, items, dropped_x, dropped_y)
+                last_inventory_feedback = inventory.drop_inventory_slot(inventory, slot_index, items, dropped_x, dropped_y)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
 
