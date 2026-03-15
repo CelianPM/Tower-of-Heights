@@ -30,26 +30,30 @@ tile_size = 32
 with open("map.txt") as map_layout:
     map_design = map_layout.read().splitlines()
 
-def create_platforms_from_map(map_design):
+def create_world_from_map(map_design):
     platforms = []
+    monsters = []
 
     map_height_pixels = len(map_design) * tile_size
     offset_y = globals.HEIGHT - map_height_pixels
 
 
     for row_index, row in enumerate(map_design):
-        for col_index, cell in enumerate(row):
-
+        for col_index, cell in enumerate(row):       
+            x = col_index * tile_size
+            y = row_index * tile_size + offset_y
             if cell == "#":
-                x = col_index * tile_size
-                y = row_index * tile_size + offset_y
-
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 platforms.append(rect)
+            elif cell == "S":
+                monsters.append(classes_and_lists.Slug(x, y - 78))
+            elif cell == "B":
+                monsters.append(classes_and_lists.Bat(x, y))
 
-    return platforms
 
-platforms = create_platforms_from_map(map_design)
+    return platforms, monsters
+
+platforms, classes_and_lists.monsters = create_world_from_map(map_design)
 
 
 # --- Variables importees ---

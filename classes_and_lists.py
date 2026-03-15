@@ -504,12 +504,7 @@ class Shuriken(Projectile):
 # =================================
 
 # --- Listes des monstres ---
-monsters = [
-    Slug(1000, globals.HEIGHT - 130),
-    Slug(800, globals.HEIGHT - 130),
-    Bat(1000, globals.HEIGHT - 250),
-    Bat(1000, globals.HEIGHT - 300)
-]
+monsters = []
 
 
 # ---Listes des projectiles---
