@@ -232,7 +232,7 @@ class Player:
                     
         return velocity
 
-    def monster_collisions(self, monsters, time, arrows):
+    def monster_collisions(self, monsters, time, arrows, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
             if monster.alive and self.hitbox.colliderect(monster.rect):                                   # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
@@ -276,7 +276,9 @@ class Player:
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retiré du jeu
                         self.xp += monster.xp_reward
-                        
+
+            if shurikens is None :
+                continue
             for shuriken in shurikens[:]:
                 if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la flèche est en collision avec celle du monstre
                     monster.life -= self.degat + self.puissance             # Le monstre perd une vie
@@ -379,7 +381,7 @@ class Monster:
                 else:
                     self.rect.y += push_y
 
-    def update(self, player_rect, monsters):
+    def update(self, player_rect, monsters, plateforms = None):
         if not self.alive:
             return                         # Si le monstre n'est pas vivant, il ne fait rien et ne suit pas le joueur
         if self.rect.x > player_rect.x :
@@ -412,34 +414,74 @@ class Slug(Monster):
             speed=2,               # Vitesse spécifique du Slug
             xp_reward = 8
         )
+
+        self.velocity_y = 0
+        self.direction = 1
+        self.on_ground = False
+
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+
+        if platforms is None:
+            platforms = []
+
+        previous_rect = self.rect.copy()
+
+        # --- mouvement horizontal ---
+        self.rect.x += self.speed * self.direction
+
+        # --- gravité ---
         self.velocity_y += globals.GRAVITY
         self.rect.y += self.velocity_y
 
-        if platforms:
-            for platform in platforms:
-                if not self.hitbox.colliderect(platform):
-                    continue
+        on_ground = False
 
-                horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
-                    
-                # Collisions du haut de la plateforme
-                if velocity >= 0 and horizontal_overlap and self.rect.bottom <= platform.top:
-                    self.hitbox.bottom = platform.top
-                    self.on_ground = True
-                    velocity = 0
-                    continue                                                   # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
-    
-                # Collisions du bas de la plateforme
-                if velocity < 0 and horizontal_overlap and self.rect.top >= platform.bottom:
-                    self.hitbox.top = platform.bottom
-                    velocity = 0
-                    continue                                                   # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
+        for platform in platforms:
+            horizontal_overlap = self.rect.right > platform.left and self.rect.left < platform.right
+            vertical_overlap = self.rect.bottom > platform.top and self.rect.top < platform.bottom
 
-                # Collisions des côtés de la plateforme
-                if previous_rect.right <= platform.left and self.rect.right > platform.left:
-                    self.rect.right = platform.left
-                elif previous_rect.left >= platform.right and self.rect.left < platform.right:
-                    self.rect.left = platform.right
+            # collision verticale (tombe sur la plateforme), y compris quand le slug traverse en un frame
+            crossed_top = previous_rect.bottom <= platform.top and self.rect.bottom >= platform.top
+            if self.velocity_y >= 0 and horizontal_overlap and crossed_top:
+                self.rect.bottom = platform.top
+                self.velocity_y = 0
+                on_ground = True
+                continue
+
+            # collision verticale (saute sous la plateforme)
+            crossed_bottom = previous_rect.top >= platform.bottom and self.rect.top <= platform.bottom
+            if self.velocity_y < 0 and horizontal_overlap and crossed_bottom:
+                self.rect.top = platform.bottom
+                self.velocity_y = 0
+                continue
+
+            if not vertical_overlap:
+                continue
+            # collisions latérales
+            if previous_rect.right <= platform.left and self.rect.right > platform.left:
+                self.rect.right = platform.left
+                self.direction = -1
+            elif previous_rect.left >= platform.right and self.rect.left < platform.right:
+                self.rect.left = platform.right
+                self.direction = 1
+
+        # --- détection du bord de plateforme ---
+        if on_ground:
+            front_x = self.rect.centerx + (self.direction * self.rect.width // 2)
+            front_y = self.rect.bottom + 5
+
+            ground_ahead = any(platform.collidepoint(front_x, front_y) for platform in platforms)
+            if not ground_ahead:
+                self.direction *= -1
+
+        # --- image selon direction ---
+        if self.direction == 1:
+            self.image = self.image_right
+        else:
+            self.image = self.image_left
+
+        self.on_ground = on_ground
         self.overlap(monsters, horizontal_only = True)
 
     # Chauve-souris
@@ -456,7 +498,7 @@ class Bat(Monster):
         self.frames_right = [imports.bat1, imports.bat2]
         self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
 
-    def update(self, player_rect, monsters):
+    def update(self, player_rect, monsters, platforms):
         if not self.alive:
             return
 
@@ -480,7 +522,7 @@ class Bat(Monster):
         if dx < 0:
             self.image = self.frames_left[current_frame]
         else:
-            self.image = self.frames_left[current_frame]
+            self.image = self.frames_right[current_frame]
         
         self.overlap(monsters)
 
@@ -529,7 +571,12 @@ class Arrow(Projectile):
 class Shuriken(Projectile):
     def __init__(self, x, y, player):
         super().__init__(x, y, player)
+        self.base_image = imports.shuriken
+        self.image = self.base_image
         self.speed = 12                # La vitesse du shuriken, qui est constante et ne change pas selon la direction
+        self.angle = 0                 # L'angle de rotation initial du shuriken
+        self.rotation_speed = 15       # La vitesse de rotation du shuriken, qui est constante et ne change pas selon la direction
+
 
         if self.direction == "right":
             self.rect = self.image.get_rect(midleft = (x, y))
