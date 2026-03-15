@@ -163,6 +163,8 @@ while running:
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     for arrow in classes_and_lists.arrows:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les flèches à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
+     for shuriken in classes_and_lists.shurikens:
+        globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     for item in items:
         item.draw(globals.screen, camera_y) 
     inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
