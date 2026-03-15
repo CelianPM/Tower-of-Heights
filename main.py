@@ -100,7 +100,7 @@ while running:
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory.inventory_list, inventory.items, inventory.slot_hold_start, inventory.slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
+            state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction death() pour gérer les interactions avec les boutons de l'écran de mort, et récupérer les variables mis à jour par cette fonction
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             state, player = functions.attributes_menu__manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
@@ -117,8 +117,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes_and_lists.monsters, classes_and_lists.arrows, camera_y, time, globals.key, start_time, player, inventory.inventory_list, inventory.items, inventory.slot_hold_start, inventory.slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes_and_lists.shurikens)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
-
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes_and_lists.monsters, classes_and_lists.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes_and_lists.shurikens)  # Pour appeler la fonction game() pour gérer les mécaniques du jeu, et récupérer les variables mises à jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -164,9 +163,9 @@ while running:
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
     for arrow in classes_and_lists.arrows:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les flèches à leur position actuelle sur l'écran, en tenant compte du décalage de la caméra
-    for item in inventory.items:
+    for item in items:
         item.draw(globals.screen, camera_y) 
-    inventory.draw_inventory_hud(globals.screen, inventory.inventory_list, inventory.slot_hold_start, inventory.slot_use_lock, time)
+    inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
     if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
         feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, 50))
