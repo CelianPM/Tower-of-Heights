@@ -50,6 +50,7 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
         player.speed += player.speed_bonus
         player.speed_effect_end_time = current_time + 20000
         used = True
+    elif item_name == "Potion_puissance":
         player.power_bonus = slot.get("heal_amount", 0)
         player.puissance += player.power_bonus
         player.power_effect_end_time = current_time + 30000

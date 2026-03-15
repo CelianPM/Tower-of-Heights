@@ -212,7 +212,7 @@ class Player:
             self.power_effect_end_time = 0
 
         if self.regeneration_bonus == True and time >= self.regeneration_effect_end_time:
-            self.regeneration = self.regeneration * 2
+            self.regeneration_time = self.regeneration_time * 2
             self.regeneration_bonus = False
             self.regeneration_effect_end_time = 0
 
