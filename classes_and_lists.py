@@ -276,6 +276,18 @@ class Player:
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retiré du jeu
                         self.xp += monster.xp_reward
+                        
+            for shuriken in shurikens[:]:
+                if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la flèche est en collision avec celle du monstre
+                    monster.life -= self.degat + self.puissance             # Le monstre perd une vie
+                    if shuriken.direction == "right":
+                        monster.rect.x += globals.PUSHBACK                          # Si la flèche va vers la droite, le monstre recule vers la droite
+                    else:
+                        monster.rect.x -= globals.PUSHBACK                          # Si la flèche va vers la gauche, le monstre recule vers la gauche
+                    shurikens.remove(shuriken)                                    # Retirer la flèche du jeu
+                    if monster.life <= 0:
+                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retiré du jeu
+                        self.xp += monster.xp_reward
     
     def player_xp(self):
         """Se charge de gérer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
@@ -400,6 +412,35 @@ class Slug(Monster):
             speed=2,               # Vitesse spécifique du Slug
             xp_reward = 8
         )
+        self.velocity_y += globals.GRAVITY
+        self.rect.y += self.velocity_y
+
+        if platforms:
+            for platform in platforms:
+                if not self.hitbox.colliderect(platform):
+                    continue
+
+                horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
+                    
+                # Collisions du haut de la plateforme
+                if velocity >= 0 and horizontal_overlap and self.rect.bottom <= platform.top:
+                    self.hitbox.bottom = platform.top
+                    self.on_ground = True
+                    velocity = 0
+                    continue                                                   # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
+    
+                # Collisions du bas de la plateforme
+                if velocity < 0 and horizontal_overlap and self.rect.top >= platform.bottom:
+                    self.hitbox.top = platform.bottom
+                    velocity = 0
+                    continue                                                   # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
+
+                # Collisions des côtés de la plateforme
+                if previous_rect.right <= platform.left and self.rect.right > platform.left:
+                    self.rect.right = platform.left
+                elif previous_rect.left >= platform.right and self.rect.left < platform.right:
+                    self.rect.left = platform.right
+        self.overlap(monsters, horizontal_only = True)
 
     # Chauve-souris
 class Bat(Monster):
@@ -491,12 +532,20 @@ class Shuriken(Projectile):
         self.speed = 12                # La vitesse du shuriken, qui est constante et ne change pas selon la direction
 
         if self.direction == "right":
-            self.image = imports.shuriken_right   # Le profil droit du shuriken est utilisé si la direction est à droite
             self.rect = self.image.get_rect(midleft = (x, y))
         else:
-            self.image = imports.shuriken_left    # Le profil gauche du shuriken est utilisé si la direction est à gauche
-            self.rect = self.image.get_rect(midright = (x, y))
+             self.rect = self.image.get_rect(midright = (x, y))
+        self.image = self.base_image
 
+    def update(self, platforms, arrows, shurikens):
+        super().update(platforms, arrows, shurikens)
+        if self not in shurikens:
+            return  # Si le shuriken a été retiré du jeu (par exemple, s'il a touché une plateforme), ne pas continuer à mettre à jour sa rotation
+        
+        center = self.rect.center  # Conserver le centre du shuriken avant de faire tourner l'image
+        self.angle = (self.angle + self.rotation_speed) % 360  # Mettre à jour l'angle de rotation du shuriken
+        self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
+        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre à jour le rect du shuriken pour qu'il reste centré sur sa position actuelle
 
 
 # =================================
