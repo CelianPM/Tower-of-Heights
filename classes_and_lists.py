@@ -28,6 +28,13 @@ class Player:
         self.invincibility_time = 1000
         self.degat = 0
         self.puissance = 0
+        self.speed_bonus = 0
+        self.power_bonus = 0
+        self.regeneration_bonus = False
+        self.speed_effect_end_time = 0
+        self.power_effect_end_time = 0
+        self.regeneration_effect_end_time = 0
+
 
         self.selected_image = None         # Image selectionnée, non-definie pour l'instant
         self.selected_image_left = None    # Profil gauche de l'image selectionnée, non-definie pour l'instant
@@ -192,6 +199,23 @@ class Player:
 
         self.hitbox.y += velocity  # Appliquer la variable de vitesse à la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
         return velocity, start_time
+    
+    def update_potion_effects(self, time):
+        if self.speed_bonus > 0 and time >= self.speed_effect_end_time:
+            self.speed -= self.speed_bonus
+            self.speed_bonus = 0
+            self.speed_effect_end_time = 0
+
+        if self.power_bonus > 0 and time >= self.power_effect_end_time:
+            self.puissance -= self.power_bonus
+            self.power_bonus = 0
+            self.power_effect_end_time = 0
+
+        if self.regeneration_bonus == True and time >= self.regeneration_effect_end_time:
+            self.regeneration = self.regeneration * 2
+            self.regeneration_bonus = False
+            self.regeneration_effect_end_time = 0
+
 
     def platform_collisions(self, platforms, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""

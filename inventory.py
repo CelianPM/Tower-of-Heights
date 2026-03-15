@@ -28,7 +28,7 @@ def add_item_to_inventory(inventory_list, item):
         
     return False
 
-def use_inventory_slot(inventory_list, slot_index, player):
+def use_inventory_slot(inventory_list, slot_index, player, current_time):
     """Utilise le slot demandé si possible et retourne un message de feedback."""
     slot = inventory_list[slot_index]
     if slot is None:
@@ -41,16 +41,18 @@ def use_inventory_slot(inventory_list, slot_index, player):
     item_name = slot.get("name")
 
     if item_name == "Potion_vie":
-        if player.life < player.max_life:
-            player.life = min(player.max_life, player.life + slot.get("heal_amount", 0))
-            used = True
-        else:
-            return "Vie déjà au maximum"
-    elif item_name == "Potion_vitesse":
-        player.speed += slot.get("heal_amount", 0)
+        player.regeneration_time = player.regeneration_time / 2
+        player.regeneration_effect_end_time = current_time + 10000
+        player.regeneration_bonus = True
         used = True
-    elif item_name == "Potion_puissance":
-        player.puissance += slot.get("heal_amount", 0)
+    elif item_name == "Potion_vitesse":
+        player.speed_bonus = slot.get("heal_amount", 0)
+        player.speed += player.speed_bonus
+        player.speed_effect_end_time = current_time + 20000
+        used = True
+        player.power_bonus = slot.get("heal_amount", 0)
+        player.puissance += player.power_bonus
+        player.power_effect_end_time = current_time + 30000
         used = True
 
     if used:
