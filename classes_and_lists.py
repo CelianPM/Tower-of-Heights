@@ -426,45 +426,43 @@ class Slug(Monster):
         if platforms is None:
             platforms = []
 
-        previous_rect = self.rect.copy()
-
-        # --- mouvement horizontal ---
+        # Déplacement horizontal (puis résolution des côtés)
+        previous_x = self.rect.x
         self.rect.x += self.speed * self.direction
 
-        # --- gravité ---
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+                self.direction = -1
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
+                self.direction = 1
+
+        # Gravité + déplacement vertical (puis résolution haut/bas)
+        previous_y = self.rect.y
         self.velocity_y += globals.GRAVITY
         self.rect.y += self.velocity_y
 
         on_ground = False
 
         for platform in platforms:
-            horizontal_overlap = self.rect.right > platform.left and self.rect.left < platform.right
-            vertical_overlap = self.rect.bottom > platform.top and self.rect.top < platform.bottom
+            if not self.rect.colliderect(platform):
+                continue
 
-            # collision verticale (tombe sur la plateforme), y compris quand le slug traverse en un frame
-            crossed_top = previous_rect.bottom <= platform.top and self.rect.bottom >= platform.top
-            if self.velocity_y >= 0 and horizontal_overlap and crossed_top:
+            crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
+            if self.velocity_y >= 0 and crossed_top:
                 self.rect.bottom = platform.top
                 self.velocity_y = 0
                 on_ground = True
                 continue
 
-            # collision verticale (saute sous la plateforme)
-            crossed_bottom = previous_rect.top >= platform.bottom and self.rect.top <= platform.bottom
-            if self.velocity_y < 0 and horizontal_overlap and crossed_bottom:
+            crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
+            if self.velocity_y < 0 and crossed_bottom:
                 self.rect.top = platform.bottom
                 self.velocity_y = 0
                 continue
-
-            if not vertical_overlap:
-                continue
-            # collisions latérales
-            if previous_rect.right <= platform.left and self.rect.right > platform.left:
-                self.rect.right = platform.left
-                self.direction = -1
-            elif previous_rect.left >= platform.right and self.rect.left < platform.right:
-                self.rect.left = platform.right
-                self.direction = 1
 
         # --- détection du bord de plateforme ---
         if on_ground:
