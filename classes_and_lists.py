@@ -70,7 +70,13 @@ class Player:
                 imports.post_attacking_archer,
             ]
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
-
+            
+            self.attack_frames_right = [
+                imports.attacking_archer,
+                imports.post_attacking_archer,
+            ]
+            self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
+            
         elif self.hero == "swordsman":
             self.attack_delay = 300                                                             # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
             self.selected_image = imports.swordsman_image                                       # L'image sélectionnée est celle de l'épéiste
@@ -84,6 +90,7 @@ class Player:
             self.walk_frames_right = [
                 imports.standing_swordsman,
                 imports.walking_swordsman1,
+                imports.standing_swordsman,
                 imports.walking_swordsman2,
             ]
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
