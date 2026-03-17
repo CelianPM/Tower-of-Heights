@@ -46,7 +46,7 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
 # =================================
 
 # --- Gere les boutons ---
-def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, event, player):
+def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, beggar_menu_rect, event, player):
     """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi"""
     if imports.archer_menu_rect.collidepoint(event.pos):
         player.hero = "archer"     # Le joueur choisi est l'archer
@@ -56,6 +56,9 @@ def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_
     
     if imports.ninja_menu_rect.collidepoint(event.pos):
         player.hero = "ninja"      # Le joueur choisi est le ninja
+
+    if imports.beggar_menu_rect.collidepoint(event.pos):
+        player.hero = "beggar"     # Le joueur choisi est le mendiant
 
     if player.hero is not None:
         player.select_the_player()
@@ -103,7 +106,6 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     player.player_xp()
     items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed)
     state = player.player_death(time, camera_y,state)
-    player.update_potion_effects(time)
 
     # --- Gestion du cooldown de l'archer ---
     if player.hero in ("archer", "ninja") and not player.can_attack:
@@ -130,7 +132,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
                 slot_use_lock[slot_index] = False
 
             if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= globals.ITEM_USE_HOLD_MS):
-                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player, time)
+                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
         else:
