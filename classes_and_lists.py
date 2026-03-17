@@ -122,10 +122,10 @@ class Player:
             self.degat = 400
             self.weapon = None
             self.walk_frames_right = [
-                imports.walking_beggar,
-                imports.walking_beggar1,
-                imports.walking_beggar,
-                imports.walking_beggar2,
+                imports.beggar_walk1,
+                imports.beggar_walk2,
+                imports.beggar_walk3,
+                imports.beggar_walk4,
             ]
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
