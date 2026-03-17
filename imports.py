@@ -15,12 +15,15 @@ archer_menu_rect = archer_image.get_rect(center = (globals.WIDTH//2 - 300, globa
 
     # Epeiste
 swordsman_image = pygame.image.load("Images/Swordsman/standing_swordsman.png").convert_alpha()   # Charger l'image de l'épéiste
-swordsman_menu_rect = swordsman_image.get_rect(center = (globals.WIDTH//2 , globals.HEIGHT//2))  # Rect de l'image de l'épéiste dans le menu de départ
+swordsman_menu_rect = swordsman_image.get_rect(center = (globals.WIDTH//2 - 150, globals.HEIGHT//2))  # Rect de l'image de l'épéiste dans le menu de départ
 
     # Ninja
 ninja_image = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()                 # Charger l'image du ninja
-ninja_menu_rect = ninja_image.get_rect(center = (globals.WIDTH//2 + 300, globals.HEIGHT//2))  # Rect de l'image du ninja dans le menu de départ
+ninja_menu_rect = ninja_image.get_rect(center = (globals.WIDTH//2 + 150, globals.HEIGHT//2))  # Rect de l'image du ninja dans le menu de départ
 
+    # Beggar
+beggar_image = pygame.image.load("Images/Beggar/beggar_standing.png").convert_alpha()                 # Charger l'image du mendiant
+beggar_menu_rect = beggar_image.get_rect(center = (globals.WIDTH//2 + 300, globals.HEIGHT//2))  # Rect de l'image du mendiant dans le menu de départ
 
 # --- Images de jeu ---
     # Heros
@@ -37,6 +40,12 @@ walking_swordsman2 = pygame.image.load("Images/Swordsman/walking_swordsman2.png"
         # Ninja
 ninja = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()  # Charger l'image du ninja pendant qu'il ne fait rien
 
+        # Beggar
+beggar = pygame.image.load("Images/Beggar/beggar_standing.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il ne fait rien
+beggar_walk1 = pygame.image.load("Images/Beggar/beggar_walk1.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche
+beggar_walk2 = pygame.image.load("Images/Beggar/beggar_walk2.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (2)
+beggar_walk3 = pygame.image.load("Images/Beggar/beggar_walk3.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (3)
+beggar_walk4 = pygame.image.load("Images/Beggar/beggar_walk4.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (4)
 
     # Monstres
         # Slug
@@ -48,7 +57,7 @@ bat1 = pygame.image.load("Images/Monsters/bat1.png").convert_alpha()  # Charger 
 bat2 = pygame.image.load("Images/Monsters/bat2.png").convert_alpha()  # Charger l'image de la chauve-souris (2)
 
 
-    # Objets
+    # Objects
         # Potions
 life_potion = pygame.image.load("Images/Potions/life_potion.png").convert_alpha()    # Charger l'image de la potion de vie
 speed_potion = pygame.image.load("Images/Potions/speed_potion.png").convert_alpha()  # Charger l'image de la potion de vitesse
@@ -59,17 +68,16 @@ life_rune = pygame.image.load("Images/Runes/life_rune.png").convert_alpha()    #
 speed_rune = pygame.image.load("Images/Runes/speed_rune.png").convert_alpha()  # Charger l'image de la rune de vitesse
 power_rune = pygame.image.load("Images/Runes/power_rune.png").convert_alpha()  # Charger l'image de la rune de force
 
-        # Armes
-            # Fleche
+        # Weapons
+            # Arrows
 arrow = pygame.image.load("Images/Archer/arrow.png").convert_alpha()  # Charger l'image de la flèche de l'archer
 arrow_right = arrow                                                   # Le profil droit de la flèche est l'image de base
 arrow_left = pygame.transform.flip(arrow, True, False)                # Le profil gauche de la flèche est l'image de base retournée horizontalement
             
-            # Shuriken
+            # Shurikens
 shuriken = pygame.image.load("Images/Ninja/shuriken.png").convert_alpha()  # Charger l'image du shuriken du ninja
 shuriken_right = shuriken                                                  # Le profil droit du shuriken est l'image de base
 shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le profil gauche du shuriken est l'image de base retournée horizontalement
-
 
     # Images de fond
 dark_slab = pygame.image.load("Images/dark_slab.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
