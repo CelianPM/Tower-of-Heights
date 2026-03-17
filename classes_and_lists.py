@@ -110,6 +110,25 @@ class Player:
             ]
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
+        elif self.hero == "beggar":
+            self.attack_delay = 500                                                             # Définit le temps entre les attaques pour le mendiant, pour qui c'est moyen
+            self.selected_image = imports.beggar_image                                           # L'image sélectionnée est celle du mendiant
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
+            self.selected_attack = imports.attacking_beggar                                                # Télécharge l'image de l'attaque du mendiant
+            self.speed = 2
+            self.max_life = 6
+            self.regeneration_time = 30000
+            self.degat = 400
+            self.weapon = None
+            self.walk_frames_right = [
+                imports.walking_beggar,
+                imports.walking_beggar1,
+                imports.walking_beggar,
+                imports.walking_beggar2,
+            ]
+            self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
+
         self.attack_animation_time = 300
         self.selected_attack_right = self.selected_attack                                                          # Profil droit de l'image attaquant
         self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)                       # Profil gauche de l'image attaquant
@@ -186,6 +205,14 @@ class Player:
             if self.hero =="ninja":
                 shurikens.append(Shuriken(self.hitbox.centerx, self.hitbox.centery, self))
                 self.last_attack_time = time
+
+            if self.hero == "beggar":
+                if self.weapon == "shuriken":
+                    shurikens.append(Shuriken(self.hitbox.centerx, self.hitbox.centery, self))
+                    self.last_attack_time = time
+                elif self.weapon == "bow":
+                    arrows.append(Arrow(self.hitbox.centerx, self.hitbox.centery, self))
+                    self.last_attack_time = time
 
             self.can_attack = False
 
