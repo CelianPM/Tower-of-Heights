@@ -146,9 +146,9 @@ class Player:
     
     def projectile_spawn_position(self):
         """Définit la position de spawn des projectiles du joueur en fonction de sa direction et de son personnage."""
-        image_top = self.hitbox.top -10
         image_width = self.selected_image.get_width()
         image_height = self.selected_image.get_height()
+        image_top = self.hitbox.bottom - image_height
         image_left = self.hitbox.x - (image_width - self.hitbox.width - 20)
         spawn_offsets = {
             "archer" : {
