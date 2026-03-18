@@ -42,7 +42,7 @@ ninja = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()  # Charg
 
         # Beggar
 beggar = pygame.image.load("Images/Beggar/standing_beggar.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il ne fait rien
-attacking_beggar = pygame.image.load("Images/Beggar/beggar_attack_weaponless.png").convert_alpha()
+attacking_beggar = pygame.image.load("Images/Beggar/beggar_weaponless_attack.png").convert_alpha()
 beggar_walk1 = pygame.image.load("Images/Beggar/walking_beggar1.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche
 beggar_walk2 = pygame.image.load("Images/Beggar/walking_beggar2.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (2)
 beggar_walk3 = pygame.image.load("Images/Beggar/walking_beggar3.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (3)
