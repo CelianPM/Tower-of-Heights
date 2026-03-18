@@ -87,7 +87,8 @@ def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, a
     screen.blit(imports.archer_image, imports.archer_menu_rect)                                                           # Afficher l'image de l'archer
     screen.blit(imports.swordsman_image, imports.swordsman_menu_rect)                                                           # Afficher l'image de l'épéiste
     screen.blit(imports.ninja_image, imports.ninja_menu_rect)                                                           # Afficher l'image du ninja
-
+    screen.blit(imports.beggar_image, imports.beggar_menu_rect)
+    
         # Afficher le texte, 
     selection = text_font.render("Clique sur ton personnage", True, (200, 200, 200))                      # Pour définir le texte
     pour_pauser = text_font.render("Appuie sur ECHAPE pour pauser le jeu", True, (200, 200, 200))         # Pour définir le texte
