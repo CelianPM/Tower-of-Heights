@@ -11,18 +11,18 @@ pygame.init()
 # --- Heros ---
 class Player:
     def __init__(self, on_ground):
-        """Définit les variables requises par le joueur et importe la viariable on_ground pour en avoir une spécialement pour le joueur."""
+        """Definit les variables requises par le joueur et importe la viariable on_ground pour en avoir une specialement pour le joueur."""
         self.speed = 0            # Vitesse du joueur
         self.jump_power = -15     # Puissance de saut
-        self.attack = False       # Le héro n'attaque pas encore
+        self.attack = False       # Le hero n'attaque pas encore
         self.direction = "right"  # Direction initiale
         self.attack_delay = 0     # Le temps qu'il faut attendre avant de pouvoir rattaquer
-        self.max_life = 0         # Nombres de vies de départ
+        self.max_life = 0         # Nombres de vies de depart
         self.last_attack_time = 0
         self.attack_animation_time = 0
-        self.can_attack = True
-        self.level = 0
-        self.point_attribut = 0
+        self.can_attack = True   # Si le heros peut attaquer, defini comme oui au debut
+        self.level = 0           # Le niveau du joueur, qui augmente avec le temps en gagnant de l'XP
+        self.point_attribut = 0  # Le nombre de points d'attibuts, utilises pour ameliorer les caracteristiques du joueur
         self.last_damage_time = 0
         self.regeneration_time = 0
         self.invincibility_time = 1000
@@ -36,32 +36,32 @@ class Player:
         self.regeneration_effect_end_time = 0
 
 
-        self.selected_image = None         # Image selectionnée, non-definie pour l'instant
-        self.selected_image_left = None    # Profil gauche de l'image selectionnée, non-definie pour l'instant
-        self.selected_image_right = None   # Profil droit de l'image sélectionnée, non-definie pour l'instant
+        self.selected_image = None         # Image selectionnee, non-definie pour l'instant
+        self.selected_image_left = None    # Profil gauche de l'image selectionnee, non-definie pour l'instant
+        self.selected_image_right = None   # Profil droit de l'image selectionnee, non-definie pour l'instant
         self.selected_attack = None        # Image de base de l'attaque, non-definie pour l'instant
         self.selected_attack_left = None   # Profil gauche de l'image attaquant, non-definie pour l'instant
         self.selected_attack_right = None  # Profil droit de l'image attaquant, non-definie pour l'instant
-        self.perso_rect = None             # Rect de l'image selectionnée, non-definie pour l'instant
-        self.hero = None                   # Qui sera le héro, non-definie pour l'instant
+        self.perso_rect = None             # Rect de l'image selectionnee, non-definie pour l'instant
+        self.hero = None                   # Qui sera le hero, non-definie pour l'instant
         self.hitbox = None                 # Hitbox du personnage ( pour les collisions), non-definie pour l'instant
-        self.xp = 0
-        self.on_ground = on_ground
-        self.xp_lvl_up = 0
+        self.xp = 0                        # L'experience du joueur, qui augmente en tuant des monstres et permet de monter de niveau
+        self.on_ground = on_ground         # Variable pour savoir si le joueur est au sol, utilisee pour gerer les sauts
+        self.xp_lvl_up = 0                 # L'experience necessaire pour monter de niveau, qui augmente a chaque niveau
 
-        self.frame_index = 0
-        self.animation_speed = 0.1
-        self.prev_hitbox = None
+        self.frame_index = 0               # L'index de l'animation, utilise pour faire defiler les images d'animation du personnage
+        self.animation_speed = 0.1         # La vitesse de l'animation, qui determine a quelle vitesse les images d'animation defilent
+        self.prev_hitbox = None            # La hitbox precedente du joueur, utilisee pour gerer les collisions avec les plateformes et les monstres
     
     def select_the_player(self):
-        """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi."""
+        """Se charge de gerer les clics sur les personnages dans le menu de depart, et de definir les variables correspondantes en fonction du personnage choisi."""
         
         if self.hero == "archer":
-            self.attack_delay = 800                                                             # Définit le temps entre les attaques pour l'archer, pour qui c'est plus long
-            self.selected_image = imports.archer_image                                          # L'image sélectionnée est celle de l'archer
-            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
-            self.selected_attack = imports.attacking_archer                                     # Télécharge l'image de l'attaque de l'archer
+            self.attack_delay = 800                                                             # Definit le temps entre les attaques pour l'archer, pour qui c'est plus long
+            self.selected_image = imports.archer_image                                          # L'image selectionnee est celle de l'archer
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
+            self.selected_attack = imports.attacking_archer                                     # Telecharge l'image de l'attaque de l'archer
             self.speed = 3
             self.max_life = 4
             self.regeneration_time = 25000
@@ -78,11 +78,11 @@ class Player:
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
             
         elif self.hero == "swordsman":
-            self.attack_delay = 300                                                             # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
-            self.selected_image = imports.swordsman_image                                       # L'image sélectionnée est celle de l'épéiste
-            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
-            self.selected_attack = imports.attacking_swordsman                                  # Télécharge l'image de l'attaque de l'épéiste
+            self.attack_delay = 300                                                             # Definit le temps entre les attaques pour l'epeiste, pour qui c'est plus court
+            self.selected_image = imports.swordsman_image                                       # L'image selectionnee est celle de l'epeiste
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
+            self.selected_attack = imports.attacking_swordsman                                  # Telecharge l'image de l'attaque de l'epeiste
             self.speed = 4
             self.max_life = 5
             self.regeneration_time = 20000
@@ -96,11 +96,11 @@ class Player:
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
         elif self.hero == "ninja":
-            self.attack_delay = 200                                                             # Définit le temps entre les attaques pour l'épéiste, pour qui c'est plus court
-            self.selected_image = imports.ninja_image                                           # L'image sélectionnée est celle de l'épéiste
-            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
-            self.selected_attack = imports.ninja                                                # Télécharge l'image de l'attaque de l'épéiste
+            self.attack_delay = 200                                                             # Definit le temps entre les attaques pour l'epeiste, pour qui c'est plus court
+            self.selected_image = imports.ninja_image                                           # L'image selectionnee est celle de l'epeiste
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
+            self.selected_attack = imports.ninja                                                # Telecharge l'image de l'attaque de l'epeiste
             self.speed = 5
             self.max_life = 3
             self.regeneration_time = 20000
@@ -111,11 +111,11 @@ class Player:
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
         elif self.hero == "beggar":
-            self.attack_delay = 500                                                             # Définit le temps entre les attaques pour le mendiant, pour qui c'est moyen
-            self.selected_image = imports.beggar_image                                           # L'image sélectionnée est celle du mendiant
-            self.selected_image_right = self.selected_image                                     # Profil droit de l'image sélectionnée
-            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image sélectionnée
-            self.selected_attack = imports.attacking_beggar                                                # Télécharge l'image de l'attaque du mendiant
+            self.attack_delay = 500                                                             # Definit le temps entre les attaques pour le mendiant, pour qui c'est moyen
+            self.selected_image = imports.beggar_image                                           # L'image selectionnee est celle du mendiant
+            self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
+            self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
+            self.selected_attack = imports.attacking_beggar                                                # Telecharge l'image de l'attaque du mendiant
             self.speed = 2
             self.max_life = 6
             self.regeneration_time = 30000
@@ -144,23 +144,23 @@ class Player:
         return frames[int(self.frame_index)]
     
     def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens):
-        """Se charge de définir les mouvements du joueur et ses attaques."""
+        """Se charge de definir les mouvements du joueur et ses attaques."""
         self.prev_hitbox = self.hitbox.copy()
 
         # --- Mouvements du joueur ---
             # Gauche
-        if key[pygame.K_LEFT]:                                   # Si la touche de gauche est appuyée
-            self.hitbox.x -= self.speed                          # Déplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+        if key[pygame.K_LEFT]:                                   # Si la touche de gauche est appuyee
+            self.hitbox.x -= self.speed                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
             if self.direction == "right":
-                self.selected_image = self.selected_image_left   # Si la direction précédente était à droite, changer l'image sélectionnée par celle du profil gauche
-            self.direction = "left"                              # Mettre à jour la direction comme étant la gauche gauche
+                self.selected_image = self.selected_image_left   # Si la direction precedente etait a droite, changer l'image selectionnee par celle du profil gauche
+            self.direction = "left"                              # Mettre a jour la direction comme etant la gauche gauche
 
             # Droite
-        if key[pygame.K_RIGHT]:                                  # Si la touche de droite est appuyée
-            self.hitbox.x += self.speed                          # Déplacer la hitbox vers la droite en fonction de la vitesse du joueur
+        if key[pygame.K_RIGHT]:                                  # Si la touche de droite est appuyee
+            self.hitbox.x += self.speed                          # Deplacer la hitbox vers la droite en fonction de la vitesse du joueur
             if self.direction == "left":
-                self.selected_image = self.selected_image_right  # Si la direction précédente était à gauche, changer l'image sélectionnée par celle du profil droit
-            self.direction = "right"                             # Mettre à jour la direction comme étant la droite
+                self.selected_image = self.selected_image_right  # Si la direction precedente etait a gauche, changer l'image selectionnee par celle du profil droit
+            self.direction = "right"                             # Mettre a jour la direction comme etant la droite
 
         is_moving = key[pygame.K_LEFT] or key[pygame.K_RIGHT]
         if is_moving and not self.attack:
@@ -170,33 +170,33 @@ class Player:
                 self.selected_image = self.animate(self.walk_frames_right)
 
             # Le saut
-        if key[pygame.K_SPACE] and self.on_ground:               # Si la touche de saut est appuyée et que le joueur est au sol
-            velocity += self.jump_power                          # Appliquer la puissance de saut à la variable de vitesse
-            self.on_ground = False                               # Le joueur n'est plus au sol après avoir sauté
+        if key[pygame.K_SPACE] and self.on_ground:               # Si la touche de saut est appuyee et que le joueur est au sol
+            velocity += self.jump_power                          # Appliquer la puissance de saut a la variable de vitesse
+            self.on_ground = False                               # Le joueur n'est plus au sol apres avoir saute
             imports.jump_sound.play()                                    # Jouer le son du saut
         
-        if not key[pygame.K_LEFT] and not key[pygame.K_RIGHT] and not key[pygame.K_SPACE] and not self.attack:  # Si aucune touche de déplacement n'est appuyée et que le joueur n'attaque pas
+        if not key[pygame.K_LEFT] and not key[pygame.K_RIGHT] and not key[pygame.K_SPACE] and not self.attack:  # Si aucune touche de deplacement n'est appuyee et que le joueur n'attaque pas
             self.frame_index = 0
             if self.direction == "left":
-                self.selected_image = self.selected_image_left       # L'image revient à celle du profil gauche de l'image selectionnée
+                self.selected_image = self.selected_image_left       # L'image revient a celle du profil gauche de l'image selectionnee
             else:
-                self.selected_image = self.selected_image_right      # L'image revient à celle du profil droit de l'image selectionnée
+                self.selected_image = self.selected_image_right      # L'image revient a celle du profil droit de l'image selectionnee
 
-            # La gravité
+            # La gravite
         if not self.on_ground:
-            velocity += globals.GRAVITY  # Appliquer la gravité à la variable de vitesse pour faire retomber le joueur quand il n'est pas sur le sol
+            velocity += globals.GRAVITY  # Appliquer la gravite a la variable de vitesse pour faire retomber le joueur quand il n'est pas sur le sol
 
         # --- L'attaque du joueur ---
             # Attaque
-        if key[pygame.K_d] and not self.attack and self.can_attack and state == "game":  # Si la touche D est appuyée et que le joueur n''est pas déjà en train d''attaquer
+        if key[pygame.K_d] and not self.attack and self.can_attack and state == "game":  # Si la touche D est appuyee et que le joueur n''est pas deja en train d''attaquer
             self.attack = True
-            start_time = time        # Enregistrer le temps de début de l''attaque pour gérer le délai entre les attaques
+            start_time = time        # Enregistrer le temps de debut de l''attaque pour gerer le delai entre les attaques
             self.last_attack_time = time
 
             if self.direction == "left":
-                self.selected_image = self.selected_attack_left   # Si la direction est à gauche, changer l''image sélectionnée par celle de l''attaque du profil gauche
+                self.selected_image = self.selected_attack_left   # Si la direction est a gauche, changer l''image selectionnee par celle de l''attaque du profil gauche
             else:
-                self.selected_image = self.selected_attack_right  # Si la direction est à droite, changer l''image sélectionnée par celle de l''attaque du profil droit
+                self.selected_image = self.selected_attack_right  # Si la direction est a droite, changer l''image selectionnee par celle de l''attaque du profil droit
             
             if self.hero == "archer":
                 arrows.append(Arrow(self.hitbox.centerx, self.hitbox.centery, self))
@@ -216,22 +216,22 @@ class Player:
 
             self.can_attack = False
 
-        # Délai avant la prochaine attaque
+        # Delai avant la prochaine attaque
         if self.attack and time - start_time >= self.attack_animation_time:
             if self.direction == "left":
-                self.selected_image = self.selected_image_left       # L'image revient à celle du profil gauche de l'image selectionnée
+                self.selected_image = self.selected_image_left       # L'image revient a celle du profil gauche de l'image selectionnee
             else:
-                self.selected_image = self.selected_image_right   # L'image revient à celle du profil droit de l'image selectionnée
-            self.attack = False                                   # Après le délai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient à celle de base
+                self.selected_image = self.selected_image_right   # L'image revient a celle du profil droit de l'image selectionnee
+            self.attack = False                                   # Apres le delai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient a celle de base
         
-        if time - start_time >= self.attack_animation_time + self.attack_delay:  # Après le délai d'attaque plus le temps entre les attaques, le joueur peut à nouveau attaquer
+        if time - start_time >= self.attack_animation_time + self.attack_delay:  # Apres le delai d'attaque plus le temps entre les attaques, le joueur peut a nouveau attaquer
             self.can_attack = True
 
         if not self.can_attack:
             if self.hero == "archer" and time - self.last_attack_time >= self.attack_delay:
                 self.can_attack = True
 
-        self.hitbox.y += velocity  # Appliquer la variable de vitesse à la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
+        self.hitbox.y += velocity  # Appliquer la variable de vitesse a la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
         return velocity, start_time
     
     def update_potion_effects(self, time):
@@ -253,7 +253,7 @@ class Player:
 
     def platform_collisions(self, platforms, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""
-        self.on_ground = False                                                      # Par défaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
+        self.on_ground = False                                                      # Par defaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
         previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
 
         for platform in platforms:
@@ -267,15 +267,15 @@ class Player:
                 self.hitbox.bottom = platform.top
                 self.on_ground = True
                 velocity = 0
-                continue                                                   # La vitesse de chute est réinitialiser à 0 quand le joueur touche une plateforme
+                continue                                                   # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
    
             # Collisions du bas de la plateforme
             if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
                 self.hitbox.top = platform.bottom
                 velocity = 0
-                continue                                                   # La vitesse de saut est réinitialiser à 0 quand le joueur touche une plateforme par en dessous
+                continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
 
-            # Collisions des côtés de la plateforme
+            # Collisions des côtes de la plateforme
             if previous_hitbox.right <= platform.left and self.hitbox.right > platform.left:
                 self.hitbox.right = platform.left
             elif previous_hitbox.left >= platform.right and self.hitbox.left < platform.right:
@@ -296,12 +296,12 @@ class Player:
             if monster.alive and self.hitbox.colliderect(monster.rect):                                   # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
 
                 if self.attack:
-                    if self.selected_image == self.selected_attack_left and self.hero == "swordsman":     # Si le joueur attaque vers la gauche avec l'épée
-                        if monster.rect.x < self.hitbox.x:                                                # Si le monstre est à gauche du joueur
+                    if self.selected_image == self.selected_attack_left and self.hero == "swordsman":     # Si le joueur attaque vers la gauche avec l'epee
+                        if monster.rect.x < self.hitbox.x:                                                # Si le monstre est a gauche du joueur
                             monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x -= globals.PUSHBACK
-                    elif self.selected_image == self.selected_attack_right and self.hero == "swordsman":  # Si le joueur attaque vers la droite avec l'épée
-                        if monster.rect.x > self.hitbox.x:                                                # Si le monstre est à droite du joueur
+                    elif self.selected_image == self.selected_attack_right and self.hero == "swordsman":  # Si le joueur attaque vers la droite avec l'epee
+                        if monster.rect.x > self.hitbox.x:                                                # Si le monstre est a droite du joueur
                             monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x += globals.PUSHBACK
                     else:
@@ -310,7 +310,7 @@ class Player:
                             self.last_damage_time = time
 
                     if monster.life <= 0:                                   # Quand le monstre n'a plus de vies
-                        monster.alive = False                               # Il est retiré du jeu
+                        monster.alive = False                               # Il est retire du jeu
                         self.xp += monster.xp_reward
                 
                 else:                                                       # Si le joueur n'attaque pas
@@ -319,38 +319,38 @@ class Player:
                         self.last_damage_time = time
 
                         if self.hitbox.x < monster.rect.x:
-                            self.hitbox.x -= globals.PUSHBACK                       # Si le joueur est à gauche du monstre, il recule vers la gauche
+                            self.hitbox.x -= globals.PUSHBACK                       # Si le joueur est a gauche du monstre, il recule vers la gauche
                         else:
-                            self.hitbox.x += globals.PUSHBACK                       # Si le joueur est à droite du monstre, il recule vers la droite
+                            self.hitbox.x += globals.PUSHBACK                       # Si le joueur est a droite du monstre, il recule vers la droite
             
             for arrow in arrows[:]:
-                if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la flèche est en collision avec celle du monstre
+                if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                     monster.life -= self.degat + self.puissance             # Le monstre perd une vie
                     if arrow.direction == "right":
-                        monster.rect.x += globals.PUSHBACK                          # Si la flèche va vers la droite, le monstre recule vers la droite
+                        monster.rect.x += globals.PUSHBACK                          # Si la fleche va vers la droite, le monstre recule vers la droite
                     else:
-                        monster.rect.x -= globals.PUSHBACK                          # Si la flèche va vers la gauche, le monstre recule vers la gauche
-                    arrows.remove(arrow)                                    # Retirer la flèche du jeu
+                        monster.rect.x -= globals.PUSHBACK                          # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                    arrows.remove(arrow)                                    # Retirer la fleche du jeu
                     if monster.life <= 0:
-                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retiré du jeu
+                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
 
             if shurikens is None :
                 continue
             for shuriken in shurikens[:]:
-                if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la flèche est en collision avec celle du monstre
+                if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                     monster.life -= self.degat + self.puissance             # Le monstre perd une vie
                     if shuriken.direction == "right":
-                        monster.rect.x += globals.PUSHBACK                          # Si la flèche va vers la droite, le monstre recule vers la droite
+                        monster.rect.x += globals.PUSHBACK                          # Si la fleche va vers la droite, le monstre recule vers la droite
                     else:
-                        monster.rect.x -= globals.PUSHBACK                          # Si la flèche va vers la gauche, le monstre recule vers la gauche
-                    shurikens.remove(shuriken)                                    # Retirer la flèche du jeu
+                        monster.rect.x -= globals.PUSHBACK                          # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                    shurikens.remove(shuriken)                                    # Retirer la fleche du jeu
                     if monster.life <= 0:
-                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retiré du jeu
+                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
     
     def player_xp(self):
-        """Se charge de gérer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
+        """Se charge de gerer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
         self.xp_lvl_up = 0
         for i in range(self.level + 1):
             self.xp_lvl_up += i*2
@@ -359,14 +359,14 @@ class Player:
             self.point_attribut += 5
     
     def player_inventory(self, items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed):
-        """Gère le ramassage d'objet avec E et un feedback simple à l'écran."""
+        """Gere le ramassage d'objet avec E et un feedback simple a l'ecran."""
 
         if globals.key[pygame.K_e] and not pickup_pressed:
             pickup_pressed = True
             for item in items[:]:
                 if self.hitbox.colliderect(item.rect):
                     if inventory.add_item_to_inventory(inventory_list, item):
-                        last_inventory_feedback = f"{item.name} ramassé"
+                        last_inventory_feedback = f"{item.name} ramasse"
                         items.remove(item)
                     else:
                         last_inventory_feedback = "Inventaire plein (5 slots)"
@@ -379,18 +379,18 @@ class Player:
         return items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed
 
     def player_death(self, time, camera_y, state):
-        """Se charge de dire quand le joueur est mort : lorsqu'il est hors de la fenêtre ou lorsqu'il n'a plus de vies (à cause des monstres)."""
-            # --- Lorsque le héro n'a plus de vies ---
+        """Se charge de dire quand le joueur est mort : lorsqu'il est hors de la fenetre ou lorsqu'il n'a plus de vies (a cause des monstres)."""
+            # --- Lorsque le hero n'a plus de vies ---
         if self.life <= 0:
-            state = "death"  # Passer à l'écran de mort
+            state = "death"  # Passer a l'ecran de mort
         
         if time - self.last_damage_time >= self.regeneration_time and self.life < self.max_life:
             self.life += 1
             self.last_damage_time += 1500
             
-            # --- Mort si le personnage est en dehors de l'écran ---
+            # --- Mort si le personnage est en dehors de l'ecran ---
         if self.hitbox.top > globals.HEIGHT + camera_y:
-            state = "death"  # Si le personnage tombe en dessous de l'écran, passer à l'écran de mort
+            state = "death"  # Si le personnage tombe en dessous de l'ecran, passer a l'ecran de mort
         
         return state
 
@@ -399,17 +399,17 @@ class Player:
     # General
 class Monster:
     def __init__(self, x, y, image_right = None, life = 0, speed = 0, xp_reward = 10):
-        self.spawn_x = x                                                                                 # La position de spawn du monstre, qui est utilisée pour réinitialiser sa position quand il meurt
-        self.spawn_y = y                                                                                 # La position de spawn du monstre, qui est utilisée pour réinitialiser sa position quand il meurt
+        self.spawn_x = x                                                                                 # La position de spawn du monstre, qui est utilisee pour reinitialiser sa position quand il meurt
+        self.spawn_y = y                                                                                 # La position de spawn du monstre, qui est utilisee pour reinitialiser sa position quand il meurt
         self.image_right = image_right                                                                   # Le profil droit du monstre est l'image du profil droit
         self.image_left = pygame.transform.flip(image_right, True, False) if image_right else None       # Le profil gauche du monstre est l'image du profil gauche
         self.image = self.image_right                                                                    # L'image de base du monstre est le profil droit
-        self.rect = self.image.get_rect(topleft = (x, y)) if image_right else pygame.Rect(x, y, 50, 50)  # Le rectangle de collision du monstre est basé sur l'image du profil droit, et sa position est définie par les coordonnées x et y
+        self.rect = self.image.get_rect(topleft = (x, y)) if image_right else pygame.Rect(x, y, 50, 50)  # Le rectangle de collision du monstre est base sur l'image du profil droit, et sa position est definie par les coordonnees x et y
         self.life = life                                                                                 # Le monstre commence avec 3 vies
-        self.max_life = life                                                                             # Le monstre a un maximum de 3 vies, et cette variable est utilisée pour réinitialiser la vie du monstre quand il meurt
-        self.alive = True                                                                                # Le monstre est vivant au début du jeu, et cette variable est utilisée pour déterminer s'il doit être affiché et s'il peut interagir avec le joueur
-        self.speed = speed                                                                               # La vitesse à laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
-        self.xp_reward = xp_reward                                                                       # Quantité d'XP donnée quand ce monstre est vaincu
+        self.max_life = life                                                                             # Le monstre a un maximum de 3 vies, et cette variable est utilisee pour reinitialiser la vie du monstre quand il meurt
+        self.alive = True                                                                                # Le monstre est vivant au debut du jeu, et cette variable est utilisee pour determiner s'il doit etre affiche et s'il peut interagir avec le joueur
+        self.speed = speed                                                                               # La vitesse a laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
+        self.xp_reward = xp_reward                                                                       # Quantite d'XP donnee quand ce monstre est vaincu
         self.frame_index = 0
         self.animation_speed = 0.15
 
@@ -443,23 +443,23 @@ class Monster:
         if not self.alive:
             return                         # Si le monstre n'est pas vivant, il ne fait rien et ne suit pas le joueur
         if self.rect.x > player_rect.x :
-            self.rect.x -= self.speed      # Le monstre se déplace vers la gauche si sa position x est plus grande que celle du joueur
+            self.rect.x -= self.speed      # Le monstre se deplace vers la gauche si sa position x est plus grande que celle du joueur
             if self.image_left:
                 self.image = self.image_left
         elif self.rect.x < player_rect.x:
-            self.rect.x += self.speed      # Le monstre se déplace vers la droite si sa position x est plus petite que celle du joueur
+            self.rect.x += self.speed      # Le monstre se deplace vers la droite si sa position x est plus petite que celle du joueur
             if self.image_right:
-                self.image = self.image_right  # Le monstre affiche son profil droit pour se déplacer vers la droite
+                self.image = self.image_right  # Le monstre affiche son profil droit pour se deplacer vers la droite
         
         self.overlap(monsters, horizontal_only = True)
     
     def reset(self):
-        self.alive = True                                 # Quand le monstre est réinitialisé, il redevient vivant
-        self.life = self.max_life                         # Quand le monstre est réinitialisé, il retrouve sa vie maximale (qui est de 3)
-        self.rect.topleft = (self.spawn_x, self.spawn_y)  # Quand le monstre est réinitialisé, il retourne à sa position de spawn
+        self.alive = True                                 # Quand le monstre est reinitialise, il redevient vivant
+        self.life = self.max_life                         # Quand le monstre est reinitialise, il retrouve sa vie maximale (qui est de 3)
+        self.rect.topleft = (self.spawn_x, self.spawn_y)  # Quand le monstre est reinitialise, il retourne a sa position de spawn
 
     def draw(self, screen, camera_y = 0):
-        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre à sa position actuelle sur l'écran, en tenant compte du décalage de la caméra
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
 
     # Slug
 class Slug(Monster):
@@ -467,9 +467,9 @@ class Slug(Monster):
         super().__init__(
             x, 
             y, 
-            image_right = imports.slug,  # Image spécifique
-            life=1500,             # Vie spécifique du Slug
-            speed=2,               # Vitesse spécifique du Slug
+            image_right = imports.slug,  # Image specifique
+            life=1500,             # Vie specifique du Slug
+            speed=2,               # Vitesse specifique du Slug
             xp_reward = 8
         )
 
@@ -484,7 +484,7 @@ class Slug(Monster):
         if platforms is None:
             platforms = []
 
-        # Déplacement horizontal (puis résolution des côtés)
+        # Deplacement horizontal (puis resolution des côtes)
         previous_x = self.rect.x
         self.rect.x += self.speed * self.direction
 
@@ -498,7 +498,7 @@ class Slug(Monster):
                 self.rect.left = platform.right
                 self.direction = 1
 
-        # Gravité + déplacement vertical (puis résolution haut/bas)
+        # Gravite + deplacement vertical (puis resolution haut/bas)
         previous_y = self.rect.y
         self.velocity_y += globals.GRAVITY
         self.rect.y += self.velocity_y
@@ -522,7 +522,7 @@ class Slug(Monster):
                 self.velocity_y = 0
                 continue
 
-        # --- détection du bord de plateforme ---
+        # --- detection du bord de plateforme ---
         if on_ground:
             front_x = self.rect.centerx + (self.direction * self.rect.width // 2)
             front_y = self.rect.bottom + 5
@@ -546,7 +546,7 @@ class Bat(Monster):
         super().__init__(
             x,
             y,
-            image_right = imports.bat1,  # Image spécifique
+            image_right = imports.bat1,  # Image specifique
             life=300,             # Moins de vie qu'un slug
             speed=3,              # Plus rapide qu'un slug
             xp_reward = 2
@@ -587,14 +587,14 @@ class Bat(Monster):
     # General
 class Projectile:
     def __init__(self, x, y, player):
-        self.direction = player.direction     # La direction du projectile est définie par la direction du joueur au moment du tir, et ne change pas après
+        self.direction = player.direction     # La direction du projectile est definie par la direction du joueur au moment du tir, et ne change pas apres
 
     def update(self, platforms, arrows, shurikens):
         if self.direction == "right":
-            self.rect.x += self.speed  # La flèche se déplace vers la droite si sa direction est à droite
+            self.rect.x += self.speed  # La fleche se deplace vers la droite si sa direction est a droite
         else:
-            self.rect.x -= self.speed  # La flèche se déplace vers la gauche si sa direction est à gauche
-        if self.rect.right < 0 or self.rect.left > globals.WIDTH:  # Si la flèche sort de l'écran, elle est retirée du jeu
+            self.rect.x -= self.speed  # La fleche se deplace vers la gauche si sa direction est a gauche
+        if self.rect.right < 0 or self.rect.left > globals.WIDTH:  # Si la fleche sort de l'ecran, elle est retiree du jeu
             if self in arrows:
                 arrows.remove(self)
             if self in shurikens:
@@ -608,19 +608,19 @@ class Projectile:
                 break
 
     def draw(self, screen):
-        screen.blit(self.image, self.rect)  # Afficher la flèche à sa position actuelle sur l'écran
+        screen.blit(self.image, self.rect)  # Afficher la fleche a sa position actuelle sur l'ecran
 
     # Fleche
 class Arrow(Projectile):
     def __init__(self, x, y, player):
         super().__init__(x, y, player)
-        self.speed = 10                # La vitesse de la flèche, qui est constante et ne change pas selon la direction
+        self.speed = 10                # La vitesse de la fleche, qui est constante et ne change pas selon la direction
 
         if self.direction == "right":
-            self.image = imports.arrow_right   # Le profil droit de la flèche est utilisé si la direction est à droite
+            self.image = imports.arrow_right   # Le profil droit de la fleche est utilise si la direction est a droite
             self.rect = self.image.get_rect(midleft = (x, y))
         else:
-            self.image = imports.arrow_left    # Le profil gauche de la flèche est utilisé si la direction est à gauche
+            self.image = imports.arrow_left    # Le profil gauche de la fleche est utilise si la direction est a gauche
             self.rect = self.image.get_rect(midright = (x, y))
 
     # Shuriken
@@ -643,12 +643,12 @@ class Shuriken(Projectile):
     def update(self, platforms, arrows, shurikens):
         super().update(platforms, arrows, shurikens)
         if self not in shurikens:
-            return  # Si le shuriken a été retiré du jeu (par exemple, s'il a touché une plateforme), ne pas continuer à mettre à jour sa rotation
+            return  # Si le shuriken a ete retire du jeu (par exemple, s'il a touche une plateforme), ne pas continuer a mettre a jour sa rotation
         
         center = self.rect.center  # Conserver le centre du shuriken avant de faire tourner l'image
-        self.angle = (self.angle + self.rotation_speed) % 360  # Mettre à jour l'angle de rotation du shuriken
+        self.angle = (self.angle + self.rotation_speed) % 360  # Mettre a jour l'angle de rotation du shuriken
         self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
-        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre à jour le rect du shuriken pour qu'il reste centré sur sa position actuelle
+        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
 
 
 # =================================

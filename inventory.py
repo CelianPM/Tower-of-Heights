@@ -9,7 +9,7 @@ pygame.init()
 # =================================
 
 def add_item_to_inventory(inventory_list, item):
-    """Ajoute un item à l'inventaire (max 5 slots). Stack d'abord, sinon premier slot libre."""
+    """Ajoute un item a l'inventaire (max 5 slots). Stack d'abord, sinon premier slot libre."""
     for slot in inventory_list:
         if slot and slot["name"] == item.name:
             slot["quantity"] += item.quantity
@@ -29,7 +29,7 @@ def add_item_to_inventory(inventory_list, item):
     return False
 
 def use_inventory_slot(inventory_list, slot_index, player, current_time):
-    """Utilise le slot demandé si possible et retourne un message de feedback."""
+    """Utilise le slot demande si possible et retourne un message de feedback."""
     slot = inventory_list[slot_index]
     if slot is None:
         return f"Slot {slot_index + 1} vide"
@@ -61,15 +61,15 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
         slot["quantity"] -= 1
         if slot["quantity"] <= 0:
             inventory_list[slot_index] = None
-        return f"{item_name_for_msg} utilisé"
+        return f"{item_name_for_msg} utilise"
 
     return "Impossible d'utiliser cet objet"
 
 def drop_inventory_slot(inventory_list, slot_index, items, x, y):
-    """Jette 1 objet du slot donné au sol proche du joueur."""
+    """Jette 1 objet du slot donne au sol proche du joueur."""
     slot = inventory_list[slot_index]
     if slot is None:
-        return "Rien à jeter"
+        return "Rien a jeter"
 
     item = Item(
         slot["name"],
@@ -87,10 +87,10 @@ def drop_inventory_slot(inventory_list, slot_index, items, x, y):
     if slot["quantity"] <= 0:
         inventory_list[slot_index] = None
 
-    return f"{item_name_for_msg} jeté"
+    return f"{item_name_for_msg} jete"
 
 def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, current_time):
-    """Affiche 5 slots avec icônes, quantités et progression de maintien (1s)."""
+    """Affiche 5 slots avec icônes, quantites et progression de maintien (1s)."""
     slot_size = 60
     spacing = 12
     total_width = globals.INVENTORY_SLOTS * slot_size + (globals.INVENTORY_SLOTS - 1) * spacing
@@ -146,7 +146,7 @@ class Item:
 
 slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
 
-# --- Liste des objets présents dans le monde ---
+# --- Liste des objets presents dans le monde ---
 items = [
     Item("Potion_vie", 260, 320, imports.life_potion, quantity = 1, usable = True, heal_amount = 1),
     Item("Potion_puissance", 550, 120, imports.power_potion, quantity = 1, usable = True, heal_amount = 100),
