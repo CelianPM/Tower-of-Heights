@@ -5,10 +5,8 @@ pygame.init()
 
 
 # =================================
-# CLASSES
+# HEROS
 # =================================
-
-# --- Heros ---
 class Player:
     def __init__(self, on_ground):
         """Definit les variables requises par le joueur et importe la viariable on_ground pour en avoir une specialement pour le joueur."""
@@ -275,7 +273,7 @@ class Player:
                 velocity = 0
                 continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
 
-            # Collisions des côtes de la plateforme
+            # Collisions des cotes de la plateforme
             if previous_hitbox.right <= platform.left and self.hitbox.right > platform.left:
                 self.hitbox.right = platform.left
             elif previous_hitbox.left >= platform.right and self.hitbox.left < platform.right:
@@ -290,7 +288,7 @@ class Player:
                     
         return velocity
 
-    def monster_collisions(self, monsters, time, arrows, shurikens = None):
+    def monster_collisions(self, monsters, time, arrows, platforms, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
             if monster.alive and self.hitbox.colliderect(monster.rect):                                   # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
@@ -300,10 +298,12 @@ class Player:
                         if monster.rect.x < self.hitbox.x:                                                # Si le monstre est a gauche du joueur
                             monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x -= globals.PUSHBACK
+                            monster.resolve_horizontal_collisions(platforms)
                     elif self.selected_image == self.selected_attack_right and self.hero == "swordsman":  # Si le joueur attaque vers la droite avec l'epee
                         if monster.rect.x > self.hitbox.x:                                                # Si le monstre est a droite du joueur
                             monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x += globals.PUSHBACK
+                            monster.resolve_horizontal_collisions(platforms)
                     else:
                         if time - self.last_damage_time >= self.invincibility_time:
                             self.life -= 1
@@ -327,9 +327,10 @@ class Player:
                 if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                     monster.life -= self.degat + self.puissance             # Le monstre perd une vie
                     if arrow.direction == "right":
-                        monster.rect.x += globals.PUSHBACK                          # Si la fleche va vers la droite, le monstre recule vers la droite
+                        monster.rect.x += globals.PUSHBACK                  # Si la fleche va vers la droite, le monstre recule vers la droite
                     else:
-                        monster.rect.x -= globals.PUSHBACK                          # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                        monster.rect.x -= globals.PUSHBACK                  # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                    monster.resolve_horizontal_collisions(platforms)
                     arrows.remove(arrow)                                    # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
@@ -339,14 +340,15 @@ class Player:
                 continue
             for shuriken in shurikens[:]:
                 if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
-                    monster.life -= self.degat + self.puissance             # Le monstre perd une vie
+                    monster.life -= self.degat + self.puissance                # Le monstre perd une vie
                     if shuriken.direction == "right":
-                        monster.rect.x += globals.PUSHBACK                          # Si la fleche va vers la droite, le monstre recule vers la droite
+                        monster.rect.x += globals.PUSHBACK                     # Si la fleche va vers la droite, le monstre recule vers la droite
                     else:
-                        monster.rect.x -= globals.PUSHBACK                          # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                    shurikens.remove(shuriken)                                    # Retirer la fleche du jeu
+                        monster.rect.x -= globals.PUSHBACK                     # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                    monster.resolve_horizontal_collisions(platforms)
+                    shurikens.remove(shuriken)                                 # Retirer la fleche du jeu
                     if monster.life <= 0:
-                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
+                        monster.alive = False                                  # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
     
     def player_xp(self):
@@ -395,23 +397,32 @@ class Player:
         return state
 
 
-# --- Monstres ---
-    # General
+
+# =================================
+# MONSTRES
+# =================================
+
+# --- General ---
 class Monster:
     def __init__(self, x, y, image_right = None, life = 0, speed = 0, xp_reward = 10):
-        self.spawn_x = x                                                                                 # La position de spawn du monstre, qui est utilisee pour reinitialiser sa position quand il meurt
-        self.spawn_y = y                                                                                 # La position de spawn du monstre, qui est utilisee pour reinitialiser sa position quand il meurt
-        self.image_right = image_right                                                                   # Le profil droit du monstre est l'image du profil droit
-        self.image_left = pygame.transform.flip(image_right, True, False) if image_right else None       # Le profil gauche du monstre est l'image du profil gauche
-        self.image = self.image_right                                                                    # L'image de base du monstre est le profil droit
-        self.rect = self.image.get_rect(topleft = (x, y)) if image_right else pygame.Rect(x, y, 50, 50)  # Le rectangle de collision du monstre est base sur l'image du profil droit, et sa position est definie par les coordonnees x et y
-        self.life = life                                                                                 # Le monstre commence avec 3 vies
-        self.max_life = life                                                                             # Le monstre a un maximum de 3 vies, et cette variable est utilisee pour reinitialiser la vie du monstre quand il meurt
-        self.alive = True                                                                                # Le monstre est vivant au debut du jeu, et cette variable est utilisee pour determiner s'il doit etre affiche et s'il peut interagir avec le joueur
-        self.speed = speed                                                                               # La vitesse a laquelle le monstre suit le joueur, qui est constante et ne change pas selon la direction
-        self.xp_reward = xp_reward                                                                       # Quantite d'XP donnee quand ce monstre est vaincu
+        self.spawn_x = x                                                                                 # La position de spawn du monstre
+        self.spawn_y = y                                                                                 # La position de spawn du monstre
+        self.image_right = image_right                                                                   # Le profil droit du monstre
+        self.image_left = pygame.transform.flip(image_right, True, False) if image_right else None       # Le profil gauche du monstre
+        self.image = self.image_right                                                                    # L'image de base du monstre
+        self.rect = self.image.get_rect(topleft = (x, y)) if image_right else pygame.Rect(x, y, 50, 50)  # Le rectangle du monstre
+        self.life = life                                                                                 # Vie actuelle du monstre
+        self.max_life = life                                                                             # Vie maximale du monstre
+        self.alive = True                                                                                # Le monstre est vivant au debut
+        self.speed = speed                                                                               # Vitesse du monstre
+        self.xp_reward = xp_reward                                                                       # XP donne au joueur
         self.frame_index = 0
         self.animation_speed = 0.15
+
+        self.direction = 1                                                                               # 1 = droite, -1 = gauche
+        self.chasing = False                                                                             # Indique si le monstre poursuit le joueur
+        self.chase_distance = 180                                                                        # Distance a laquelle le monstre commence la poursuite
+        self.lose_distance = 260                                                                         # Distance a laquelle le monstre abandonne la poursuite
 
     def overlap(self, monsters, horizontal_only = False):
         for other in monsters:
@@ -439,43 +450,97 @@ class Monster:
                 else:
                     self.rect.y += push_y
 
-    def update(self, player_rect, monsters, plateforms = None):
-        if not self.alive:
-            return                         # Si le monstre n'est pas vivant, il ne fait rien et ne suit pas le joueur
-        if self.rect.x > player_rect.x :
-            self.rect.x -= self.speed      # Le monstre se deplace vers la gauche si sa position x est plus grande que celle du joueur
+    def update_chase_state(self, player_rect):
+        # Calcule la distance horizontale entre le joueur et le monstre
+        distance_x = abs(player_rect.centerx - self.rect.centerx)
+
+        # Active la poursuite si le joueur est assez proche
+        if not self.chasing and distance_x <= self.chase_distance:
+            self.chasing = True
+
+        # Arrete la poursuite si le joueur est trop loin
+        if self.chasing and distance_x >= self.lose_distance:
+            self.chasing = False
+
+    def face_player(self, player_rect):
+        # Oriente le monstre vers le joueur avec une petite zone morte pour eviter le clignotement
+        dead_zone = 6
+
+        if player_rect.centerx < self.rect.centerx - dead_zone:
+            self.direction = -1
             if self.image_left:
                 self.image = self.image_left
-        elif self.rect.x < player_rect.x:
-            self.rect.x += self.speed      # Le monstre se deplace vers la droite si sa position x est plus petite que celle du joueur
+        elif player_rect.centerx > self.rect.centerx + dead_zone:
+            self.direction = 1
             if self.image_right:
-                self.image = self.image_right  # Le monstre affiche son profil droit pour se deplacer vers la droite
-        
-        self.overlap(monsters, horizontal_only = True)
+                self.image = self.image_right
     
-    def reset(self):
-        self.alive = True                                 # Quand le monstre est reinitialise, il redevient vivant
-        self.life = self.max_life                         # Quand le monstre est reinitialise, il retrouve sa vie maximale (qui est de 3)
-        self.rect.topleft = (self.spawn_x, self.spawn_y)  # Quand le monstre est reinitialise, il retourne a sa position de spawn
+    def resolve_horizontal_collisions(self, platforms):
+        # Empeche le monstre de traverser un mur apres un pushback horizontal
+        if platforms is None:
+            platforms = []
 
-    def draw(self, screen, camera_y = 0):
-        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))  # Afficher le monstre a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
 
-    # Slug
-class Slug(Monster):
-    def __init__(self, x, y):
-        super().__init__(
-            x, 
-            y, 
-            image_right = imports.slug,  # Image specifique
-            life=1500,             # Vie specifique du Slug
-            speed=2,               # Vitesse specifique du Slug
-            xp_reward = 8
-        )
+            overlap_left = self.rect.right - platform.left
+            overlap_right = platform.right - self.rect.left
 
-        self.velocity_y = 0
-        self.direction = 1
-        self.on_ground = False
+            if overlap_left < overlap_right:
+                self.rect.right = platform.left
+            else:
+                self.rect.left = platform.right
+
+        # Empeche aussi de sortir de l'ecran
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > globals.WIDTH:
+            self.rect.right = globals.WIDTH
+
+    def patrol_horizontally(self, platforms = None):
+        # Fait patrouiller le monstre horizontalement jusqu'a rencontrer un obstacle lateral
+        if platforms is None:
+            platforms = []
+
+        previous_x = self.rect.x
+        self.rect.x += self.speed * self.direction
+
+        blocked = False
+
+        # Collision laterale avec les plateformes
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+                blocked = True
+                break
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
+                blocked = True
+                break
+
+        # Collision avec les bords de l'ecran
+        if self.rect.left <= 0:
+            self.rect.left = 0
+            blocked = True
+        elif self.rect.right >= globals.WIDTH:
+            self.rect.right = globals.WIDTH
+            blocked = True
+
+        # Si le monstre est bloque, il change de direction
+        if blocked:
+            self.direction *= -1
+
+        # Oriente l'image selon la direction
+        if self.direction == -1:
+            if self.image_left:
+                self.image = self.image_left
+        else:
+            if self.image_right:
+                self.image = self.image_right
 
     def update(self, player_rect, monsters, platforms = None):
         if not self.alive:
@@ -484,27 +549,114 @@ class Slug(Monster):
         if platforms is None:
             platforms = []
 
-        # Deplacement horizontal (puis resolution des côtes)
-        previous_x = self.rect.x
-        self.rect.x += self.speed * self.direction
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
 
+        if self.chasing:
+            # Suit le joueur horizontalement
+            self.face_player(player_rect)
+            self.rect.x += self.speed * self.direction
+        else:
+            # Patrouille horizontalement
+            self.patrol_horizontally(platforms)
+
+        self.overlap(monsters, horizontal_only = True)
+    
+    def reset(self):
+        self.alive = True
+        self.life = self.max_life
+        self.rect.topleft = (self.spawn_x, self.spawn_y)
+        self.chasing = False
+        self.direction = 1
+
+    def draw(self, screen, camera_y = 0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+
+
+# --- Slug ---
+class Slug(Monster):
+    def __init__(self, x, y):
+        super().__init__(
+            x, 
+            y, 
+            image_right = imports.slug,
+            life = 1500,
+            speed = 2,
+            xp_reward = 8
+        )
+
+        self.velocity_y = 0
+        self.on_ground = False
+    
+    def ground_ahead(self, platforms, direction = None):
+        # Verifie s'il y a du sol juste devant le slug
+        if direction is None:
+            direction = self.direction
+
+        front_x = self.rect.centerx + (direction * self.rect.width // 2)
+        front_y = self.rect.bottom + 5
+
+        return any(platform.collidepoint(front_x, front_y) for platform in platforms)
+
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+
+        if platforms is None:
+            platforms = []
+
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
+
+        should_move_horizontally = True
+
+        if self.chasing:
+            # Oriente le slug vers le joueur
+            self.face_player(player_rect)
+
+            # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
+            if not self.ground_ahead(platforms, self.direction):
+                should_move_horizontally = False
+
+        # Deplacement horizontal
+        previous_x = self.rect.x
+        if should_move_horizontally:
+            self.rect.x += self.speed * self.direction
+
+        # Collision laterale avec les plateformes
+        hit_side_wall = False
         for platform in platforms:
             if not self.rect.colliderect(platform):
                 continue
+
             if previous_x + self.rect.width <= platform.left:
                 self.rect.right = platform.left
-                self.direction = -1
+                hit_side_wall = True
             elif previous_x >= platform.right:
                 self.rect.left = platform.right
-                self.direction = 1
+                hit_side_wall = True
 
-        # Gravite + deplacement vertical (puis resolution haut/bas)
+        # Collision avec les bords de l'ecran
+        if self.rect.left <= 0:
+            self.rect.left = 0
+            hit_side_wall = True
+        elif self.rect.right >= globals.WIDTH:
+            self.rect.right = globals.WIDTH
+            hit_side_wall = True
+
+        # Si le slug patrouille, il se retourne lorsqu'il est bloque
+        # S'il poursuit, il reste contre l'obstacle au lieu de repartir
+        if hit_side_wall and not self.chasing:
+            self.direction *= -1
+
+        # Gravite
         previous_y = self.rect.y
         self.velocity_y += globals.GRAVITY
         self.rect.y += self.velocity_y
 
         on_ground = False
 
+        # Collision verticale avec les plateformes
         for platform in platforms:
             if not self.rect.colliderect(platform):
                 continue
@@ -522,16 +674,13 @@ class Slug(Monster):
                 self.velocity_y = 0
                 continue
 
-        # --- detection du bord de plateforme ---
-        if on_ground:
-            front_x = self.rect.centerx + (self.direction * self.rect.width // 2)
-            front_y = self.rect.bottom + 5
-
-            ground_ahead = any(platform.collidepoint(front_x, front_y) for platform in platforms)
-            if not ground_ahead:
+        # En patrouille seulement, le slug tourne au bord de la plateforme
+        # En poursuite, il reste au bord pour attendre le joueur
+        if on_ground and not self.chasing:
+            if not self.ground_ahead(platforms):
                 self.direction *= -1
 
-        # --- image selon direction ---
+        # Oriente l'image selon la direction
         if self.direction == 1:
             self.image = self.image_right
         else:
@@ -540,36 +689,85 @@ class Slug(Monster):
         self.on_ground = on_ground
         self.overlap(monsters, horizontal_only = True)
 
-    # Chauve-souris
+
+# --- Chauve-souris ---
 class Bat(Monster):
     def __init__(self, x, y):
         super().__init__(
             x,
             y,
-            image_right = imports.bat1,  # Image specifique
-            life=300,             # Moins de vie qu'un slug
-            speed=3,              # Plus rapide qu'un slug
+            image_right = imports.bat1,
+            life = 300,
+            speed = 3,
             xp_reward = 2
         )
         self.frames_right = [imports.bat1, imports.bat2]
         self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
 
-    def update(self, player_rect, monsters, platforms):
+    def update(self, player_rect, monsters, platforms = None):
         if not self.alive:
             return
 
-        dx = player_rect.centerx - self.rect.centerx
-        dy = player_rect.centery - self.rect.centery
+        if platforms is None:
+            platforms = []
 
-        distance = math.sqrt(dx*dx + dy*dy)
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
 
-        if distance != 0:
-            dx /= distance
-            dy /= distance
+        if self.chasing:
+            # Va vers le joueur en 2D
+            dx = player_rect.centerx - self.rect.centerx
+            dy = player_rect.centery - self.rect.centery
+            distance = math.sqrt(dx * dx + dy * dy)
 
-            self.rect.x += dx * self.speed
-            self.rect.y += dy * self.speed
+            if distance != 0:
+                dx /= distance
+                dy /= distance
 
+                self.rect.x += dx * self.speed
+                self.rect.y += dy * self.speed
+        else:
+            # Patrouille horizontalement
+            previous_x = self.rect.x
+            self.rect.x += self.speed * self.direction
+
+            blocked = False
+
+            # Collision laterale avec les plateformes
+            for platform in platforms:
+                if not self.rect.colliderect(platform):
+                    continue
+
+                if previous_x + self.rect.width <= platform.left:
+                    self.rect.right = platform.left
+                    blocked = True
+                    break
+                elif previous_x >= platform.right:
+                    self.rect.left = platform.right
+                    blocked = True
+                    break
+
+            # Collision avec les bords de l'ecran
+            if self.rect.left <= 0:
+                self.rect.left = 0
+                blocked = True
+            elif self.rect.right >= globals.WIDTH:
+                self.rect.right = globals.WIDTH
+                blocked = True
+
+            # Change de direction si bloque
+            if blocked:
+                self.direction *= -1
+
+            # Revient vers sa hauteur de depart pendant la patrouille
+            if self.rect.centery < self.spawn_y:
+                self.rect.y += min(self.speed, self.spawn_y - self.rect.centery)
+            elif self.rect.centery > self.spawn_y:
+                self.rect.y -= min(self.speed, self.rect.centery - self.spawn_y)
+
+            dx = self.direction
+
+        # Animation selon la direction
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.frames_right):
             self.frame_index = 0
@@ -579,12 +777,16 @@ class Bat(Monster):
             self.image = self.frames_left[current_frame]
         else:
             self.image = self.frames_right[current_frame]
-        
+
         self.overlap(monsters)
 
 
-# --- Objets ---
-    # General
+
+# =================================
+# OBJETS
+# =================================
+
+# --- General ---
 class Projectile:
     def __init__(self, x, y, player):
         self.direction = player.direction     # La direction du projectile est definie par la direction du joueur au moment du tir, et ne change pas apres
@@ -610,7 +812,7 @@ class Projectile:
     def draw(self, screen):
         screen.blit(self.image, self.rect)  # Afficher la fleche a sa position actuelle sur l'ecran
 
-    # Fleche
+# --- Fleche ---
 class Arrow(Projectile):
     def __init__(self, x, y, player):
         super().__init__(x, y, player)
@@ -623,7 +825,7 @@ class Arrow(Projectile):
             self.image = imports.arrow_left    # Le profil gauche de la fleche est utilise si la direction est a gauche
             self.rect = self.image.get_rect(midright = (x, y))
 
-    # Shuriken
+# --- Shuriken ---
 class Shuriken(Projectile):
     def __init__(self, x, y, player):
         super().__init__(x, y, player)

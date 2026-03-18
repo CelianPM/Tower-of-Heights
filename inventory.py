@@ -90,7 +90,7 @@ def drop_inventory_slot(inventory_list, slot_index, items, x, y):
     return f"{item_name_for_msg} jete"
 
 def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, current_time):
-    """Affiche 5 slots avec icônes, quantites et progression de maintien (1s)."""
+    """Affiche 5 slots avec icones, quantites et progression de maintien (1s)."""
     slot_size = 60
     spacing = 12
     total_width = globals.INVENTORY_SLOTS * slot_size + (globals.INVENTORY_SLOTS - 1) * spacing

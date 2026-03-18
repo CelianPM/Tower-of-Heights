@@ -107,7 +107,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     
     velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens)
     velocity = player.platform_collisions(platforms, velocity)
-    player.monster_collisions(monsters, time,arrows, shurikens)
+    player.monster_collisions(monsters, time, arrows, platforms, shurikens)
     player.player_xp()
     items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed)
     state = player.player_death(time, camera_y,state)
