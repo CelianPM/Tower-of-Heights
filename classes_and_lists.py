@@ -52,6 +52,7 @@ class Player:
         self.frame_index = 0
         self.animation_speed = 0.1
         self.prev_hitbox = None
+        self.weapon = None
     
     def select_the_player(self):
         """Se charge de gérer les clics sur les personnages dans le menu de départ, et de définir les variables correspondantes en fonction du personnage choisi."""
@@ -143,6 +144,38 @@ class Player:
         
         return frames[int(self.frame_index)]
     
+    def projectile_spawn_position(self):
+        """Définit la position de spawn des projectiles du joueur en fonction de sa direction et de son personnage."""
+        image_top = self.hitbox.top -10
+        image_width = self.selected_image.get_width()
+        image_height = self.selected_image.get_height()
+        image_left = self.hitbox.x - (image_width - self.hitbox.width - 20)
+        spawn_offsets = {
+            "archer" : {
+                "left" : (22,0.48),
+                "right" : (image_width - 22,0.48),
+            },
+            "beggar" : {
+                "left" : (20,0.44),
+                "right" : (image_width - 20,0.44),
+
+            },
+            "ninja" : {
+                "left" : (18,0.48),
+                "right" : (image_width - 18,0.48),
+            }
+        }
+        hero_offsets  = spawn_offsets.get(self.hero, {
+            "left" : (16, 0.45),
+            "right" : (image_width - 16, 0.45)
+        })
+        offset_x, offset_y = hero_offsets[self.direction]
+
+        projectile_x = image_left + offset_x
+        projectile_y = image_top + int(image_height * offset_y)
+        return projectile_x, projectile_y
+        
+    
     def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens):
         """Se charge de définir les mouvements du joueur et ses attaques."""
         self.prev_hitbox = self.hitbox.copy()
@@ -198,20 +231,21 @@ class Player:
             else:
                 self.selected_image = self.selected_attack_right  # Si la direction est à droite, changer l''image sélectionnée par celle de l''attaque du profil droit
             
+            projectile_x, projectile_y = self.projectile_spawn_position()  # Obtenir la position de spawn du projectile en fonction de la direction du joueur
             if self.hero == "archer":
-                arrows.append(Arrow(self.hitbox.centerx, self.hitbox.centery, self))
+                arrows.append(Arrow(projectile_x, projectile_y, self))
                 self.last_attack_time = time 
 
             if self.hero =="ninja":
-                shurikens.append(Shuriken(self.hitbox.centerx, self.hitbox.centery, self))
+                shurikens.append(Shuriken(projectile_x, projectile_y, self))
                 self.last_attack_time = time
 
             if self.hero == "beggar":
                 if self.weapon == "shuriken":
-                    shurikens.append(Shuriken(self.hitbox.centerx, self.hitbox.centery, self))
+                    shurikens.append(Shuriken(projectile_x, projectile_y, self))
                     self.last_attack_time = time
                 elif self.weapon == "bow":
-                    arrows.append(Arrow(self.hitbox.centerx, self.hitbox.centery, self))
+                    arrows.append(Arrow(projectile_x, projectile_y, self))
                     self.last_attack_time = time
 
             self.can_attack = False
@@ -296,11 +330,11 @@ class Player:
             if monster.alive and self.hitbox.colliderect(monster.rect):                                   # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
 
                 if self.attack:
-                    if self.selected_image == self.selected_attack_left and self.hero == "swordsman":     # Si le joueur attaque vers la gauche avec l'épée
+                    if self.selected_image == self.selected_attack_left and self.hero in ("swordsman", "beggar"):     # Si le joueur attaque vers la gauche avec l'épée
                         if monster.rect.x < self.hitbox.x:                                                # Si le monstre est à gauche du joueur
                             monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x -= globals.PUSHBACK
-                    elif self.selected_image == self.selected_attack_right and self.hero == "swordsman":  # Si le joueur attaque vers la droite avec l'épée
+                    elif self.selected_image == self.selected_attack_right and self.hero in ("swordsman", "beggar"):  # Si le joueur attaque vers la droite avec l'épée
                         if monster.rect.x > self.hitbox.x:                                                # Si le monstre est à droite du joueur
                             monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x += globals.PUSHBACK
