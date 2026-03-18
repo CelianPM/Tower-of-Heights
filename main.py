@@ -137,8 +137,8 @@ while running:
     if player.direction == "right":
         player.perso_rect.x = player.hitbox.x - 20                                                    # Synchroniser la position x de l'image du personnage avec celle de sa hitbox, en tenant compte du decalage entre les deux (la hitbox est plus petite que l'image, donc il faut ajuster la position de l'image pour qu'elle corresponde a celle de la hitbox)
     else:
-        player.perso_rect.x = player.hitbox.x - (player.perso_rect.width - player.hitbox.width - 20)  # Synchroniser la position x de l'image du personnage avec celle de sa hitbox, en tenant compte du decalage entre les deux (la hitbox est plus petite que l'image, donc il faut ajuster la position de l'image pour qu'elle corresponde a celle de la hitbox)
-    player.perso_rect.y = player.hitbox.y - 10                                                        # Synchroniser la position y de l'image du personnage avec celle de sa hitbox, en tenant compte du decalage entre les deux (la hitbox est plus petite que l'image, donc il faut ajuster la position de l'image pour qu'elle corresponde a celle de la hitbox)
+        player.perso_rect.x = player.hitbox.x - (player.perso_rect.width - player.hitbox.width - 20)  # Synchroniser la position x de l'image du personnage avec celle de sa hitbox, en tenant compte du décalage entre les deux (la hitbox est plus petite que l'image, donc il faut ajuster la position de l'image pour qu'elle corresponde à celle de la hitbox)
+    player.perso_rect.y = player.hitbox.bottom - player.perso_rect.height                                                         # Synchroniser la position y de l'image du personnage avec celle de sa hitbox, en tenant compte du décalage entre les deux (la hitbox est plus petite que l'image, donc il faut ajuster la position de l'image pour qu'elle corresponde à celle de la hitbox)
 
     # --- Camera montante (lissee) + ne pas descendre sous le sol ---
     if player.hitbox.y >= globals.HEIGHT//2:
