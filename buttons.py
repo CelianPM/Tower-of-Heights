@@ -18,17 +18,17 @@ death_text_font = pygame.font.SysFont("Fonts/youmurdererbb_reg.ttf", 64)  # Poli
 # BOUTONS
 # =================================
 
-# --- Celui dans l'écran de mort pour recommencer ---
+# --- Celui dans l'ecran de mort pour recommencer ---
 restart_rect_death = pygame.Rect(0, 255, 200, 60)
 restart_rect_death.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2 + 120)
 
 
-# --- Celui dans l'écran de mort pour continuer ---
+# --- Celui dans l'ecran de mort pour continuer ---
 continue_rect = pygame.Rect(0, 255, 200, 60)
 continue_rect.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2)
 
 
-# --- Ceux pour les améliorations de statistiques ---
+# --- Ceux pour les ameliorations de statistiques ---
     # Vitesse
 speed_rect = pygame.Rect(0, 255, 300, 30)
 speed_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 8)
@@ -46,7 +46,7 @@ attack_delay_rect = pygame.Rect(0,255, 300, 30)
 attack_delay_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 11)
 
 
-# --- Celui dans l'écran de mort pour arrêter ---
+# --- Celui dans l'ecran de mort pour arrêter ---
 end_rect_death = pygame.Rect(255, 0, 200, 60)
 end_rect_death.center = (globals.WIDTH//2 + 150, globals.HEIGHT//2 + 120)
 
