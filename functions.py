@@ -42,7 +42,7 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
 
 
 # =================================
-# PAUSE
+# MENU DE DEPART
 # =================================
 
 # --- Gere les boutons ---
