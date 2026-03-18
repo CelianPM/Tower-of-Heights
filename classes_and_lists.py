@@ -611,8 +611,15 @@ class Slug(Monster):
         should_move_horizontally = True
 
         if self.chasing:
-            # Oriente le slug vers le joueur
-            self.face_player(player_rect)
+            # Fige le slug sur sa derniere image lorsque le joueur est deja aligne horizontalement
+            distance_x = player_rect.centerx - self.rect.centerx
+            dead_zone = 6
+
+            if abs(distance_x) <= dead_zone:
+                should_move_horizontally = False
+            else:
+                # Oriente le slug vers le joueur seulement s'il doit vraiment se deplacer
+                self.face_player(player_rect)
 
             # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
             if not self.ground_ahead(platforms, self.direction):
