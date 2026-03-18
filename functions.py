@@ -137,7 +137,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
                 slot_use_lock[slot_index] = False
 
             if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= globals.ITEM_USE_HOLD_MS):
-                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player)
+                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player, time)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
         else:
