@@ -169,10 +169,10 @@ class Player:
             "left" : (16, 0.45),
             "right" : (image_width - 16, 0.45)
         })
-        offset_x, offset_y = hero_offsets[self.direction]
+        offset_x, offset_y_ratio = hero_offsets[self.direction]
 
         projectile_x = image_left + offset_x
-        projectile_y = image_top + int(image_height * offset_y)
+        projectile_y = image_top + int(image_height * offset_y_ratio)
         return projectile_x, projectile_y
         
     
