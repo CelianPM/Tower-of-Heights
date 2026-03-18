@@ -22,7 +22,7 @@ ninja_image = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()   
 ninja_menu_rect = ninja_image.get_rect(center = (globals.WIDTH//2 + 150, globals.HEIGHT//2))  # Rect de l'image du ninja dans le menu de départ
 
     # Beggar
-beggar_image = pygame.image.load("Images/Beggar/beggar_standing.png").convert_alpha()                 # Charger l'image du mendiant
+beggar_image = pygame.image.load("Images/Beggar/standing_beggar.png").convert_alpha()                 # Charger l'image du mendiant
 beggar_menu_rect = beggar_image.get_rect(center = (globals.WIDTH//2 + 300, globals.HEIGHT//2))  # Rect de l'image du mendiant dans le menu de départ
 
 # --- Images de jeu ---
@@ -41,11 +41,11 @@ walking_swordsman2 = pygame.image.load("Images/Swordsman/walking_swordsman2.png"
 ninja = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()  # Charger l'image du ninja pendant qu'il ne fait rien
 
         # Beggar
-beggar = pygame.image.load("Images/Beggar/beggar_standing.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il ne fait rien
-beggar_walk1 = pygame.image.load("Images/Beggar/beggar_walk1.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche
-beggar_walk2 = pygame.image.load("Images/Beggar/beggar_walk2.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (2)
-beggar_walk3 = pygame.image.load("Images/Beggar/beggar_walk3.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (3)
-beggar_walk4 = pygame.image.load("Images/Beggar/beggar_walk4.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (4)
+beggar = pygame.image.load("Images/Beggar/standing_beggar.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il ne fait rien
+beggar_walk1 = pygame.image.load("Images/Beggar/walking_beggar1.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche
+beggar_walk2 = pygame.image.load("Images/Beggar/walking_beggar2.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (2)
+beggar_walk3 = pygame.image.load("Images/Beggar/walking_beggar3.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (3)
+beggar_walk4 = pygame.image.load("Images/Beggar/walking_beggar4.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il marche (4)
 
     # Monstres
         # Slug
@@ -81,6 +81,7 @@ shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le 
 
     # Images de fond
 dark_slab = pygame.image.load("Images/dark_slab.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
+rune_machine = pygame.image.load("Images/rune_machine.png").convert_alpha()  # Charger l'image de la machine à runes de l'interface
 
 
 
