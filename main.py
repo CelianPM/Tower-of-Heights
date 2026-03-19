@@ -152,7 +152,8 @@ while running:
             arrow.update(platforms, classes_and_lists.arrows, classes_and_lists.shurikens)  # Mettre a jour la position de chaque fleche en fonction de sa direction et de sa vitesse, et retirer les fleches qui sortent de l'ecran pour eviter d'avoir trop de fleches inutiles dans la liste des fleches
         for shuriken in classes_and_lists.shurikens[:]: 
             shuriken.update(platforms, classes_and_lists.arrows, classes_and_lists.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
-
+    player.update_potion_effects(time)
+    
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for platform in platforms:
