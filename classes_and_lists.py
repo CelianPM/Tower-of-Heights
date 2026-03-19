@@ -454,7 +454,9 @@ class Monster:
 
         self.direction = 1                                                                               # 1 = droite, -1 = gauche
         self.chasing = False                                                                             # Indique si le monstre poursuit le joueur
-        self.chase_distance = 180                                                                        # Distance a laquelle le monstre commence la poursuite
+        self.chase_distance_x = 180                                                                      # Distance a laquelle le monstre commence la poursuite
+        self.chase_distance_y = 230                                                                      # Distance a laquelle le monstre commence la poursuite
+        self.type = None                                                                                 # Type de monstre, a definir dans les classes enfants
         self.lose_distance = 260                                                                         # Distance a laquelle le monstre abandonne la poursuite
 
     def overlap(self, monsters, horizontal_only = False):
@@ -486,14 +488,21 @@ class Monster:
     def update_chase_state(self, player_rect):
         # Calcule la distance horizontale entre le joueur et le monstre
         distance_x = abs(player_rect.centerx - self.rect.centerx)
+        distance_y = abs(player_rect.centery - self.rect.centery)
 
         # Active la poursuite si le joueur est assez proche
-        if not self.chasing and distance_x <= self.chase_distance:
-            self.chasing = True
+        if not self.chasing and distance_x <= self.chase_distance_x:
+            if self.type == "bat" and distance_y <= self.chase_distance_y:
+                self.chasing = True
+            elif self.type == "slug":
+                self.chasing = True
 
         # Arrete la poursuite si le joueur est trop loin
         if self.chasing and distance_x >= self.lose_distance:
-            self.chasing = False
+            if self.type == "bat" and distance_y >= self.lose_distance:
+                self.chasing = False
+            elif self.type == "slug":
+                self.chasing = False
 
     def face_player(self, player_rect):
         # Oriente le monstre vers le joueur avec une petite zone morte pour eviter le clignotement
@@ -620,6 +629,7 @@ class Slug(Monster):
 
         self.velocity_y = 0
         self.on_ground = False
+        self.type = "slug"
     
     def ground_ahead(self, platforms, direction = None):
         # Verifie s'il y a du sol juste devant le slug
@@ -743,6 +753,7 @@ class Bat(Monster):
         )
         self.frames_right = [imports.bat1, imports.bat2]
         self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+        self.type = "bat"
 
     def update(self, player_rect, monsters, platforms = None):
         if not self.alive:
