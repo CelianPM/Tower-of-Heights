@@ -1,4 +1,5 @@
 import pygame
+import random
 import globals, imports, buttons
 
 pygame.init()
@@ -163,6 +164,15 @@ class power_rune(Item):
         super().__init__("rune_puissance", x, y, imports.power_rune, quantity=1, usable=False, heal_amount=0)
 
 
+def random_potion(x, y):
+    return random.choice([life_potion(x, y), power_potion(x, y), speed_potion(x, y)])
+
+def random_rune(x, y):
+    return random.choice([life_rune(x, y), power_rune(x, y), speed_rune(x, y)])
+
+def generated_default_world_items():
+    """Genere une liste d'items a spawn dans le monde aux positions fixes."""
+    positions =  []
 
 
 
@@ -173,14 +183,7 @@ class power_rune(Item):
 slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
 
 # --- Liste des objets presents dans le monde ---
-items = [
-    Item("Potion_vie", 260, 320, imports.life_potion, quantity = 1, usable = True, heal_amount = 1),
-    Item("Potion_puissance", 550, 120, imports.power_potion, quantity = 1, usable = True, heal_amount = 100),
-    Item("Potion_vitesse", 260, 220, imports.speed_potion, quantity = 1, usable = True, heal_amount = 1),
-    Item("rune_vie", 550, 220, imports.life_rune, quantity = 1, usable = False, heal_amount = 0),
-    Item("rune_puissance", 260, 120, imports.power_rune, quantity = 1, usable = False, heal_amount = 0),
-    Item("rune_vitesse", 550, 20, imports.speed_rune, quantity = 1, usable = False, heal_amount = 0),
-]
+items = generated_default_world_items()
 
 
 # --- Inventaire du joueur (5 slots) ---
