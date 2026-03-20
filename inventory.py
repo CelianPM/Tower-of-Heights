@@ -138,6 +138,32 @@ class Item:
     def draw(self, screen, camera_y=0):
         screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
+class life_potion(Item):
+    def __init__(self, x, y):
+        super().__init__("Potion_vie", x, y, imports.life_potion, quantity=1, usable=True, heal_amount=1)
+    
+class power_potion(Item):
+    def __init__(self, x, y):
+        super().__init__("Potion_puissance", x, y, imports.power_potion, quantity=1, usable=True, heal_amount=100)
+
+class speed_potion(Item):
+    def __init__(self, x, y):
+        super().__init__("Potion_vitesse", x, y, imports.speed_potion, quantity=1, usable=True, heal_amount=1)
+
+class life_rune(Item):  
+    def __init__(self, x, y):
+        super().__init__("rune_vie", x, y, imports.life_rune, quantity=1, usable=False, heal_amount=0)
+
+class speed_rune(Item):
+    def __init__(self, x, y):
+        super().__init__("rune_vitesse", x, y, imports.speed_rune, quantity=1, usable=False, heal_amount=0)
+
+class power_rune(Item):
+    def __init__(self, x, y):
+        super().__init__("rune_puissance", x, y, imports.power_rune, quantity=1, usable=False, heal_amount=0)
+
+
+
 
 
 # ================================
