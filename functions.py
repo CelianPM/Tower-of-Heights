@@ -111,6 +111,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     player.player_xp()
     items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed)
     state = player.player_death(time, camera_y,state)
+    current_time = time
 
     # --- Gestion du cooldown de l'archer ---
     if player.hero in ("archer", "ninja") and not player.can_attack:
@@ -137,7 +138,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
                 slot_use_lock[slot_index] = False
 
             if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= globals.ITEM_USE_HOLD_MS):
-                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player)
+                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player, current_time)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
         else:
@@ -185,7 +186,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     last_inventory_feedback = ""
     last_inventory_feedback_time = 0
 
-    items = inventory.generate_default_world_items()
+    items = inventory.generated_default_world_items()
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
