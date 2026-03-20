@@ -137,7 +137,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
                 slot_use_lock[slot_index] = False
 
             if not slot_use_lock[slot_index] and (time - slot_hold_start[slot_index] >= globals.ITEM_USE_HOLD_MS):
-                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player, time)
+                last_inventory_feedback = inventory.use_inventory_slot(inventory_list, slot_index, player)
                 last_inventory_feedback_time = time
                 slot_use_lock[slot_index] = True
         else:
@@ -185,14 +185,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     last_inventory_feedback = ""
     last_inventory_feedback_time = 0
 
-    items = [
-        inventory.Item("Potion_vie", 260, 320, imports.life_potion, quantity = 1, usable = True, heal_amount = 1),
-        inventory.Item("Potion_puissance", 550, 120, imports.power_potion, quantity = 1, usable = True, heal_amount = 100),
-        inventory.Item("Potion_vitesse", 260, 220, imports.speed_potion, quantity = 1, usable = True, heal_amount = 1),
-        inventory.Item("rune_vie", 550, 220, imports.life_rune, quantity = 1, usable = False, heal_amount = 0),
-        inventory.Item("rune_puissance", 260, 120, imports.power_rune, quantity = 1, usable = False, heal_amount = 0),
-        inventory.Item("rune_vitesse", 550, 20, imports.speed_rune, quantity = 1, usable = False, heal_amount = 0),
-    ]
+    items = inventory.generate_default_world_items()
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
