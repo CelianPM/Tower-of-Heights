@@ -1,8 +1,6 @@
 import pygame                                                              # Importer la bibliotheque pygame pour creer le jeu
 import math                                                                # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
 import globals, imports, buttons, inventory, classes_and_lists, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
-import random
-from random import randint
 
 # Initialier pygame
 pygame.init()        # Initialiser tous les modules de pygame
@@ -36,6 +34,8 @@ def create_world_from_map(map_design):
     platforms = []
     monsters = []
     items = []
+    potion_spawns = 0
+    rune_spawns = 0
 
     map_height_pixels = len(map_design) * tile_size
     offset_y = globals.HEIGHT - map_height_pixels
@@ -53,22 +53,14 @@ def create_world_from_map(map_design):
             elif cell == "B":
                 monsters.append(classes_and_lists.Bat(x, y))
             elif cell == "P":
-                potion = randint(0,2)
-                if potion == 0:
-                    items.append(inventory.life_potion(x, y))
-                elif potion == 1:
-                    items.append(inventory.speed_potion(x, y))
-                elif potion == 2:
-                    items.append(inventory.power_potion(x, y))
+                potion_spawns += 1
+                items.append(inventory.random_potion(x, y))
             elif cell == "R":
-                rune = randint(0,2)
-                if rune == 0:
-                    items.append(inventory.speed_rune(x, y))
-                elif rune == 1:
-                    items.append(inventory.speed_rune(x, y))
-                elif rune == 2:
-                    items.append(inventory.power_rune(x, y))
+                rune_spawns += 1
+                items.append(inventory.random_rune(x, y))
 
+    if potion_spawns == 0 and rune_spawns == 0:
+        items.extend(inventory.generate_default_world_items())
 
     return platforms, monsters, items
 
