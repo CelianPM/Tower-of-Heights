@@ -494,14 +494,14 @@ class Monster:
         if not self.chasing and distance_x <= self.chase_distance_x:
             if self.type == "bat" and distance_y <= self.chase_distance_y:
                 self.chasing = True
-            elif self.type == "slug":
+            elif self.type == "slug" or self.type == "slime" or self.type == "mushroom":
                 self.chasing = True
 
         # Arrete la poursuite si le joueur est trop loin
         if self.chasing and distance_x >= self.lose_distance:
             if self.type == "bat" and distance_y >= self.lose_distance:
                 self.chasing = False
-            elif self.type == "slug":
+            elif self.type == "slug" or self.type == "slime" or self.type == "mushroom":
                 self.chasing = False
 
     def face_player(self, player_rect):
@@ -836,8 +836,8 @@ class Slime(Monster):
         super().__init__(
             x, 
             y, 
-            image_right = imports.slug,
-            life = 1500,
+            image_right = imports.slime,
+            life = 400,
             speed = 2,
             xp_reward = 8
         )
@@ -963,7 +963,7 @@ class Mushroom(Monster):
         super().__init__(
             x, 
             y, 
-            image_right = imports.slug,
+            image_right = imports.slime,
             life = 1500,
             speed = 2,
             xp_reward = 8
