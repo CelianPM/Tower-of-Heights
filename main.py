@@ -52,6 +52,10 @@ def create_world_from_map(map_design):
                 monsters.append(classes_and_lists.Slug(x, y - 78))
             elif cell == "B":
                 monsters.append(classes_and_lists.Bat(x, y))
+            elif cell == "s":
+                monsters.append(classes_and_lists.Slime(x,y))
+            elif cell == "m":
+                monsters.append(classes_and_lists.Mushroom(x,y))
             elif cell == "P":
                 potion_spawns += 1
                 items.append(inventory.random_potion(x, y))
