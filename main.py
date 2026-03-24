@@ -184,7 +184,7 @@ while running:
         feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, 50))
 
-    txt = buttons.text_font.render("Vie : " + str(player.life) + "/" + str(player.max_life), True, globals.WHITE)
+    txt = buttons.text_font.render("Vie : " + str(player.life) + "/" + str(math.floor(player.max_life)), True, globals.WHITE)
     globals.screen.blit(txt, (20, 20))
     pygame.display.flip()                                                                                                  # Tout generer sur la fenetre
 
