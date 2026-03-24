@@ -839,7 +839,7 @@ class Slime(Monster):
             image_right = imports.slime,
             life = 400,
             speed = 2,
-            xp_reward = 8
+            xp_reward = 0
         )
 
         self.velocity_y = 0
