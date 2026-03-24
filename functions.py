@@ -1,5 +1,6 @@
 import pygame
 import globals, imports, buttons, inventory, classes_and_lists
+from math import floor
 
 pygame.init()
 
@@ -73,7 +74,7 @@ def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_
     player.hitbox = pygame.Rect(player.perso_rect.x, player.perso_rect.y, player.perso_rect.width - 60, player.perso_rect.height - 10)  # Hitbox du personnage
     pygame.mixer.music.play(-1)                                                                                                         # Lancer la musique de fond en boucle
     state = "game"                                                                                                                      # Passer au jeu
-    player.life = player.max_life
+    player.life = floor(player.max_life)
     return state, player
 
 # --- Affiche les boutons ---
@@ -242,7 +243,7 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
         # Leur texte
     txt_continue = buttons.text_font.render("Continuer", True, globals.WHITE)                    # Definir le texte du bouton pour recommencer
     txt_speed = buttons.text_font.render("vitesse : " + str(player.speed), True, globals.WHITE)  # Definir le texte du bouton pour arreter
-    txt_vitality = buttons.text_font.render("vie : " + str(player.max_life), True, globals.WHITE)
+    txt_vitality = buttons.text_font.render("vie : " + str(player.max_life*10//1/10), True, globals.WHITE)
     txt_puissance = buttons.text_font.render("puissance : " + str(player.puissance*40//100), True, globals.WHITE)
     txt_attack_delay = buttons.text_font.render("vitesse d'attaque : " + str((1000 - player.attack_delay)/50), True, globals.WHITE)
 
@@ -263,11 +264,11 @@ def attributes_menu__manager(state, event, continue_rect, speed_rect, vitality_r
     elif speed_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
             player.point_attribut -= 1            # Si le joueur clique sur le bouton pour arreter, passer a l'etat de fin du jeu
-            player.speed = (player.speed * 10 + 1) / 10
+            player.speed = (player.speed * 20 + 1) / 20
     elif vitality_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
             player.point_attribut -= 1
-            player.max_life += 1
+            player.max_life += 0.2
             player.regeneration_time -= 500
     elif puissance_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
