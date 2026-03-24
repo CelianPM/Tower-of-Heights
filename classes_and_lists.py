@@ -831,6 +831,252 @@ class Bat(Monster):
 
         self.overlap(monsters)
 
+class Slime(Monster):
+    def __init__(self, x, y):
+        super().__init__(
+            x, 
+            y, 
+            image_right = imports.slug,
+            life = 1500,
+            speed = 2,
+            xp_reward = 8
+        )
+
+        self.velocity_y = 0
+        self.on_ground = False
+        self.type = "slug"
+    
+    def ground_ahead(self, platforms, direction = None):
+        # Verifie s'il y a du sol juste devant le slug
+        if direction is None:
+            direction = self.direction
+
+        front_x = self.rect.centerx + (direction * self.rect.width // 2)
+        front_y = self.rect.bottom + 5
+
+        return any(platform.collidepoint(front_x, front_y) for platform in platforms)
+
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+
+        if platforms is None:
+            platforms = []
+
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
+
+        should_move_horizontally = True
+
+        if self.chasing:
+            # Fige le slug sur sa derniere image lorsque le joueur est deja aligne horizontalement
+            distance_x = player_rect.centerx - self.rect.centerx
+            dead_zone = 6
+
+            if abs(distance_x) <= dead_zone:
+                should_move_horizontally = False
+            else:
+                # Oriente le slug vers le joueur seulement s'il doit vraiment se deplacer
+                self.face_player(player_rect)
+
+            # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
+            if not self.ground_ahead(platforms, self.direction):
+                should_move_horizontally = False
+
+        # Deplacement horizontal
+        previous_x = self.rect.x
+        if should_move_horizontally:
+            self.rect.x += self.speed * self.direction
+
+        # Collision laterale avec les plateformes
+        hit_side_wall = False
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+                hit_side_wall = True
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
+                hit_side_wall = True
+
+        # Collision avec les bords de l'ecran
+        if self.rect.left <= 0:
+            self.rect.left = 0
+            hit_side_wall = True
+        elif self.rect.right >= globals.WIDTH:
+            self.rect.right = globals.WIDTH
+            hit_side_wall = True
+
+        # Si le slug patrouille, il se retourne lorsqu'il est bloque
+        # S'il poursuit, il reste contre l'obstacle au lieu de repartir
+        if hit_side_wall and not self.chasing:
+            self.direction *= -1
+
+        # Gravite
+        previous_y = self.rect.y
+        self.velocity_y += globals.GRAVITY
+        self.rect.y += self.velocity_y
+
+        on_ground = False
+
+        # Collision verticale avec les plateformes
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+
+            crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
+            if self.velocity_y >= 0 and crossed_top:
+                self.rect.bottom = platform.top
+                self.velocity_y = 0
+                on_ground = True
+                continue
+
+            crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
+            if self.velocity_y < 0 and crossed_bottom:
+                self.rect.top = platform.bottom
+                self.velocity_y = 0
+                continue
+
+        # En patrouille seulement, le slug tourne au bord de la plateforme
+        # En poursuite, il reste au bord pour attendre le joueur
+        if on_ground and not self.chasing:
+            if not self.ground_ahead(platforms):
+                self.direction *= -1
+
+        # Oriente l'image selon la direction
+        if self.direction == 1:
+            self.image = self.image_right
+        else:
+            self.image = self.image_left
+
+        self.on_ground = on_ground
+        self.overlap(monsters, horizontal_only = True)
+
+class Mushroom(Monster):
+    def __init__(self, x, y):
+        super().__init__(
+            x, 
+            y, 
+            image_right = imports.slug,
+            life = 1500,
+            speed = 2,
+            xp_reward = 8
+        )
+
+        self.velocity_y = 0
+        self.on_ground = False
+        self.type = "slug"
+    
+    def ground_ahead(self, platforms, direction = None):
+        # Verifie s'il y a du sol juste devant le slug
+        if direction is None:
+            direction = self.direction
+
+        front_x = self.rect.centerx + (direction * self.rect.width // 2)
+        front_y = self.rect.bottom + 5
+
+        return any(platform.collidepoint(front_x, front_y) for platform in platforms)
+
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+
+        if platforms is None:
+            platforms = []
+
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
+
+        should_move_horizontally = True
+
+        if self.chasing:
+            # Fige le slug sur sa derniere image lorsque le joueur est deja aligne horizontalement
+            distance_x = player_rect.centerx - self.rect.centerx
+            dead_zone = 6
+
+            if abs(distance_x) <= dead_zone:
+                should_move_horizontally = False
+            else:
+                # Oriente le slug vers le joueur seulement s'il doit vraiment se deplacer
+                self.face_player(player_rect)
+
+            # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
+            if not self.ground_ahead(platforms, self.direction):
+                should_move_horizontally = False
+
+        # Deplacement horizontal
+        previous_x = self.rect.x
+        if should_move_horizontally:
+            self.rect.x += self.speed * self.direction
+
+        # Collision laterale avec les plateformes
+        hit_side_wall = False
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+                hit_side_wall = True
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
+                hit_side_wall = True
+
+        # Collision avec les bords de l'ecran
+        if self.rect.left <= 0:
+            self.rect.left = 0
+            hit_side_wall = True
+        elif self.rect.right >= globals.WIDTH:
+            self.rect.right = globals.WIDTH
+            hit_side_wall = True
+
+        # Si le slug patrouille, il se retourne lorsqu'il est bloque
+        # S'il poursuit, il reste contre l'obstacle au lieu de repartir
+        if hit_side_wall and not self.chasing:
+            self.direction *= -1
+
+        # Gravite
+        previous_y = self.rect.y
+        self.velocity_y += globals.GRAVITY
+        self.rect.y += self.velocity_y
+
+        on_ground = False
+
+        # Collision verticale avec les plateformes
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+
+            crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
+            if self.velocity_y >= 0 and crossed_top:
+                self.rect.bottom = platform.top
+                self.velocity_y = 0
+                on_ground = True
+                continue
+
+            crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
+            if self.velocity_y < 0 and crossed_bottom:
+                self.rect.top = platform.bottom
+                self.velocity_y = 0
+                continue
+
+        # En patrouille seulement, le slug tourne au bord de la plateforme
+        # En poursuite, il reste au bord pour attendre le joueur
+        if on_ground and not self.chasing:
+            if not self.ground_ahead(platforms):
+                self.direction *= -1
+
+        # Oriente l'image selon la direction
+        if self.direction == 1:
+            self.image = self.image_right
+        else:
+            self.image = self.image_left
+
+        self.on_ground = on_ground
+        self.overlap(monsters, horizontal_only = True)
+
 
 
 # =================================
