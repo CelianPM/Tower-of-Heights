@@ -844,10 +844,14 @@ class Slime(Monster):
 
         self.velocity_y = 0
         self.on_ground = False
-        self.type = "slug"
+        self.frames_right = [imports.slime, imports.flat_slime]
+        self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+        self.jumping_frames_right = [imports.jumping_slime1, imports.jumping_slime2, imports.slime, imports.jumping_slime3, imports.jumping_slime4]
+        self.jumping_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+        self.type = "slime"
     
     def ground_ahead(self, platforms, direction = None):
-        # Verifie s'il y a du sol juste devant le slug
+        # Verifie s'il y a du sol juste devant le slime
         if direction is None:
             direction = self.direction
 
@@ -869,17 +873,17 @@ class Slime(Monster):
         should_move_horizontally = True
 
         if self.chasing:
-            # Fige le slug sur sa derniere image lorsque le joueur est deja aligne horizontalement
+            # Fige le slime sur sa derniere image lorsque le joueur est deja aligne horizontalement
             distance_x = player_rect.centerx - self.rect.centerx
             dead_zone = 6
 
             if abs(distance_x) <= dead_zone:
                 should_move_horizontally = False
             else:
-                # Oriente le slug vers le joueur seulement s'il doit vraiment se deplacer
+                # Oriente le slime vers le joueur seulement s'il doit vraiment se deplacer
                 self.face_player(player_rect)
 
-            # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
+            # Si le joueur est de l'autre cote d'un vide, le slime s'arrete au bord
             if not self.ground_ahead(platforms, self.direction):
                 should_move_horizontally = False
 
@@ -909,7 +913,7 @@ class Slime(Monster):
             self.rect.right = globals.WIDTH
             hit_side_wall = True
 
-        # Si le slug patrouille, il se retourne lorsqu'il est bloque
+        # Si le slime patrouille, il se retourne lorsqu'il est bloque
         # S'il poursuit, il reste contre l'obstacle au lieu de repartir
         if hit_side_wall and not self.chasing:
             self.direction *= -1
@@ -939,7 +943,7 @@ class Slime(Monster):
                 self.velocity_y = 0
                 continue
 
-        # En patrouille seulement, le slug tourne au bord de la plateforme
+        # En patrouille seulement, le slime tourne au bord de la plateforme
         # En poursuite, il reste au bord pour attendre le joueur
         if on_ground and not self.chasing:
             if not self.ground_ahead(platforms):
@@ -967,10 +971,10 @@ class Mushroom(Monster):
 
         self.velocity_y = 0
         self.on_ground = False
-        self.type = "slug"
+        self.type = "mushroom"
     
     def ground_ahead(self, platforms, direction = None):
-        # Verifie s'il y a du sol juste devant le slug
+        # Verifie s'il y a du sol juste devant le mushroom
         if direction is None:
             direction = self.direction
 
@@ -992,17 +996,17 @@ class Mushroom(Monster):
         should_move_horizontally = True
 
         if self.chasing:
-            # Fige le slug sur sa derniere image lorsque le joueur est deja aligne horizontalement
+            # Fige le slumushroomg sur sa derniere image lorsque le joueur est deja aligne horizontalement
             distance_x = player_rect.centerx - self.rect.centerx
             dead_zone = 6
 
             if abs(distance_x) <= dead_zone:
                 should_move_horizontally = False
             else:
-                # Oriente le slug vers le joueur seulement s'il doit vraiment se deplacer
+                # Oriente le mushroom vers le joueur seulement s'il doit vraiment se deplacer
                 self.face_player(player_rect)
 
-            # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
+            # Si le joueur est de l'autre cote d'un vide, le mushroom s'arrete au bord
             if not self.ground_ahead(platforms, self.direction):
                 should_move_horizontally = False
 
@@ -1032,7 +1036,7 @@ class Mushroom(Monster):
             self.rect.right = globals.WIDTH
             hit_side_wall = True
 
-        # Si le slug patrouille, il se retourne lorsqu'il est bloque
+        # Si le mushroom patrouille, il se retourne lorsqu'il est bloque
         # S'il poursuit, il reste contre l'obstacle au lieu de repartir
         if hit_side_wall and not self.chasing:
             self.direction *= -1
@@ -1062,7 +1066,7 @@ class Mushroom(Monster):
                 self.velocity_y = 0
                 continue
 
-        # En patrouille seulement, le slug tourne au bord de la plateforme
+        # En patrouille seulement, le mushroom tourne au bord de la plateforme
         # En poursuite, il reste au bord pour attendre le joueur
         if on_ground and not self.chasing:
             if not self.ground_ahead(platforms):
