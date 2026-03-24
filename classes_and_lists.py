@@ -133,7 +133,7 @@ class Player:
         self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)                       # Profil gauche de l'image attaquant
         self.perso_rect = self.selected_image.get_rect(topleft=(200, 300))                                         # Rect de l'image
         self.hitbox = pygame.Rect(self.perso_rect.x, self.perso_rect.y, self.perso_rect.width - 60, self.perso_rect.height - 10)  # Hitbox du personnage
-        self.life = self.max_life
+        self.life = math.floor(self.max_life)
 
     def animate(self, frames):
         self.frame_index += self.animation_speed
@@ -419,7 +419,7 @@ class Player:
         if self.life <= 0:
             state = "death"  # Passer a l'ecran de mort
         
-        if time - self.last_damage_time >= self.regeneration_time and self.life < self.max_life:
+        if time - self.last_damage_time >= self.regeneration_time and self.life < math.floor(self.max_life):
             self.life += 1
             self.last_damage_time += 1500
             
