@@ -1168,3 +1168,4 @@ arrows = []
 
     # Shurikens du ninja
 shurikens = []
+
