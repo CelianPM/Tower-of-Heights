@@ -289,6 +289,8 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.vitality_rect)
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.puissance_rect)
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.attack_delay_rect)
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.lower_speed_rect)
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.hitbox_display_rect)
 
         # Leur texte
     txt_continue = buttons.text_font.render("Continuer", True, globals.WHITE)                    # Definir le texte du bouton pour recommencer
@@ -296,18 +298,24 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     txt_vitality = buttons.text_font.render("vie : " + str(player.max_life*10//1/10), True, globals.WHITE)
     txt_puissance = buttons.text_font.render("puissance : " + str(player.puissance*40//100), True, globals.WHITE)
     txt_attack_delay = buttons.text_font.render("vitesse d'attaque : " + str((1000 - player.attack_delay)/50), True, globals.WHITE)
-
+    txt_lower_speed = buttons.text_font.render("baisser la vitesse : " + "4", True, globals.WHITE)
+    txt_hitbox_display = buttons.text_font.render("afficher la hitbox", True, globals.WHITE)
+    
         # Les afficher
     globals.screen.blit(txt_continue, txt_continue.get_rect(center = buttons.continue_rect.center))  # Afficher le texte du bouton pour recommencer
     globals.screen.blit(txt_speed, txt_speed.get_rect(center = buttons.speed_rect.center))           # Afficher le texte du bouton pour arreter
     globals.screen.blit(txt_vitality, txt_vitality.get_rect(center = buttons.vitality_rect.center))
     globals.screen.blit(txt_puissance, txt_puissance.get_rect(center = buttons.puissance_rect.center))
     globals.screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center = buttons.attack_delay_rect.center))
+    globals.screen.blit(txt_lower_speed, txt_lower_speed.get_rect(center = buttons.lower_speed_rect.center))
+    globals.screen.blit(txt_hitbox_display, txt_hitbox_display.get_rect(center = buttons.hitbox_display_rect.center))
     
     pygame.display.flip()  # Tout generer sur la fenetre
 
 def attributes_menu__manager(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
     """Se charge de gerer les clics sur les boutons pour recommencer ou arreter le jeu lorsqu'on est sur l'ecran de mort"""
+    speed_click=0
+    hitbox_click = 0
     if continue_rect.collidepoint(event.pos):
         state = "game"  # Si le joueur clique sur le bouton pour recommencer, retourner a l'etat du menu de depart
         pygame.mixer.music.play()
@@ -328,6 +336,16 @@ def attributes_menu__manager(state, event, continue_rect, speed_rect, vitality_r
         if player.point_attribut > 0:
             player.point_attribut -= 1
             player.attack_delay -= 10
+        elif buttons.lower_speed_rect.collidepoint(event.pos) and speed_click == 0:
+        last_player_speed = player.speed
+        player.speed = 4
+        speed_click = 1
+    elif buttons.lower_speed_rect.collidepoint(event.pos) and speed_click == 1:
+        player.speed = last_player_speed
+        speed_click = 0
+    elif buttons.hitbox_display_rect.collidepoint(event.pos) and hitbox_click == 0:
+        globals.hitbox_display = not globals.hitbox_display
+
     return state, player
 
 
