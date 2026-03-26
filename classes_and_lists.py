@@ -292,6 +292,15 @@ class Player:
             self.regeneration_bonus = False
             self.regeneration_effect_end_time = 0
 
+    def apply_rune_effect(self, rune_name):
+        if rune_name == "rune_vie":
+            self.max_life += 0.5
+            self.life = min(self.life + 1, math.floor(self.max_life))
+        elif rune_name == "rune_vitesse":
+            self.speed += 0.5
+        elif rune_name == "rune_puissance":
+            self.puissance += 3
+
 
     def platform_collisions(self, platforms, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""
@@ -636,7 +645,7 @@ class Slug(Monster):
             y, 
             image_right = imports.slug,
             life = 1500,
-            speed = 2,
+            speed = 0,
             xp_reward = 8
         )
 
@@ -761,7 +770,7 @@ class Bat(Monster):
             y,
             image_right = imports.bat1,
             life = 300,
-            speed = 3,
+            speed = 0,
             xp_reward = 2
         )
         self.frames_right = [imports.bat1, imports.bat2]
@@ -978,7 +987,7 @@ class Mushroom(Monster):
             y, 
             image_right = imports.slime,
             life = 1500,
-            speed = 2,
+            speed = 0,
             xp_reward = 8
         )
 
@@ -1166,6 +1175,41 @@ class Shuriken(Projectile):
         self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
         self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
 
+# --- Machine pour les runes ---
+class Runemachine:
+    def __init__(self, x, ground_y, tile_size = 32):
+        self.image = imports.rune_machine
+        offset_y = self.image.get_height() - tile_size
+        self.rect = self.image.get_rect(topleft = (x, ground_y - offset_y))
+        self.interact_padding = 40
+
+    def can_interact(self, player_hitbox):
+        zone = self.rect.inflate(self.interact_padding * 2, self.interact_padding * 2)
+        return zone.colliderect(player_hitbox)
+
+    def draw(self, screen, camera_y = 0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+
+    def available_runes(self, inventory_list):
+        counts = {
+            "rune_vie": 0,
+            "rune_vitesse": 0,
+            "rune_puissance": 0,
+        }
+        for slot in inventory_list:
+            if slot and slot.get("name") in counts:
+                counts[slot["name"]] += slot.get("quantity", 1)
+        return counts
+
+    def consume_rune(self, inventory_list, rune_name):
+        for index, slot in enumerate(inventory_list):
+            if slot and slot.get("name") == rune_name:
+                slot["quantity"] -= 1
+                if slot["quantity"] <= 0:
+                    inventory_list[index] = None
+                return True
+        return False
+
 
 # =================================
 # LISTES
@@ -1173,6 +1217,9 @@ class Shuriken(Projectile):
 
 # --- Listes des monstres ---
 monsters = []
+
+# --- Liste des machines a runes ---
+rune_machines = []
 
 
 # ---Listes des projectiles---
