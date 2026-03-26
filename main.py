@@ -1,3 +1,4 @@
+
 import pygame                                                              # Importer la bibliotheque pygame pour creer le jeu
 import math                                                                # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
 import globals, imports, buttons, inventory, classes_and_lists, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
@@ -177,14 +178,33 @@ while running:
     for monster in classes_and_lists.monsters:
         if monster.alive:
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+
     for arrow in classes_and_lists.arrows:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les fleches a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+
     for shuriken in classes_and_lists.shurikens:
         globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
-    for item in items:
-        item.draw(globals.screen, camera_y) 
-    inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
+
+    if items:
+        for item in items:
+            item.draw(globals.screen, camera_y) 
+        inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
+  
+    active_effects=[]
+    if player.regeneration_bonus:
+        regen_remaining = player.regeneration_effect_end_time - time
+        active_effects.append("Regen " + str(regen_remaining) + "s")
+    if player.speed_bonus > 0:
+        speed_remaining = max(0, (player.speed_effect_end_time - time) / 1000)
+        active_effects.append("Vitesse " + str(speed_remaining) + "s")
+    if player.power_bonus > 0:
+        power_remaining = max(0, (player.power_effect_end_time - time) / 1000)
+        active_effects.append("Puissance " + str(power_remaining) + "s")
+        effect_feedback = "Effet(s)" + " | ".join(active_effects)
+        feedback_text = buttons.text_font.render(effect_feedback, True, globals.WHITE)
+        globals.screen.blit(feedback_text, (20, 50))
     if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
+
         feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, 50))
 
@@ -205,4 +225,3 @@ pygame.quit()  # Arreter Pygame et fermer la fenetre du jeu
         - William
         - Samuel
 """
-
