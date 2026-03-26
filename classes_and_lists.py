@@ -172,7 +172,17 @@ class Player:
         projectile_x = image_left + offset_x
         projectile_y = image_top + int(image_height * offset_y_ratio)
         return projectile_x, projectile_y
+    def hitbox_attack(self):
+        image_width = self.selected_image.get_width()
+        image_height = self.selected_image.get_height()
+        image_y = self.hitbox.bottom - image_height
+        if self.direction == "right":
+            image_x = self.hitbox.x + 50
+        else:
+            image_x = self.hitbox.x - 50
         
+        return pygame.Rect(image_x, image_y, image_width, image_height)
+
     
     def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens):
         """Se charge de definir les mouvements du joueur et ses attaques."""
@@ -325,7 +335,10 @@ class Player:
     def monster_collisions(self, monsters, time, arrows, platforms, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
-            if monster.alive and self.hitbox.colliderect(monster.rect):                                   # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
+            hitbox = self.hitbox
+            if self.attack and self.hero in ("swordsman", "beggar"):
+                hitbox = self.hitbox_attack()
+            if monster.alive and hitbox.colliderect(monster.rect):                                  # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
 
                 if self.attack:
                     if self.selected_image == self.selected_attack_left and self.hero in ("swordsman", "beggar"):     # Si le joueur attaque vers la gauche avec l'épée
@@ -839,7 +852,7 @@ class Slime(Monster):
             image_right = imports.slime,
             life = 400,
             speed = 2,
-            xp_reward = 0
+            xp_reward = 8
         )
 
         self.velocity_y = 0
@@ -1178,4 +1191,3 @@ arrows = []
 
     # Shurikens du ninja
 shurikens = []
-
