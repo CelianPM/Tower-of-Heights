@@ -190,4 +190,3 @@ items = generated_default_world_items()
 inventory_list = [None] * globals.INVENTORY_SLOTS
 slot_hold_start = [None] * globals.INVENTORY_SLOTS
 slot_use_lock = [False] * globals.INVENTORY_SLOTS
-
