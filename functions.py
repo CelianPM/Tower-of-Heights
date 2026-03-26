@@ -42,6 +42,56 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
     pygame.display.flip() # Pour charger la fenetre
 
 
+# =================================
+# MACHINE A RUNES
+# =================================
+def rune_menu__displayer(screen, inventory_list, machine):
+    box = pygame.Rect(globals.WIDTH//2 - 260, globals.HEIGHT//2 - 170, 520, 340)
+    pygame.draw.rect(screen, globals.WHITE, box)
+    pygame.draw.rect(screen, globals.BLACK, box, 3)
+
+    title = buttons.text_font.render("Choisis une rune a utiliser", True, globals.BLACK)
+    screen.blit(title, (box.x + 40, box.y + 30))
+
+    counts = machine.available_runes(inventory_list) if machine else {
+        "rune_vie": 0,
+        "rune_vitesse": 0,
+        "rune_puissance": 0,
+    }
+    lines = [
+        f"1 - Rune de vie ({counts['rune_vie']})",
+        f"2 - Rune de vitesse ({counts['rune_vitesse']})",
+        f"3 - Rune de puissance ({counts['rune_puissance']})",
+        "ECHAP - fermer",
+    ]
+
+    for i, text in enumerate(lines):
+        line = buttons.text_font.render(text, True, globals.BLACK)
+        screen.blit(line, (box.x + 40, box.y + 90 + i * 45))
+
+    pygame.display.flip()
+
+def rune_menu__manager(state, event, inventory_list, player, machine):
+    if event.key == pygame.K_ESCAPE:
+        return "game", ""
+
+    key_map = {
+        pygame.K_1: "rune_vie",
+        pygame.K_2: "rune_vitesse",
+        pygame.K_3: "rune_puissance",
+    }
+
+    if event.key not in key_map:
+        return state, ""
+
+    rune_name = key_map[event.key]
+    if machine and machine.consume_rune(inventory_list, rune_name):
+        player.apply_rune_effect(rune_name)
+        return "game", f"{rune_name} utilise"
+
+    return state, "Pas de rune a utiliser"
+
+
 
 # =================================
 # MENU DE DEPART

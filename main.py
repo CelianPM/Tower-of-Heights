@@ -34,6 +34,7 @@ def create_world_from_map(map_design):
     platforms = []
     monsters = []
     items = []
+    rune_machines = []
     potion_spawns = 0
     rune_spawns = 0
 
@@ -62,13 +63,15 @@ def create_world_from_map(map_design):
             elif cell == "R":
                 rune_spawns += 1
                 items.append(inventory.random_rune(x, y))
+            elif cell == "M":
+                rune_machines.append(classes_and_lists.Runemachine(x, y, tile_size))
 
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
 
-    return platforms, monsters, items
+    return platforms, monsters, items, rune_machines
 
-platforms, classes_and_lists.monsters, inventory.items = create_world_from_map(map_design)
+platforms, classes_and_lists.monsters, inventory.items, classes_and_lists.rune_machines = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -82,6 +85,7 @@ items = inventory.items
 slot_hold_start = inventory.slot_hold_start
 slot_use_lock = inventory.slot_use_lock
 pickup_pressed = False
+current_rune_machine = None
 
 
 # ===============================
@@ -97,13 +101,21 @@ while running:
 
     for event in pygame.event.get():
         # --- Pour quitter le jeu ---
-        if event.type == pygame.QUIT or (state != "game" and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.QUIT or (state not in ("game", "rune_menu") and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             running = False             # Pour sortir du jeu si on clique sur la croix ou si on appuie sur ECHAPE dans les menus
 
         # --- Pour mettre le jeu en pause ---
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state == "game":
             state = "paused"            # Si l'etat est celui du jeu et que le joueur appuie sur la touche ECHAPE, alors definir l'etat comme etant celui de pause
             pygame.mixer.music.pause()  # Arreter la musique
+
+        # --- Ouvrir la machine a runes ---
+        if state == "game" and event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+            for machine in classes_and_lists.rune_machines:
+                if machine.can_interact(player.hitbox):
+                    current_rune_machine = machine
+                    state = "rune_menu"
+                    break
         
         # --- Boutons de pause ---
         if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
@@ -119,10 +131,22 @@ while running:
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             state, player = functions.attributes_menu__manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
+
+        if state == "rune_menu" and event.type == pygame.KEYDOWN:
+            state, feedback = functions.rune_menu__manager(state, event, inventory_list, player, current_rune_machine)
+            if feedback:
+                last_inventory_feedback = feedback
+                last_inventory_feedback_time = time
+            if state == "game":
+                current_rune_machine = None
     
     # --- Pause ---
     if state == "paused":
         functions.paused__buttons_displayer(globals.screen, buttons.pause_box, buttons.text_font, buttons.continue_button, buttons.quit_button)  # Appeler la fonction paused2() pour afficher la fenetre de pause
+        continue
+
+    if state == "rune_menu":
+        functions.rune_menu__displayer(globals.screen, inventory_list, current_rune_machine)
         continue
         
     # --- Pour creer la page du menu de depart ---
@@ -173,6 +197,8 @@ while running:
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for platform in platforms:
         pygame.draw.rect(globals.screen, (120, 60, 60), (platform.x, platform.y - camera_y, platform.width, platform.height))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for machine in classes_and_lists.rune_machines:
+        machine.draw(globals.screen, camera_y)
     globals.screen.blit(player.selected_image, (player.perso_rect.x, player.perso_rect.y - camera_y))                                                   # Afficher l'image du personnage a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for monster in classes_and_lists.monsters:
         if monster.alive:
@@ -183,6 +209,9 @@ while running:
         globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for item in items:
         item.draw(globals.screen, camera_y) 
+    if any(machine.can_interact(player.hitbox) for machine in classes_and_lists.rune_machines):
+        rune_hint = buttons.text_font.render("Appuie sur R pour utiliser les runes", True, globals.WHITE)
+        globals.screen.blit(rune_hint, (20, 80))
     inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
     if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
         feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
