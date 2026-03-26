@@ -197,6 +197,8 @@ while running:
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for platform in platforms:
         pygame.draw.rect(globals.screen, (120, 60, 60), (platform.x, platform.y - camera_y, platform.width, platform.height))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    if globals.hitbox_display:
+        pygame.draw.rect(globals.screen, (255, 255, 0), (player.hitbox.x, player.hitbox.y - camera_y, player.hitbox.width, player.hitbox.height), 2)
     for machine in classes_and_lists.rune_machines:
         machine.draw(globals.screen, camera_y)
     globals.screen.blit(player.selected_image, (player.perso_rect.x, player.perso_rect.y - camera_y))                                                   # Afficher l'image du personnage a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
