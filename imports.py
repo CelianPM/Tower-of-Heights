@@ -58,7 +58,7 @@ bat1 = pygame.image.load("Images/Monsters/bat1.png").convert_alpha()  # Charger 
 bat2 = pygame.image.load("Images/Monsters/bat2.png").convert_alpha()  # Charger l'image de la chauve-souris (2)
 
 
-    # Objects
+    # Objecs
         # Potions
 life_potion = pygame.image.load("Images/Potions/life_potion.png").convert_alpha()    # Charger l'image de la potion de vie
 speed_potion = pygame.image.load("Images/Potions/speed_potion.png").convert_alpha()  # Charger l'image de la potion de vitesse
@@ -69,8 +69,8 @@ life_rune = pygame.image.load("Images/Runes/life_rune.png").convert_alpha()    #
 speed_rune = pygame.image.load("Images/Runes/speed_rune.png").convert_alpha()  # Charger l'image de la rune de vitesse
 power_rune = pygame.image.load("Images/Runes/power_rune.png").convert_alpha()  # Charger l'image de la rune de force
 
-        # Weapons
-            # Arrows
+        # Armes
+            # Fleches
 arrow = pygame.image.load("Images/Archer/arrow.png").convert_alpha()  # Charger l'image de la fleche de l'archer
 arrow_right = arrow                                                   # Le profil droit de la fleche est l'image de base
 arrow_left = pygame.transform.flip(arrow, True, False)                # Le profil gauche de la fleche est l'image de base retournee horizontalement
@@ -82,6 +82,8 @@ shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le 
 
     # Images de fond
 dark_slab = pygame.image.load("Images/dark_slab.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
+
+    # Machine
 rune_machine = pygame.image.load("Images/rune_machine.png").convert_alpha()  # Charger l'image de la machine a runes de l'interface
 
 

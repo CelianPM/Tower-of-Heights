@@ -1153,6 +1153,16 @@ class Shuriken(Projectile):
         self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
         self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
 
+# --- Machine pour les runes ---
+class Runemachine:
+    def __init__(self, x, y):
+        self.image = imports.runemachine
+        self.rect = self.image.get_rect(topleft = (x, y))
+    
+    def use_runes(self, inventory_list):
+        for item in inventory_list:
+            a = 2
+
 
 # =================================
 # LISTES
