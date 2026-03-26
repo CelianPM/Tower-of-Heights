@@ -33,6 +33,9 @@ continue_rect.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2)
 speed_rect = pygame.Rect(0, 255, 300, 30)
 speed_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 8)
 
+lower_speed_rect = pygame.Rect(0, 255, 300, 30)
+lower_speed_rect.center = (globals.WIDTH//2 + 300, globals.HEIGHT//16 * 3)
+
     # Vie
 vitality_rect = pygame.Rect(0, 255, 300, 30)
 vitality_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 9)
@@ -44,6 +47,9 @@ puissance_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 10)
     # Delai d'attaque
 attack_delay_rect = pygame.Rect(0,255, 300, 30)
 attack_delay_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 11)
+
+hitbox_display_rect = pygame.Rect(0,255, 300, 30)
+hitbox_display_rect.center = (globals.WIDTH//2 + 300, globals.HEIGHT//16 * 4)
 
 
 # --- Celui dans l'ecran de mort pour arrêter ---
