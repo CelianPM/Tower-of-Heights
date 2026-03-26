@@ -58,12 +58,12 @@ bat1 = pygame.image.load("Images/Monsters/bat1.png").convert_alpha()  # Charger 
 bat2 = pygame.image.load("Images/Monsters/bat2.png").convert_alpha()  # Charger l'image de la chauve-souris (2)
 
         # Slime
-slime = pygame.image.load("Images/Monsters/slime.png").convert_alpha()
-flat_slime = pygame.image.load("Images/Monsters/slime_flat.png").convert_alpha()
-jumping_slime1 = pygame.image.load("Images/Monsters/jumping_slime1.png").convert_alpha()
-jumping_slime2 = pygame.image.load("Images/Monsters/jumping_slime2.png").convert_alpha()
-jumping_slime3 = pygame.image.load("Images/Monsters/jumping_slime3.png").convert_alpha()
-jumping_slime4 = pygame.image.load("Images/Monsters/jumping_slime4.png").convert_alpha()
+slime = pygame.image.load("Images/Monsters/Slime/slime.png").convert_alpha()
+flat_slime = pygame.image.load("Images/Monsters/Slime/slime_flat.png").convert_alpha()
+jumping_slime1 = pygame.image.load("Images/Monsters/Slime/jumping_slime1.png").convert_alpha()
+jumping_slime2 = pygame.image.load("Images/Monsters/Slime/jumping_slime2.png").convert_alpha()
+jumping_slime3 = pygame.image.load("Images/Monsters/Slime/jumping_slime3.png").convert_alpha()
+jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").convert_alpha()
 
         #Mushroom
 #mushroom = pygame.image.load("Images/Monsters/mushroom.png").convert_alpha()
