@@ -1,4 +1,3 @@
-
 import pygame                                                              # Importer la bibliotheque pygame pour creer le jeu
 import math                                                                # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
 import globals, imports, buttons, inventory, classes_and_lists, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
