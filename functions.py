@@ -344,4 +344,3 @@ def end(running, screen, text_font):
     pygame.time.wait(2500)                                                        # Attendre 2.5 secondes avant de fermer la fenetre
     running = False                                                               # Sortir de la boucle principale
     return running
-
