@@ -68,6 +68,9 @@ jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").c
         #Mushroom
 mushroom = pygame.image.load("Images/Monsters/mushroom.png").convert_alpha()
 
+        #Cerbère
+cerberus = pygame.image.load("Images/Monsters/cerberus.png").convert_alpha()
+
 
     # Objecs
         # Potions
