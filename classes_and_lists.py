@@ -33,6 +33,8 @@ class Player:
         self.power_effect_end_time = 0
         self.regeneration_effect_end_time = 0
         self.pushback = 0
+        self.is_speed_lowered = False
+        self.last_player_speed = None
 
 
         self.selected_image = None         # Image selectionnee, non-definie pour l'instant
@@ -205,7 +207,7 @@ class Player:
             self.direction = "right"                             # Mettre a jour la direction comme etant la droite
 
         is_moving = key[pygame.K_LEFT] or key[pygame.K_RIGHT]
-        if is_moving and not self.attack:
+        if is_moving and not self.attack and self.on_ground:
             if self.direction == "left":
                 self.selected_image = self.animate(self.walk_frames_left)
             else:
