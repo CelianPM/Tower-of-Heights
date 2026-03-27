@@ -35,7 +35,7 @@ GRAVITY = 0.4      # Vitesse de chute
 velocity = 0       # Variable = vitesse de saut - vitesse de chute
 on_ground = False  # Contact avec le sol
 start_time = 0     # Lorsque le jeu commence, le temps de depart est a 0
-PUSHBACK = 100     # La distance de recul quand le joueur ou le monstre est touche
+PUSHBACK = 30     # La distance de recul quand le joueur ou le monstre est touche
 hitbox_display = False
 
 # --- Items & Inventaire ---

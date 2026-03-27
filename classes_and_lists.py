@@ -279,9 +279,9 @@ class Player:
         self.hitbox.y += velocity  # Appliquer la variable de vitesse a la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
         self.hitbox.x += self.pushback
         if self.pushback > 0:
-            self.pushback -= 25
+            self.pushback -= 5
         elif self.pushback < 0:
-            self.pushback += 25
+            self.pushback += 5
 
 
         return velocity, start_time

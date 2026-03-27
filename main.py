@@ -211,11 +211,12 @@ while running:
 
     for shuriken in classes_and_lists.shurikens:
         globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
-    for item in items:
-        item.draw(globals.screen, camera_y) 
-    if any(machine.can_interact(player.hitbox) for machine in classes_and_lists.rune_machines):
-        rune_hint = buttons.text_font.render("Appuie sur R pour utiliser les runes", True, globals.WHITE)
-        globals.screen.blit(rune_hint, (20, 80))
+    if items:
+        for item in items:
+            item.draw(globals.screen, camera_y) 
+        if any(machine.can_interact(player.hitbox) for machine in classes_and_lists.rune_machines):
+            rune_hint = buttons.text_font.render("Appuie sur R pour utiliser les runes", True, globals.WHITE)
+            globals.screen.blit(rune_hint, (20, 80))
     inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
 
     if items:

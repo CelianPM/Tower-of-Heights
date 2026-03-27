@@ -125,6 +125,7 @@ def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_
     pygame.mixer.music.play(-1)                                                                                                         # Lancer la musique de fond en boucle
     state = "game"                                                                                                                      # Passer au jeu
     player.life = floor(player.max_life)
+    player.velocity = 0
     return state, player
 
 # --- Affiche les boutons ---
