@@ -32,6 +32,7 @@ class Player:
         self.speed_effect_end_time = 0
         self.power_effect_end_time = 0
         self.regeneration_effect_end_time = 0
+        self.pushback = 0
 
 
         self.selected_image = None         # Image selectionnee, non-definie pour l'instant
@@ -274,6 +275,13 @@ class Player:
                 self.can_attack = True
 
         self.hitbox.y += velocity  # Appliquer la variable de vitesse a la position verticale de la hitbox pour faire sauter ou faire tomber le joueur
+        self.hitbox.x += self.pushback
+        if self.pushback > 0:
+            self.pushback -= 25
+        elif self.pushback < 0:
+            self.pushback += 25
+
+
         return velocity, start_time
     
     def update_potion_effects(self, time):
@@ -374,9 +382,9 @@ class Player:
                         self.last_damage_time = time
 
                         if self.hitbox.x < monster.rect.x:
-                            self.hitbox.x -= globals.PUSHBACK                       # Si le joueur est a gauche du monstre, il recule vers la gauche
+                            self.pushback -= globals.PUSHBACK                       # Si le joueur est a gauche du monstre, il recule vers la gauche
                         else:
-                            self.hitbox.x += globals.PUSHBACK                       # Si le joueur est a droite du monstre, il recule vers la droite
+                            self.pushback += globals.PUSHBACK                       # Si le joueur est a droite du monstre, il recule vers la droite
             
             for arrow in arrows[:]:
                 if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
@@ -645,7 +653,7 @@ class Slug(Monster):
             y, 
             image_right = imports.slug,
             life = 1500,
-            speed = 0,
+            speed = 2,
             xp_reward = 8
         )
 
@@ -770,7 +778,7 @@ class Bat(Monster):
             y,
             image_right = imports.bat1,
             life = 300,
-            speed = 0,
+            speed = 3,
             xp_reward = 2
         )
         self.frames_right = [imports.bat1, imports.bat2]
