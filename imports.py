@@ -66,7 +66,7 @@ jumping_slime3 = pygame.image.load("Images/Monsters/Slime/jumping_slime3.png").c
 jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").convert_alpha()
 
         #Mushroom
-#mushroom = pygame.image.load("Images/Monsters/mushroom.png").convert_alpha()
+mushroom = pygame.image.load("Images/Monsters/mushroom.png").convert_alpha()
 
 
     # Objecs
