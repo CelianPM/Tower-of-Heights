@@ -237,6 +237,14 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     slot_use_lock = [False] * globals.INVENTORY_SLOTS
     last_inventory_feedback = ""
     last_inventory_feedback_time = 0
+    player.speed_bonus = 0
+    player.power_bonus = 0
+    player.regeneration_bonus = False
+    player.speed_effect_end_time = 0
+    player.power_effect_end_time = 0
+    player.regeneration_effect_end_time = 0
+    player.attack = False
+    player.can_attack = True
 
     items = inventory.generated_default_world_items()
 

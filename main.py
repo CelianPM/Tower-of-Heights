@@ -226,14 +226,15 @@ while running:
   
     active_effects=[]
     if player.regeneration_bonus:
-        regen_remaining = player.regeneration_effect_end_time - time
+        regen_remaining = (player.regeneration_effect_end_time - time)//1000
         active_effects.append("Regen " + str(regen_remaining) + "s")
     if player.speed_bonus > 0:
-        speed_remaining = max(0, (player.speed_effect_end_time - time) / 1000)
+        speed_remaining = max(0, (player.speed_effect_end_time - time) // 1000)
         active_effects.append("Vitesse " + str(speed_remaining) + "s")
     if player.power_bonus > 0:
-        power_remaining = max(0, (player.power_effect_end_time - time) / 1000)
+        power_remaining = max(0, (player.power_effect_end_time - time) // 1000)
         active_effects.append("Puissance " + str(power_remaining) + "s")
+    if active_effects:
         effect_feedback = "Effet(s)" + " | ".join(active_effects)
         feedback_text = buttons.text_font.render(effect_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, 50))

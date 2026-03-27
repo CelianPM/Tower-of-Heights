@@ -43,18 +43,27 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
 
     if item_name == "Potion_vie":
         player.regeneration_time = player.regeneration_time / 2
-        player.regeneration_effect_end_time = current_time + 10000
+        if player.regeneration_effect_end_time <= current_time:
+            player.regeneration_effect_end_time = current_time + 20000
+        else:
+            player.regeneration_effect_end_time += 20000
         player.regeneration_bonus = True
         used = True
     elif item_name == "Potion_vitesse":
         player.speed_bonus = slot.get("heal_amount", 0)
         player.speed += player.speed_bonus
-        player.speed_effect_end_time = current_time + 20000
+        if player.speed_effect_end_time <= current_time:
+            player.speed_effect_end_time = current_time + 20000
+        else:
+            player.speed_effect_end_time += 20000
         used = True
     elif item_name == "Potion_puissance":
         player.power_bonus = slot.get("heal_amount", 0)
         player.puissance += player.power_bonus
-        player.power_effect_end_time = current_time + 30000
+        if player.power_effect_end_time <= current_time:
+            player.power_effect_end_time = current_time + 20000
+        else:
+            player.power_effect_end_time += 20000
         used = True
 
     if used:
@@ -170,10 +179,10 @@ def random_potion(x, y):
 def random_rune(x, y):
     return random.choice([life_rune(x, y), power_rune(x, y), speed_rune(x, y)])
 
-def generated_default_world_items():
+def generate_default_world_items():
     """Genere une liste d'items a spawn dans le monde aux positions fixes."""
     positions =  []
-
+    return positions
 
 
 # ================================
@@ -183,7 +192,7 @@ def generated_default_world_items():
 slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
 
 # --- Liste des objets presents dans le monde ---
-items = generated_default_world_items()
+items = generate_default_world_items()
 
 
 # --- Inventaire du joueur (5 slots) ---
