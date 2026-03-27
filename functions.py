@@ -336,7 +336,7 @@ def attributes_menu__manager(state, event, continue_rect, speed_rect, vitality_r
         if player.point_attribut > 0:
             player.point_attribut -= 1
             player.attack_delay -= 10
-        elif buttons.lower_speed_rect.collidepoint(event.pos) and speed_click == 0:
+    elif buttons.lower_speed_rect.collidepoint(event.pos) and speed_click == 0:
         last_player_speed = player.speed
         player.speed = 4
         speed_click = 1
