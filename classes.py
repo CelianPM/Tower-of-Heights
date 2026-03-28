@@ -184,7 +184,7 @@ class Player:
         if self.direction == "right":
             image_x = self.hitbox.x - 30
         else:
-            image_x = self.hitbox.x + 30
+            image_x = self.hitbox.x - 30
         
         return pygame.Rect(image_x, image_y, image_width, image_height)
 
@@ -363,13 +363,15 @@ class Player:
 
                 if self.attack:
                     if self.selected_image == self.selected_attack_left and self.hero in ("swordsman", "beggar"):     # Si le joueur attaque vers la gauche avec l'épée
-                        if monster.rect.x < self.hitbox.x:                                                # Si le monstre est à gauche du joueur
-                            monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
+                        if monster.rect.x < self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à gauche du joueur
+                            monster.life -= self.degat + self.puissance                                   # Le monstre perd de la vie
                             monster.rect.x -= globals.PUSHBACK
+                            monster.invincible = time + 500
                     elif self.selected_image == self.selected_attack_right and self.hero in ("swordsman", "beggar"):  # Si le joueur attaque vers la droite avec l'épée
-                        if monster.rect.x > self.hitbox.x:                                                # Si le monstre est à droite du joueur
+                        if monster.rect.x > self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à droite du joueur
                             monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
                             monster.rect.x += globals.PUSHBACK
+                            monster.invincible = time + 500
                             monster.resolve_horizontal_collisions(platforms)
                     else:
                         if time - self.last_damage_time >= self.invincibility_time:
@@ -485,6 +487,7 @@ class Monster:
         self.xp_reward = xp_reward                                                                       # XP donne au joueur
         self.frame_index = 0
         self.animation_speed = 0.15
+        self.invincible = 0
 
         self.direction = 1                                                                               # 1 = droite, -1 = gauche
         self.chasing = False                                                                             # Indique si le monstre poursuit le joueur
@@ -657,7 +660,7 @@ class Slug(Monster):
             y, 
             image_right = imports.slug,
             life = 1500,
-            speed = 2,
+            speed = 0,
             xp_reward = 8
         )
 
