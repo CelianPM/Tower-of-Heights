@@ -50,7 +50,7 @@ beggar_walk4 = pygame.image.load("Images/Beggar/walking_beggar4.png").convert_al
 
     # Monstres
         # Slug
-slug = pygame.transform.scale(pygame.image.load("Images/Monsters/slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du slug et la redimensionner
+slug = pygame.transform.scale(pygame.image.load("Images/Monsters/Slug/slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du slug et la redimensionner
 slug_left = pygame.transform.flip(slug, True, False)                                                        # Creer une version retournee horizontalement de l'image du slug pour le faire aller vers la gauche
 
         # Chauve-souris
