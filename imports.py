@@ -55,7 +55,7 @@ slug_left = pygame.transform.flip(slug, True, False)                            
 
         # Chauve-souris
 bat1 = pygame.image.load("Images/Monsters/Bat/bat1.png").convert_alpha()  # Charger l'image de la chauve-souris
-bat2 = pygame.image.load("Images/Monsters/bat2.png").convert_alpha()  # Charger l'image de la chauve-souris (2)
+bat2 = pygame.image.load("Images/Monsters/Bat/bat2.png").convert_alpha()  # Charger l'image de la chauve-souris (2)
 
         # Slime
 slime = pygame.image.load("Images/Monsters/Slime/slime.png").convert_alpha()
