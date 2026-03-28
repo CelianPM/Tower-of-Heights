@@ -740,7 +740,7 @@ class Slug(Monster):
            y,
            image_right = imports.slug,
            life = 1500,
-           speed = 0,
+           speed = 2,
            xp_reward = 8
        )
 
