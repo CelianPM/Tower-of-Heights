@@ -1151,12 +1151,11 @@ class Mushroom(Monster):
             speed = 1.5,
             xp_reward = 8
         )
-
-       self.velocity_y = 0
-       self.on_ground = False
-       self.type = "mushroom"
+        self.velocity_y = 0
+        self.on_ground = False
+        self.type = "mushroom"
   
-   def ground_ahead(self, platforms, direction = None):
+    def ground_ahead(self, platforms, direction = None):
        # Verifie s'il y a du sol juste devant le mushroom
        if direction is None:
            direction = self.direction
@@ -1169,7 +1168,7 @@ class Mushroom(Monster):
        return any(platform.collidepoint(front_x, front_y) for platform in platforms)
 
 
-   def update(self, player_rect, monsters, platforms = None):
+    def update(self, player_rect, monsters, platforms = None):
        if not self.alive:
            return
 
