@@ -1,6 +1,6 @@
 import pygame                                                              # Importer la bibliotheque pygame pour creer le jeu
 import math                                                                # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
-import globals, imports, buttons, inventory, classes_and_lists, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
+import globals, imports, buttons, inventory, classes, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
 
 # Initialier pygame
 pygame.init()        # Initialiser tous les modules de pygame
@@ -23,7 +23,7 @@ functions.background_music()  # Lancer la musique de fond
 
 # --- Images et classes---
     # Heros
-player = classes_and_lists.Player(globals.on_ground)  # Definit le joueur comme etant membre de la classe Player
+player = classes.Player(globals.on_ground)  # Definit le joueur comme etant membre de la classe Player
 
 # --- Plateformes ---
 tile_size = 32
@@ -35,6 +35,7 @@ def create_world_from_map(map_design):
     monsters = []
     items = []
     rune_machines = []
+    wall = []
     potion_spawns = 0
     rune_spawns = 0
 
@@ -50,13 +51,13 @@ def create_world_from_map(map_design):
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 platforms.append(rect)
             elif cell == "S":
-                monsters.append(classes_and_lists.Slug(x, y - 78))
+                monsters.append(classes.Slug(x, y - 78))
             elif cell == "B":
-                monsters.append(classes_and_lists.Bat(x, y))
+                monsters.append(classes.Bat(x, y))
             elif cell == "s":
-                monsters.append(classes_and_lists.Slime(x,y))
+                monsters.append(classes.Slime(x,y))
             elif cell == "m":
-                monsters.append(classes_and_lists.Mushroom(x,y))
+                monsters.append(classes.Mushroom(x,y))
             elif cell == "P":
                 potion_spawns += 1
                 items.append(inventory.random_potion(x, y))
@@ -64,14 +65,17 @@ def create_world_from_map(map_design):
                 rune_spawns += 1
                 items.append(inventory.random_rune(x, y))
             elif cell == "M":
-                rune_machines.append(classes_and_lists.Runemachine(x, y, tile_size))
+                rune_machines.append(classes.Runemachine(x, y, tile_size))
+            elif cell == "W":
+                rect = pygame.Rect(x, y, tile_size, tile_size)
+                wall.append(classes.Wall(x, y, tile_size))
 
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
 
-    return platforms, monsters, items, rune_machines
+    return platforms, monsters, items, rune_machines, wall
 
-platforms, classes_and_lists.monsters, inventory.items, classes_and_lists.rune_machines = create_world_from_map(map_design)
+platforms, classes.monsters, inventory.items, classes.rune_machines, wall = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -111,7 +115,7 @@ while running:
 
         # --- Ouvrir la machine a runes ---
         if state == "game" and event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-            for machine in classes_and_lists.rune_machines:
+            for machine in classes.rune_machines:
                 if machine.can_interact(player.hitbox):
                     current_rune_machine = machine
                     state = "rune_menu"
@@ -156,11 +160,11 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes_and_lists.monsters, classes_and_lists.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes_and_lists.shurikens)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, classes.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes.shurikens)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
-        functions.death__displayer(globals.screen, buttons.restart_rect_death, buttons.death_text_font, buttons.end_rect_death, classes_and_lists.monsters)  # Pour appeler la fonction death2() pour afficher l'ecran de mort, et recuperer les variables mises a jour par cette fonction
+        functions.death__displayer(globals.screen, buttons.restart_rect_death, buttons.death_text_font, buttons.end_rect_death, classes.monsters)  # Pour appeler la fonction death2() pour afficher l'ecran de mort, et recuperer les variables mises a jour par cette fonction
         continue
 
     if state == "menu_attribut":
@@ -187,34 +191,36 @@ while running:
         camera_y += (target_camera - camera_y) * globals.CAMERA_SMOOTH  # Pour faire en sorte que la camera suive le joueur de maniere lissee, on calcule la position cible de la camera en fonction de la position du joueur, et on ajuste progressivement la position actuelle de la camera vers cette position cible en utilisant un facteur de lissage (globals.CAMERA_SMOOTH)
     
     if state == "game" :
-        for arrow in classes_and_lists.arrows[:]: 
-            arrow.update(platforms, classes_and_lists.arrows, classes_and_lists.shurikens)  # Mettre a jour la position de chaque fleche en fonction de sa direction et de sa vitesse, et retirer les fleches qui sortent de l'ecran pour eviter d'avoir trop de fleches inutiles dans la liste des fleches
-        for shuriken in classes_and_lists.shurikens[:]: 
-            shuriken.update(platforms, classes_and_lists.arrows, classes_and_lists.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
+        for arrow in classes.arrows[:]: 
+            arrow.update(platforms, classes.arrows, classes.shurikens)  # Mettre a jour la position de chaque fleche en fonction de sa direction et de sa vitesse, et retirer les fleches qui sortent de l'ecran pour eviter d'avoir trop de fleches inutiles dans la liste des fleches
+        for shuriken in classes.shurikens[:]: 
+            shuriken.update(platforms, classes.arrows, classes.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
     player.update_potion_effects(time)
     
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for platform in platforms:
         pygame.draw.rect(globals.screen, (120, 60, 60), (platform.x, platform.y - camera_y, platform.width, platform.height))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for wall_tile in wall:
+        wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     if globals.hitbox_display:
         pygame.draw.rect(globals.screen, (255, 255, 0), (player.hitbox.x, player.hitbox.y - camera_y, player.hitbox.width, player.hitbox.height), 2)
-    for machine in classes_and_lists.rune_machines:
+    for machine in classes.rune_machines:
         machine.draw(globals.screen, camera_y)
     globals.screen.blit(player.selected_image, (player.perso_rect.x, player.perso_rect.y - camera_y))                                                   # Afficher l'image du personnage a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
-    for monster in classes_and_lists.monsters:
+    for monster in classes.monsters:
         if monster.alive:
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
 
-    for arrow in classes_and_lists.arrows:
+    for arrow in classes.arrows:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les fleches a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
 
-    for shuriken in classes_and_lists.shurikens:
+    for shuriken in classes.shurikens:
         globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     if items:
         for item in items:
             item.draw(globals.screen, camera_y) 
-        if any(machine.can_interact(player.hitbox) for machine in classes_and_lists.rune_machines):
+        if any(machine.can_interact(player.hitbox) for machine in classes.rune_machines):
             rune_hint = buttons.text_font.render("Appuie sur R pour utiliser les runes", True, globals.WHITE)
             globals.screen.blit(rune_hint, (20, 80))
     inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)

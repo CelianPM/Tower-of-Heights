@@ -175,14 +175,15 @@ class Player:
         projectile_x = image_left + offset_x
         projectile_y = image_top + int(image_height * offset_y_ratio)
         return projectile_x, projectile_y
+    
     def hitbox_attack(self):
         image_width = self.selected_image.get_width()
         image_height = self.selected_image.get_height()
         image_y = self.hitbox.bottom - image_height
         if self.direction == "right":
-            image_x = self.hitbox.x + 50
+            image_x = self.hitbox.x - 30
         else:
-            image_x = self.hitbox.x - 50
+            image_x = self.hitbox.x + 30
         
         return pygame.Rect(image_x, image_y, image_width, image_height)
 
@@ -995,7 +996,7 @@ class Mushroom(Monster):
         super().__init__(
             x, 
             y, 
-            image_right = imports.slime,
+            image_right = imports.mushroom,
             life = 1500,
             speed = 0,
             xp_reward = 8
@@ -1220,6 +1221,18 @@ class Runemachine:
                 return True
         return False
 
+# =================================
+# MUR
+# =================================
+
+class Wall:
+    def __init__(self, x, y, tile_size = 32):
+        self.image = imports.wall_tile
+        self.rect = self.image.get_rect(topleft = (x, y))
+
+    def draw(self, screen, camera_y = 0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+
 
 # =================================
 # LISTES
@@ -1230,7 +1243,6 @@ monsters = []
 
 # --- Liste des machines a runes ---
 rune_machines = []
-
 
 # ---Listes des projectiles---
     # Fleches de l'archer

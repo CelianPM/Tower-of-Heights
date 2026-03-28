@@ -1,5 +1,5 @@
 import pygame
-import globals, imports, buttons, inventory, classes_and_lists
+import globals, imports, buttons, inventory, classes
 from math import floor
 
 pygame.init()
@@ -271,7 +271,7 @@ def death__displayer(screen, restart_rect_death, death_text_font, end_rect_death
     globals.screen.blit(txt_restart, txt_restart.get_rect(center = buttons.restart_rect_death.center))  # Afficher le texte du bouton pour recommencer
     globals.screen.blit(txt_end, txt_end.get_rect(center = buttons.end_rect_death.center))              # Afficher le texte du bouton pour arreter
     
-    for monster in classes_and_lists.monsters:
+    for monster in classes.monsters:
         monster.reset()    # Faire recommencer a 0 les monstres avec les 3 vies de chaque monstre
     pygame.display.flip()  # Tout generer sur la fenetre
 

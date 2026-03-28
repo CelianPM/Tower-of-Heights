@@ -95,7 +95,7 @@ shuriken_right = shuriken                                                  # Le 
 shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le profil gauche du shuriken est l'image de base retournee horizontalement
 
     # Images de fond
-dark_slab = pygame.image.load("Images/dark_slab.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
+wall_tile = pygame.image.load("Images/wall_tile.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
 
     # Machine
 rune_machine = pygame.image.load("Images/rune_machine.png").convert_alpha()  # Charger l'image de la machine a runes de l'interface
