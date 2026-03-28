@@ -54,7 +54,7 @@ slug = pygame.transform.scale(pygame.image.load("Images/Monsters/slug.png").conv
 slug_left = pygame.transform.flip(slug, True, False)                                                        # Creer une version retournee horizontalement de l'image du slug pour le faire aller vers la gauche
 
         # Chauve-souris
-bat1 = pygame.image.load("Images/Monsters/bat1.png").convert_alpha()  # Charger l'image de la chauve-souris
+bat1 = pygame.image.load("Images/Monsters/Bat/bat1.png").convert_alpha()  # Charger l'image de la chauve-souris
 bat2 = pygame.image.load("Images/Monsters/bat2.png").convert_alpha()  # Charger l'image de la chauve-souris (2)
 
         # Slime
@@ -65,11 +65,11 @@ jumping_slime2 = pygame.image.load("Images/Monsters/Slime/jumping_slime2.png").c
 jumping_slime3 = pygame.image.load("Images/Monsters/Slime/jumping_slime3.png").convert_alpha()
 jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").convert_alpha()
 
-        #Mushroom
-mushroom = pygame.image.load("mushroom.png").convert_alpha()
+        # Mushroom
+mushroom = pygame.image.load("Images/Monsters/Mushroom/mushroom.png").convert_alpha()
 
-        #Cerbère
-cerberus = pygame.image.load("cerberus.png").convert_alpha()
+        # Bosses
+cerberus = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus.png").convert_alpha()
 
 
     # Objecs
