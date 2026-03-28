@@ -1,5 +1,6 @@
 import pygame                                                              # Importer la bibliotheque pygame pour creer le jeu
 import math                                                                # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
+from random import randint
 import globals, imports, buttons, inventory, classes, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
 
 # Initialier pygame
@@ -38,6 +39,7 @@ def create_world_from_map(map_design):
     wall = []
     potion_spawns = 0
     rune_spawns = 0
+    wall_type = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
     map_height_pixels = len(map_design) * tile_size
     offset_y = globals.HEIGHT - map_height_pixels
@@ -50,25 +52,47 @@ def create_world_from_map(map_design):
             if cell == "#":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 platforms.append(rect)
+                wall_type.append(0)
             elif cell == "S":
                 monsters.append(classes.Slug(x, y - 78))
+                wall_type.append(0)
             elif cell == "B":
                 monsters.append(classes.Bat(x, y))
+                wall_type.append(0)
             elif cell == "s":
                 monsters.append(classes.Slime(x,y))
+                wall_type.append(0)
             elif cell == "m":
                 monsters.append(classes.Mushroom(x,y))
+                wall_type.append(0)
             elif cell == "P":
                 potion_spawns += 1
                 items.append(inventory.random_potion(x, y))
+                wall_type.append(0)
             elif cell == "R":
                 rune_spawns += 1
                 items.append(inventory.random_rune(x, y))
+                wall_type.append(0)
             elif cell == "M":
                 rune_machines.append(classes.Runemachine(x, y, tile_size))
-            elif cell == "W":
-                rect = pygame.Rect(x, y, tile_size, tile_size)
-                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(0)
+            elif cell == ".":
+                wall_prob = randint(0,100)
+                if wall_prob > 95:
+                    rect = pygame.Rect(x, y, tile_size, tile_size)
+                    wall.append(classes.Wall(x, y, tile_size))
+                    wall_type.append(1)
+                elif wall_type[-32] and wall_prob > 70:
+                    rect = pygame.Rect(x, y, tile_size, tile_size)
+                    wall.append(classes.Wall(x, y, tile_size))
+                    wall_type.append(1)
+                elif wall_type[-32] and wall_type[-64] and wall_prob > 20:
+                    rect = pygame.Rect(x, y, tile_size, tile_size)
+                    wall.append(classes.Wall(x, y, tile_size))
+                    wall_type.append(1)
+                else:
+                    wall_type.append(0)
+
 
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
