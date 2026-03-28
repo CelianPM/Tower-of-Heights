@@ -34,7 +34,8 @@ class Player:
         self.regeneration_effect_end_time = 0
         self.pushback = 0
         self.is_speed_lowered = False
-        self.last_player_speed = None
+        self.last_player_speed = 0
+        self.speed_click = 0
 
 
         self.selected_image = None         # Image selectionnee, non-definie pour l'instant
