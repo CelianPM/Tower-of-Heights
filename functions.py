@@ -246,7 +246,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     player.attack = False
     player.can_attack = True
 
-    items = inventory.generated_default_world_items()
+    items = inventory.generate_default_world_items()
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 

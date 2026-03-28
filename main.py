@@ -223,7 +223,8 @@ while running:
         for item in items:
             item.draw(globals.screen, camera_y) 
         inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
-  
+
+    feedback_y = 50
     active_effects=[]
     if player.regeneration_bonus:
         regen_remaining = (player.regeneration_effect_end_time - time)//1000
@@ -237,11 +238,12 @@ while running:
     if active_effects:
         effect_feedback = "Effet(s)" + " | ".join(active_effects)
         feedback_text = buttons.text_font.render(effect_feedback, True, globals.WHITE)
-        globals.screen.blit(feedback_text, (20, 50))
+        globals.screen.blit(feedback_text, (20, feedback_y))
+        feedback_y += 30
     if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
 
         feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
-        globals.screen.blit(feedback_text, (20, 50))
+        globals.screen.blit(feedback_text, (20, feedback_y))
 
     txt = buttons.text_font.render("Vie : " + str(player.life) + "/" + str(math.floor(player.max_life)), True, globals.WHITE)
     globals.screen.blit(txt, (20, 20))
