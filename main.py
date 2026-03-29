@@ -175,7 +175,12 @@ while running:
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time)  # Pour appeler la fonction death() pour gerer les interactions avec les boutons de l'ecran de mort, et recuperer les variables mis a jour par cette fonction
+            state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, map_design, create_world_from_map)  # Pour appeler la fonction death() pour gerer les interactions avec les boutons de l'ecran de mort, et recuperer les variables mis a jour par cette fonction
+            if state == "menu_de_debut":
+                camera_y = 0
+                velocity = globals.velocity
+                start_time = pygame.time.get_ticks()
+                player.pushback = 0
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             state, player = functions.attributes_menu__manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
