@@ -1425,17 +1425,20 @@ class Runemachine:
 
 
 class Wall:
-   def __init__(self, x, y, tile_size = 32):
-       wall_prob = randint(0,10)
-       if wall_prob > 7:
+    def __init__(self, x, y, tile_size = 32):
+        wall_prob = randint(0,10)
+        if wall_prob > 7:
            self.image = imports.wall_tile_grass
            self.rect = self.image.get_rect(topleft = (x, y))
-       else:
-           self.image = imports.wall_tile
-           self.rect = self.image.get_rect(topleft = (x, y))
+        elif wall_prob == 0:
+            self.image = imports.wall_tile_lantern
+            self.rect = self.image.get_rect(topleft = (x, y))
+        else:
+            self.image = imports.wall_tile
+            self.rect = self.image.get_rect(topleft = (x, y))
 
 
-   def draw(self, screen, camera_y = 0):
+    def draw(self, screen, camera_y = 0):
        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
 
