@@ -508,8 +508,19 @@ class Player:
            # --- Mort si le personnage est en dehors de l'ecran ---
        if self.hitbox.top > globals.HEIGHT + camera_y:
            state = "death"  # Si le personnage tombe en dessous de l'ecran, passer a l'ecran de mort
-      
+
        return state
+
+   def hazard_collisions(self, hazards, time):
+       """Se charge des collisions entre le joueur et les hazard : si le joueur touche un hazard, il perd une vie."""
+       for hazard in hazards:
+           if self.hitbox.colliderect(hazard.rect):
+               if time - self.last_damage_time >= self.invincibility_time:
+                   self.life -= hazard.damage
+                   self.last_damage_time = time
+               break
+      
+
 
 
 
@@ -1368,8 +1379,6 @@ class Shuriken(Projectile):
        self.angle = (self.angle + self.rotation_speed) % 360  # Mettre a jour l'angle de rotation du shuriken
        self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
-
-
 # --- Machine pour les runes ---
 class Runemachine:
    def __init__(self, x, ground_y, tile_size = 32):
@@ -1430,7 +1439,26 @@ class Wall:
        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
 
+class Hazard:
+   def __init__(self, x, y, tile_size = 32, damage = 1):
+       self.image = imports.hazard
+       self.rect = pygame.Rect(x, y, tile_size, tile_size)
+       self.damage = damage
+       self.image = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
 
+
+   def draw(self, screen, camera_y = 0):
+       screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+
+class Spikes(Hazard):
+   def __init__(self, x, y, tile_size = 32, damage = 1):
+       super().__init__(x, y, tile_size, damage)
+       self.image = imports.spikes
+
+class Lava(Hazard):
+   def __init__(self, x, y, tile_size = 32, damage = 2):
+       super().__init__(x, y, tile_size, damage)
+       self.image = imports.lava
 
 # =================================
 # LISTES
@@ -1452,6 +1480,9 @@ arrows = []
 
    # Shurikens du ninja
 shurikens = []
+
+   # Hazards
+hazards = []
 
 
 
