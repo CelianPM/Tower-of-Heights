@@ -421,6 +421,8 @@ class Player:
                    if monster.life <= 0:                                   # Quand le monstre n'a plus de vies
                        monster.alive = False                               # Il est retire du jeu
                        self.xp += monster.xp_reward
+                       if self.hero == "beggar":
+                           self.xp += monster.xp_reward
               
                else:                                                       # Si le joueur n'attaque pas
                    if time - self.last_damage_time >= self.invincibility_time:
