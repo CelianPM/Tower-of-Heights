@@ -37,6 +37,7 @@ def create_world_from_map(map_design):
     items = []
     rune_machines = []
     wall = []
+    hazards = []
     potion_spawns = 0
     rune_spawns = 0
     wall_type = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -76,6 +77,11 @@ def create_world_from_map(map_design):
             elif cell == "M":
                 rune_machines.append(classes.Runemachine(x, y, tile_size))
                 wall_type.append(0)
+            elif cell == "^":
+                hazards.append(classes.Spikes(x, y, tile_size, damage = 1))
+            elif cell == "L":
+                hazards.append(classes.Lava(x, y, tile_size, damage = 2))
+
             elif cell == ".":
                 wall_prob = randint(0,100)
                 if wall_prob > 95:
@@ -97,9 +103,9 @@ def create_world_from_map(map_design):
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
 
-    return platforms, monsters, items, rune_machines, wall
+    return platforms, monsters, items, rune_machines, wall, hazards
 
-platforms, classes.monsters, inventory.items, classes.rune_machines, wall = create_world_from_map(map_design)
+platforms, classes.monsters, inventory.items, classes.rune_machines, wall, classes.hazards = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -184,7 +190,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, classes.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes.shurikens)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, classes.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -227,6 +233,8 @@ while running:
         pygame.draw.rect(globals.screen, (120, 60, 60), (platform.x, platform.y - camera_y, platform.width, platform.height))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for wall_tile in wall:
         wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for hazard in classes.hazards:
+        hazard.draw(globals.screen, camera_y)
     if globals.hitbox_display:
         pygame.draw.rect(globals.screen, (255, 255, 0), (player.hitbox.x, player.hitbox.y - camera_y, player.hitbox.width, player.hitbox.height), 2)
     for machine in classes.rune_machines:
