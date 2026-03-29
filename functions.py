@@ -121,7 +121,7 @@ def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_
     player.selected_attack_right = player.selected_attack                                                                               # Profil droit de l'image attaquant
     player.selected_attack_left = pygame.transform.flip(player.selected_attack, True, False)                                            # Profil gauche de l'image attaquant
     player.perso_rect = player.selected_image.get_rect(topleft=(200, 300))                                                              # Rect de l'image
-    player.hitbox = pygame.Rect(player.perso_rect.x, player.perso_rect.y, player.perso_rect.width - 60, player.perso_rect.height - 10)  # Hitbox du personnage
+    player.hitbox = pygame.Rect(player.perso_rect.x, player.perso_rect.y, 32, 112)
     pygame.mixer.music.play(-1)                                                                                                         # Lancer la musique de fond en boucle
     state = "game"                                                                                                                      # Passer au jeu
     player.life = floor(player.max_life)
@@ -222,7 +222,7 @@ def background_music():
 # =================================
 # MORT DU JOUEUR
 # =================================
-def death__manager(state, event, restart_rect_death, end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time):
+def death__manager(state, event, restart_rect_death, end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, map_design, create_world_from_map):
     """Se charge de gerer les clics sur les boutons pour recommencer ou arreter le jeu lorsqu'on est sur l'ecran de mort"""
 
     if restart_rect_death.collidepoint(event.pos):
@@ -247,7 +247,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     player.attack = False
     player.can_attack = True
 
-    items = inventory.generate_default_world_items()
+    _, classes.monsters, items, classes.rune_machines, _, classes.hazards = create_world_from_map(map_design)
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 

@@ -146,7 +146,7 @@ class Player:
        self.selected_attack_right = self.selected_attack                                                          # Profil droit de l'image attaquant
        self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)                       # Profil gauche de l'image attaquant
        self.perso_rect = self.selected_image.get_rect(topleft=(200, 300))                                         # Rect de l'image
-       self.hitbox = pygame.Rect(self.perso_rect.x, self.perso_rect.y, self.perso_rect.width - 60, self.perso_rect.height - 10)  # Hitbox du personnage
+       self.hitbox = pygame.Rect(0, 0, 32, 112)  # Hitbox du personnage
        self.life = math.floor(self.max_life)
 
 
