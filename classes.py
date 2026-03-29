@@ -518,6 +518,10 @@ class Player:
                if time - self.last_damage_time >= self.invincibility_time:
                    self.life -= hazard.damage
                    self.last_damage_time = time
+                   if self.direction == "left":
+                       self.pushback += globals.PUSHBACK                       # Si le joueur est a gauche du hazard, il recule vers la gauche
+                   else:
+                       self.pushback -= globals.PUSHBACK                       # Si le joueur est a droite du hazard, il recule vers la droite
                break
       
 
@@ -1444,7 +1448,6 @@ class Wall:
 
 class Hazard:
    def __init__(self, x, y, tile_size = 32, damage = 1):
-       self.image = imports.hazard
        self.rect = pygame.Rect(x, y, tile_size, tile_size)
        self.damage = damage
        self.image = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
