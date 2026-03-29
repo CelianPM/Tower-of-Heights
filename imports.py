@@ -100,6 +100,7 @@ wall_tile_grass = pygame.image.load("Images/wall_tile_grass.png").convert_alpha(
 wall_tile_lantern= pygame.image.load("Images/wall_tile_lantern.png").convert_alpha()
 wall_tile_cuffs= pygame.image.load("Images/wall_tile_cuffs.png").convert_alpha()
 wall_tile_chains= pygame.image.load("Images/wall_tile_chains.png").convert_alpha()
+wall_tile_hole= pygame.image.load("Images/wall_tile_hole.png").convert_alpha()
 
 
 

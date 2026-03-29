@@ -1439,6 +1439,9 @@ class Wall:
         elif type==2:
             self.image = imports.wall_tile_chains
             self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 3:
+            self.image = imports.wall_tile_hole
+            self.rect = self.image.get_rect(topleft = (x, y))
         elif wall_prob > 70:
             self.image = imports.wall_tile_grass
             self.rect = self.image.get_rect(topleft = (x, y))
