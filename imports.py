@@ -100,6 +100,9 @@ wall_tile_grass = pygame.image.load("Images/wall_tile_grass.png").convert_alpha(
 wall_tile_lantern= pygame.image.load("Images/wall_tile_lantern.png").convert_alpha()
 
 
+lava = pygame.image.load("Images/lava_tile.png").convert_alpha()  # Charger l'image de la lave de l'interface
+spikes = pygame.image.load("Images/spikes.png").convert_alpha()  # Charger l'image de la dalle de piques de l'interface
+
     # Machine
 rune_machine = pygame.image.load("Images/rune_machine.png").convert_alpha()  # Charger l'image de la machine a runes de l'interface
 
