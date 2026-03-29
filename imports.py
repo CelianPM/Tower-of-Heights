@@ -98,6 +98,9 @@ shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le 
 wall_tile = pygame.image.load("Images/wall_tile.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
 wall_tile_grass = pygame.image.load("Images/wall_tile_grass.png").convert_alpha()
 wall_tile_lantern= pygame.image.load("Images/wall_tile_lantern.png").convert_alpha()
+wall_tile_cuffs= pygame.image.load("Images/wall_tile_cuffs.png").convert_alpha()
+wall_tile_chains= pygame.image.load("Images/wall_tile_chains.png").convert_alpha()
+
 
 
 lava = pygame.image.load("Images/lava_tile.png").convert_alpha()  # Charger l'image de la lave de l'interface

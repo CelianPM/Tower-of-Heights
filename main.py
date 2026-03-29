@@ -79,21 +79,26 @@ def create_world_from_map(map_design):
                 wall_type.append(0)
             elif cell == "^":
                 hazards.append(classes.Spikes(x, y, tile_size, damage = 1))
+                wall_type.append(0)
             elif cell == "L":
+                wall_type.append(0)
                 hazards.append(classes.Lava(x, y, tile_size, damage = 2))
 
             elif cell == ".":
-                wall_prob = randint(0,100)
-                if wall_prob > 95:
-                    rect = pygame.Rect(x, y, tile_size, tile_size)
+                wall_prob = randint(0,1000)
+                if wall_type[-32] == 2:
+                    wall.append(classes.Wall(x, y, tile_size, 1))
+                    wall_type.append(1)
+                elif wall_prob == 0:
+                    wall.append(classes.Wall(x, y, tile_size, 2))
+                    wall_type.append(2)
+                elif wall_prob > 850:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
-                elif wall_type[-32] and wall_prob > 70:
-                    rect = pygame.Rect(x, y, tile_size, tile_size)
+                elif wall_type[-32] and wall_prob > 700:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
-                elif wall_type[-32] and wall_type[-64] and wall_prob > 20:
-                    rect = pygame.Rect(x, y, tile_size, tile_size)
+                elif wall_type[-32] and wall_type[-64] and wall_prob > 400:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
                 else:
