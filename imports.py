@@ -97,13 +97,32 @@ shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le 
     # Images de fond
 wall_tile = pygame.image.load("Images/Background/wall_tile.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
 wall_tile_grass = pygame.image.load("Images/Background/wall_tile_grass.png").convert_alpha()
-wall_tile_lantern= pygame.image.load("Images/Background/wall_tile_lantern.png").convert_alpha()
-wall_tile_cuffs= pygame.image.load("Images/Background/wall_tile_cuffs.png").convert_alpha()
-wall_tile_chains= pygame.image.load("Images/Background/wall_tile_chains.png").convert_alpha()
-wall_tile_hole= pygame.image.load("Images/Background/wall_tile_hole.png").convert_alpha()
+wall_tile_lantern = pygame.image.load("Images/Background/wall_tile_lantern.png").convert_alpha()
+wall_tile_cuffs = pygame.image.load("Images/Background/wall_tile_cuffs.png").convert_alpha()
+wall_tile_chains = pygame.image.load("Images/Background/wall_tile_chains.png").convert_alpha()
+wall_tile_hole = pygame.image.load("Images/Background/wall_tile_hole.png").convert_alpha()
 
+        # Sang
+wall_tile_blood1 = pygame.image.load("Images/Background/wall_tile_blood1.png").convert_alpha()
+wall_tile_blood2 = pygame.image.load("Images/Background/wall_tile_blood2.png").convert_alpha()
+wall_tile_blood3 = pygame.image.load("Images/Background/wall_tile_blood3.png").convert_alpha()
 
+        # Meurtirieres
+wall_tile_meurtriere = pygame.image.load("Images/Background/wall_tile_meurtriere.png").convert_alpha()
+wall_tile_meurtriere2 = pygame.image.load("Images/Background/wall_tile_meurtriere2.png").convert_alpha()
 
+        # Fenetres
+wall_tile_window_right = pygame.image.load("Images/Background/wall_tile_window.png").convert_alpha()
+wall_tile_window_right2 = pygame.image.load("Images/Background/wall_tile_window2.png").convert_alpha()
+wall_tile_window_left = pygame.transform.flip(wall_tile_window_right, True, False)
+wall_tile_window_left2 = pygame.transform.flip(wall_tile_window_right2, True, False)
+
+        # Cordes
+wall_tile_rope = pygame.image.load("Images/Background/wall_tile_rope.png").convert_alpha()
+wall_tile_rope_attach = pygame.image.load("Images/Background/wall_tile_rope_attach.png").convert_alpha()
+wall_tile_rope_end = pygame.image.load("Images/Background/wall_tile_rope_end.png").convert_alpha()
+
+        # Dangers
 lava = pygame.image.load("Images/Background/lava_tile.png").convert_alpha()  # Charger l'image de la lave de l'interface
 spikes = pygame.image.load("Images/Background/spikes.png").convert_alpha()  # Charger l'image de la dalle de piques de l'interface
 
