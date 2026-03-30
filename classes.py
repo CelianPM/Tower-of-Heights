@@ -59,7 +59,7 @@ class Player:
 
 
        self.frame_index = 0
-       self.animation_speed = 0.1
+       self.animation_speed = 0.27
        self.prev_hitbox = None
        self.weapon = None
   
@@ -404,12 +404,16 @@ class Player:
                    if self.selected_image == self.selected_attack_left and self.hero in ("swordsman", "beggar"):     # Si le joueur attaque vers la gauche avec l'épée
                        if monster.rect.x < self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à gauche du joueur
                            monster.life -= self.degat + self.puissance                                   # Le monstre perd de la vie
-                           monster.rect.x -= globals.PUSHBACK
+                           if monster.type == "slug" : monster.rect.x -= 5 * globals.PUSHBACK
+                           else : monster.rect.x -= globals.PUSHBACK
                            monster.invincible = time + 500
                    elif self.selected_image == self.selected_attack_right and self.hero in ("swordsman", "beggar"):  # Si le joueur attaque vers la droite avec l'épée
                        if monster.rect.x > self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à droite du joueur
                            monster.life -= self.degat + self.puissance                                   # Le monstre perd une vie
-                           monster.rect.x += globals.PUSHBACK
+                           if monster.type == "slug" :
+                               monster.rect.x += 5 * globals.PUSHBACK
+                           else :
+                               monster.rect.x += globals.PUSHBACK
                            monster.invincible = time + 500
                            monster.resolve_horizontal_collisions(platforms)
                    else:
@@ -439,7 +443,10 @@ class Player:
                if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                    monster.life -= self.degat + self.puissance             # Le monstre perd une vie
                    if arrow.direction == "right":
-                       monster.rect.x += globals.PUSHBACK                  # Si la fleche va vers la droite, le monstre recule vers la droite
+                       if monster.type == "slug":
+                           monster.rect.x += 5 * globals.PUSHBACK
+                       else:
+                           monster.rect.x += globals.PUSHBACK
                    else:
                        monster.rect.x -= globals.PUSHBACK                  # Si la fleche va vers la gauche, le monstre recule vers la gauche
                    monster.resolve_horizontal_collisions(platforms)
@@ -455,7 +462,10 @@ class Player:
                if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                    monster.life -= self.degat + self.puissance                # Le monstre perd une vie
                    if shuriken.direction == "right":
-                       monster.rect.x += globals.PUSHBACK                     # Si la fleche va vers la droite, le monstre recule vers la droite
+                       if monster.type == "slug":
+                           monster.rect.x += 5 * globals.PUSHBACK
+                       else:
+                           monster.rect.x += globals.PUSHBACK
                    else:
                        monster.rect.x -= globals.PUSHBACK                     # Si la fleche va vers la gauche, le monstre recule vers la gauche
                    monster.resolve_horizontal_collisions(platforms)
@@ -710,8 +720,7 @@ class Monster:
            if self.image_right:
                self.image = self.image_right
 
-
-   def update(self, player_rect, monsters, platforms = None):
+   def update(self, player_rect, hazards, monsters, platforms = None):
        if not self.alive:
            return
 
@@ -734,6 +743,13 @@ class Monster:
 
 
        self.overlap(monsters, horizontal_only = True)
+
+       for danger in hazards:
+           if self.coliderect(danger.rect) and self.direction == "left":
+                self.rect.x += globals.PUSHBACK
+           elif self.coliderect(danger.rect) and self.direction == "right":
+             self.rect.x -= globals.PUSHBACK
+               
   
    def reset(self):
        self.alive = True
