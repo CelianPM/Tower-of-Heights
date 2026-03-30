@@ -276,11 +276,6 @@ while running:
             globals.screen.blit(rune_hint, (20, 80))
     inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
 
-    if items:
-        for item in items:
-            item.draw(globals.screen, camera_y) 
-        inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
-
     feedback_y = 50
     active_effects=[]
     if player.regeneration_bonus:
