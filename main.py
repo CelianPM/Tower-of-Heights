@@ -101,17 +101,12 @@ def create_world_from_map(map_design):
                 elif wall_type[-32] and wall_type[-64] and wall_prob > 400:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
-                elif wall_type[-32] == 1 and wall_type[-1] == 1 and wall_prob <= 200:
+                elif wall_prob < 40:
                     wall.append(classes.Wall(x, y, tile_size, 3))
                     wall_type.append(1)
-                elif wall_type[-1] == 3:
-                    wall.append(classes.Wall(x, y, tile_size, 0))
-                    wall_type.append(1)
-                elif wall_type[-32] == 3:
-                    wall.append(classes.Wall(x, y, tile_size, 0))
-                    wall_type.append(1)
                 else:
-                    wall_type.append(0)
+                    wall.append(classes.Wall(x, y, tile_size))
+                    wall_type.append(1)
 
 
     if potion_spawns == 0 and rune_spawns == 0:

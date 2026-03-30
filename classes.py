@@ -1444,10 +1444,11 @@ class Runemachine:
 class Wall:
     def __init__(self, x, y, tile_size = 32, type = 0):
         wall_prob = randint(0,100)
-        if type==1:
+        blood_prob = randint(0,2)
+        if type == 1:
             self.image = imports.wall_tile_cuffs
             self.rect = self.image.get_rect(topleft = (x, y))
-        elif type==2:
+        elif type == 2:
             self.image = imports.wall_tile_chains
             self.rect = self.image.get_rect(topleft = (x, y))
         elif type == 3:
@@ -1455,6 +1456,14 @@ class Wall:
             self.rect = self.image.get_rect(topleft = (x, y))
         elif wall_prob > 70:
             self.image = imports.wall_tile_grass
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif wall_prob == 3:
+            if blood_prob == 0:
+                self.image = imports.wall_tile_blood1
+            elif blood_prob == 1:
+                self.image = imports.wall_tile_blood2
+            elif blood_prob == 2:
+                self.image = imports.wall_tile_blood3
             self.rect = self.image.get_rect(topleft = (x, y))
         elif wall_prob < 2:
             self.image = imports.wall_tile_lantern
