@@ -95,17 +95,17 @@ shuriken_right = shuriken                                                  # Le 
 shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le profil gauche du shuriken est l'image de base retournee horizontalement
 
     # Images de fond
-wall_tile = pygame.image.load("Images/wall_tile.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
-wall_tile_grass = pygame.image.load("Images/wall_tile_grass.png").convert_alpha()
-wall_tile_lantern= pygame.image.load("Images/wall_tile_lantern.png").convert_alpha()
-wall_tile_cuffs= pygame.image.load("Images/wall_tile_cuffs.png").convert_alpha()
-wall_tile_chains= pygame.image.load("Images/wall_tile_chains.png").convert_alpha()
-wall_tile_hole= pygame.image.load("Images/wall_tile_hole.png").convert_alpha()
+wall_tile = pygame.image.load("Images/Background/wall_tile.png").convert_alpha()  # Charger l'image de la dalle sombre de l'interface
+wall_tile_grass = pygame.image.load("Images/Background/wall_tile_grass.png").convert_alpha()
+wall_tile_lantern= pygame.image.load("Images/Background/wall_tile_lantern.png").convert_alpha()
+wall_tile_cuffs= pygame.image.load("Images/Background/wall_tile_cuffs.png").convert_alpha()
+wall_tile_chains= pygame.image.load("Images/Background/wall_tile_chains.png").convert_alpha()
+wall_tile_hole= pygame.image.load("Images/Background/wall_tile_hole.png").convert_alpha()
 
 
 
-lava = pygame.image.load("Images/lava_tile.png").convert_alpha()  # Charger l'image de la lave de l'interface
-spikes = pygame.image.load("Images/spikes.png").convert_alpha()  # Charger l'image de la dalle de piques de l'interface
+lava = pygame.image.load("Images/Background/lava_tile.png").convert_alpha()  # Charger l'image de la lave de l'interface
+spikes = pygame.image.load("Images/Background/spikes.png").convert_alpha()  # Charger l'image de la dalle de piques de l'interface
 
     # Machine
 rune_machine = pygame.image.load("Images/rune_machine.png").convert_alpha()  # Charger l'image de la machine a runes de l'interface
