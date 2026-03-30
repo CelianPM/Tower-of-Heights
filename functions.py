@@ -144,7 +144,7 @@ def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, a
     
         # Afficher le texte, 
     selection = text_font.render("Clique sur ton personnage", True, (200, 200, 200))                # Pour definir le texte
-    pour_pauser = text_font.render("Appuie sur ECHAPE pour pauser le jeu", True, (200, 200, 200))   # Pour definir le texte
+    pour_pauser = text_font.render("Appuie sur ESC pour mettre le jeu en pause", True, (200, 200, 200))   # Pour definir le texte
     screen.blit(selection, (globals.WIDTH//2 - selection.get_width()//2, globals.HEIGHT - 160))     # Pour afficher le texte
     screen.blit(pour_pauser, (globals.WIDTH//2 - pour_pauser.get_width()//2, globals.HEIGHT - 60))  # Pour afficher le texte
     pygame.display.flip()                                                                           # Tout generer sur la fenetre
