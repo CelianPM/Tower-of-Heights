@@ -79,7 +79,6 @@ class Player:
            self.walk_frames_right = [
                imports.post_attacking_archer,
            ]
-           self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
           
            self.attack_frames_right = [
                imports.attacking_archer,
@@ -132,7 +131,6 @@ class Player:
            self.max_life = 6
            self.regeneration_time = 30000
            self.degat = 400
-           self.weapon = None
            self.walk_frames_right = [
                imports.beggar_walk1,
                imports.beggar_walk2,
@@ -194,10 +192,7 @@ class Player:
        image_width = self.selected_image.get_width()
        image_height = self.selected_image.get_height()
        image_y = self.hitbox.bottom - image_height
-       if self.direction == "right":
-           image_x = self.hitbox.x - 30
-       else:
-           image_x = self.hitbox.x - 30
+       image_x = self.hitbox.x - 30
       
        return pygame.Rect(image_x, image_y, image_width, image_height)
 
