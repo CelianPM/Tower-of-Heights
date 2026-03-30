@@ -62,6 +62,8 @@ class Player:
        self.animation_speed = 0.27
        self.prev_hitbox = None
        self.weapon = None
+       self.attack_transition_time = 0
+       self.post_attack_until = 0
   
    def select_the_player(self):
        """Se charge de gerer les clics sur les personnages dans le menu de depart, et de definir les variables correspondantes en fonction du personnage choisi."""
@@ -77,13 +79,14 @@ class Player:
            self.regeneration_time = 25000
            self.degat = 600
            self.walk_frames_right = [
-               imports.post_attacking_archer,
+               imports.archer_image,
            ]
           
            self.attack_frames_right = [
                imports.attacking_archer,
                imports.post_attacking_archer,
            ]
+           self.attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.attack_frames_right]
            self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
           
        elif self.hero == "swordsman":
@@ -234,7 +237,7 @@ class Player:
            self.on_ground = False                               # Le joueur n'est plus au sol apres avoir saute
            imports.jump_sound.play()                                    # Jouer le son du saut
       
-       if not key[pygame.K_LEFT] and not key[pygame.K_RIGHT] and not key[pygame.K_SPACE] and not self.attack:  # Si aucune touche de deplacement n'est appuyee et que le joueur n'attaque pas
+       if not key[pygame.K_LEFT] and not key[pygame.K_RIGHT] and not key[pygame.K_SPACE] and not self.attack and time >= self.post_attack_until:  # Si aucune touche de deplacement n'est appuyee et que le joueur n'attaque pas
            self.frame_index = 0
            if self.direction == "left":
                self.selected_image = self.selected_image_left       # L'image revient a celle du profil gauche de l'image selectionnee
@@ -259,7 +262,8 @@ class Player:
                self.selected_image = self.selected_attack_left   # Si la direction est a gauche, changer l''image selectionnee par celle de l''attaque du profil gauche
            else:
                self.selected_image = self.selected_attack_right  # Si la direction est a droite, changer l''image selectionnee par celle de l''attaque du profil droit
-          
+               self.attack_transition_time = time + self.attack_animation_time // 2  # Le moment ou l'attaque atteint son point de transition (quand le degat est applique) est le temps de debut de l'attaque plus le temps d'animation de l'attaque
+
            projectile_x, projectile_y = self.projectile_spawn_position()  # Obtenir la position de spawn du projectile en fonction de la direction du joueur
            if self.hero == "archer":
                arrows.append(Arrow(projectile_x, projectile_y, self))
@@ -284,6 +288,11 @@ class Player:
 
 
        # Delai avant la prochaine attaque
+       if self.attack and self.hero == "archer" and time >= self.attack_transition_time:  # Pour l'archer, le degat est applique a la moitie de l'animation d'attaque, donc le changement d'image de transition se fait a ce moment la
+           if self.direction == "left":
+               self.selected_image = self.attack_frames_left[1]       # L'image de transition de l'attaque est celle du milieu de la liste d'images d'attaque, qui correspond a la moitie de l'animation d'attaque
+           else:
+               self.selected_image = self.attack_frames_right[1]
        if self.attack and time - start_time >= self.attack_animation_time:
            if self.direction == "left":
                self.selected_image = self.selected_image_left       # L'image revient a celle du profil gauche de l'image selectionnee
@@ -291,6 +300,13 @@ class Player:
                self.selected_image = self.selected_image_right   # L'image revient a celle du profil droit de l'image selectionnee
            self.attack = False                                   # Apres le delai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient a celle de base
       
+       if self.hero == "archer":
+           self.post_attack_until = time + 120
+           if self.direction == "left":
+               self.selected_image = self.attack_frames_left[1]
+           else:
+               self.selected_image = self.attack_frames_right[1]
+
        if time - start_time >= self.attack_animation_time + self.attack_delay:  # Apres le delai d'attaque plus le temps entre les attaques, le joueur peut a nouveau attaquer
            self.can_attack = True
 
@@ -613,7 +629,6 @@ class Monster:
            elif self.type == "slug" or self.type == "slime" or self.type == "mushroom":
                self.chasing = True
 
-
        # Arrete la poursuite si le joueur est trop loin
        if self.chasing and distance_x >= self.lose_distance:
            if self.type == "bat" and distance_y >= self.lose_distance:
@@ -740,9 +755,9 @@ class Monster:
        self.overlap(monsters, horizontal_only = True)
 
        for danger in hazards:
-           if self.coliderect(danger.rect) and self.direction == "left":
+           if self.rect.colliderect(danger.rect) and self.direction == -1:
                 self.rect.x += globals.PUSHBACK
-           elif self.coliderect(danger.rect) and self.direction == "right":
+           elif self.rect.colliderect(danger.rect) and self.direction == 1:
              self.rect.x -= globals.PUSHBACK
                
   
@@ -937,6 +952,7 @@ class Bat(Monster):
 
        # Met a jour l'etat de poursuite
        self.update_chase_state(player_rect)
+       dx = self.direction
 
 
        if self.chasing:
@@ -1032,10 +1048,14 @@ class Slime(Monster):
 
        self.velocity_y = 0
        self.on_ground = False
+       self.jump_power = -8
+       self.jump_interval = 900
+       self.last_jump_time = 0
+       self.jump_direction = 1
        self.frames_right = [imports.slime, imports.flat_slime]
        self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
        self.jumping_frames_right = [imports.jumping_slime1, imports.jumping_slime2, imports.slime, imports.jumping_slime3, imports.jumping_slime4]
-       self.jumping_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+       self.jumping_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.jumping_frames_right]
        self.type = "slime"
   
    def ground_ahead(self, platforms, direction = None):
@@ -1062,34 +1082,38 @@ class Slime(Monster):
 
        # Met a jour l'etat de poursuite
        self.update_chase_state(player_rect)
+       time = pygame.time.get_ticks()
 
 
-       should_move_horizontally = True
 
 
        if self.chasing:
-           # Fige le slime sur sa derniere image lorsque le joueur est deja aligne horizontalement
            distance_x = player_rect.centerx - self.rect.centerx
-           dead_zone = 6
+           if abs(distance_x) > 6:
+               self.direction = 1 if distance_x > 0 else -1
+
+           desired_direction = self.direction
+
+       # Evite les sauts dans le vide pendant la poursuite
+       desired_direction = self.direction
+       if self.chasing and not self.ground_ahead(platforms, desired_direction):
+           desired_direction = self.direction
+
+       # Debut de saut: le slime se deplace surtout pendant son arc de saut
+       if self.on_ground and time - self.last_jump_time >= self.jump_interval:
+           if self.ground_ahead(platforms, desired_direction) or not self.chasing:
+               self.direction = desired_direction
+               self.jump_direction = self.direction
+               self.velocity_y = self.jump_power
+               self.on_ground = False
+               self.last_jump_time = time
 
 
-           if abs(distance_x) <= dead_zone:
-               should_move_horizontally = False
-           else:
-               # Oriente le slime vers le joueur seulement s'il doit vraiment se deplacer
-               self.face_player(player_rect)
 
-
-           # Si le joueur est de l'autre cote d'un vide, le slime s'arrete au bord
-           if not self.ground_ahead(platforms, self.direction):
-               should_move_horizontally = False
-
-
-       # Deplacement horizontal
+       # Deplacement horizontal uniquement pendant le saut 
        previous_x = self.rect.x
-       if should_move_horizontally:
-           self.rect.x += self.speed * self.direction
-
+       if not self.on_ground:
+           self.rect.x += self.speed * self.jump_direction
 
        # Collision laterale avec les plateformes
        hit_side_wall = False
@@ -1115,10 +1139,10 @@ class Slime(Monster):
            hit_side_wall = True
 
 
-       # Si le slime patrouille, il se retourne lorsqu'il est bloque
-       # S'il poursuit, il reste contre l'obstacle au lieu de repartir
-       if hit_side_wall and not self.chasing:
-           self.direction *= -1
+       if hit_side_wall:
+           self.jump_direction *= -1
+           if self.on_ground and not self.chasing:
+               self.direction *= -1
 
 
        # Gravite
@@ -1151,18 +1175,23 @@ class Slime(Monster):
                continue
 
 
-       # En patrouille seulement, le slime tourne au bord de la plateforme
-       # En poursuite, il reste au bord pour attendre le joueur
-       if on_ground and not self.chasing:
-           if not self.ground_ahead(platforms):
+       if on_ground:
+           self.direction = self.jump_direction
+           if not self.chasing and not self.ground_ahead(platforms, self.direction):
                self.direction *= -1
+               self.jump_direction = self.direction
 
 
-       # Oriente l'image selon la direction
-       if self.direction == 1:
-           self.image = self.image_right
+       # Animation
+       if on_ground:
+           frames = self.frames_right if self.direction == 1 else self.frames_left
        else:
-           self.image = self.image_left
+           frames = self.jumping_frames_right if self.jump_direction == 1 else self.jumping_frames_left
+
+       self.frame_index += self.animation_speed
+       if self.frame_index >= len(frames):
+           self.frame_index = 0
+       self.image = frames[int(self.frame_index)]
 
 
        self.on_ground = on_ground
