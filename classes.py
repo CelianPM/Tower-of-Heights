@@ -1658,7 +1658,7 @@ class Runemachine:
 
 class Wall:
     def __init__(self, x, y, tile_size = 32, type = 0):
-        wall_prob = randint(0,100)
+        wall_prob = randint(0,1000)
         blood_prob = randint(0,2)
         if type == 1:
             self.image = imports.wall_tile_cuffs
@@ -1667,12 +1667,41 @@ class Wall:
             self.image = imports.wall_tile_chains
             self.rect = self.image.get_rect(topleft = (x, y))
         elif type == 3:
+            self.image = imports.wall_tile_arrow_hole2
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 4:
+            self.image = imports.wall_tile_arrow_hole
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 5:
+            self.image = imports.wall_tile_window_right
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 6:
+            self.image = imports.wall_tile_window_left
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 7:
+            self.image = imports.wall_tile_window_right2
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 8:
+            self.image = imports.wall_tile_window_left2
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 9:
+            self.image = imports.wall_tile_rope_attach
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 10:
+            self.image = imports.wall_tile_rope
+            self.rect = self.image.get_rect(topleft = (x, y))
+        elif type == 11:
+            self.image = imports.wall_tile_rope_end
+            self.rect = self.image.get_rect(topleft = (x, y))
+
+
+        elif wall_prob <= 10:
             self.image = imports.wall_tile_hole
             self.rect = self.image.get_rect(topleft = (x, y))
-        elif wall_prob > 70:
+        elif wall_prob > 700:
             self.image = imports.wall_tile_grass
             self.rect = self.image.get_rect(topleft = (x, y))
-        elif wall_prob == 3:
+        elif wall_prob <= 15:
             if blood_prob == 0:
                 self.image = imports.wall_tile_blood1
             elif blood_prob == 1:
@@ -1680,12 +1709,14 @@ class Wall:
             elif blood_prob == 2:
                 self.image = imports.wall_tile_blood3
             self.rect = self.image.get_rect(topleft = (x, y))
-        elif wall_prob < 2:
+        elif wall_prob <= 22:
             self.image = imports.wall_tile_lantern
             self.rect = self.image.get_rect(topleft = (x, y))
         else:
             self.image = imports.wall_tile
             self.rect = self.image.get_rect(topleft = (x, y))
+
+
 
 
     def draw(self, screen, camera_y = 0):

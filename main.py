@@ -66,42 +66,74 @@ def create_world_from_map(map_design):
                 wall_type.append(0)
             elif cell == "S":
                 monsters.append(classes.Slug(x, y - 78))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "B":
                 monsters.append(classes.Bat(x, y))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "s":
                 monsters.append(classes.Slime(x,y))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "m":
                 monsters.append(classes.Mushroom(x,y))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "C":
                 monsters.append(classes.Cerberus(x, y))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "P":
                 potion_spawns += 1
                 items.append(inventory.random_potion(x, y))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "R":
                 rune_spawns += 1
                 items.append(inventory.random_rune(x, y))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "M":
                 rune_machines.append(classes.Runemachine(x, y, tile_size))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "^":
                 hazards.append(classes.Spikes(x, y, tile_size, damage = 1))
-                wall_type.append(0)
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
             elif cell == "L":
-                wall_type.append(0)
+                wall_type.append(1)
                 hazards.append(classes.Lava(x, y, tile_size, damage = 2))
+                wall.append(classes.Wall(x, y, tile_size))
 
             elif cell == ".":
                 wall_prob = randint(0,1000)
                 if wall_type[-32] == 2:
                     wall.append(classes.Wall(x, y, tile_size, 1))
                     wall_type.append(1)
+                elif wall_type[-32] == 3:
+                    wall.append(classes.Wall(x, y, tile_size, 4))
+                    wall_type.append(4)
+                elif wall_type[-1] == 5:
+                    wall.append(classes.Wall(x, y, tile_size, 6))
+                    wall_type.append(6)
+                elif wall_type[-32] == 5:
+                    wall.append(classes.Wall(x, y, tile_size, 7))
+                    wall_type.append(7)
+                elif wall_type[-32] == 6:
+                    wall.append(classes.Wall(x, y, tile_size, 8))
+                    wall_type.append(8)
+                elif wall_type[-32] == 9:
+                    wall.append(classes.Wall(x, y, tile_size, 10))
+                    wall_type.append(10)
+                elif wall_type[-32] == 10 and wall_prob > 500:
+                    wall.append(classes.Wall(x, y, tile_size, 11))
+                    wall_type.append(11)
+                elif wall_type[-32] == 10:
+                    wall.append(classes.Wall(x, y, tile_size, 10))
+                    wall_type.append(10)
+                   
                 elif wall_prob == 0:
                     wall.append(classes.Wall(x, y, tile_size, 2))
                     wall_type.append(2)
@@ -114,9 +146,15 @@ def create_world_from_map(map_design):
                 elif wall_type[-32] and wall_type[-64] and wall_prob > 400:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
-                elif wall_prob < 40:
+                elif wall_prob <= 2:
                     wall.append(classes.Wall(x, y, tile_size, 3))
-                    wall_type.append(1)
+                    wall_type.append(3)
+                elif wall_prob <= 4:
+                    wall.append(classes.Wall(x, y, tile_size, 5))
+                    wall_type.append(5)
+                elif wall_prob <= 6:
+                    wall.append(classes.Wall(x, y, tile_size, 9))
+                    wall_type.append(9)
                 else:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
