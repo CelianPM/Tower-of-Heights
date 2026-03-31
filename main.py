@@ -32,12 +32,22 @@ with open("map.txt") as map_layout:
     map_design = map_layout.read().splitlines()
 
 def create_world_from_map(map_design):
-    platforms = []
-    monsters = []
-    items = []
-    rune_machines = []
-    wall = []
-    hazards = []
+    # Importe les listes de globals
+    platforms = globals.platforms
+    monsters = globals.monsters
+    items = globals.items
+    rune_machines = globals.rune_machines
+    wall = globals.wall
+    hazards = globals.hazards
+
+    # Vide les listes pour pouvoir les remplir avec les elements de la carte, et eviter d'avoir des elements en double si on recommence une partie
+    platforms.clear()
+    monsters.clear()
+    items.clear()
+    rune_machines.clear()
+    wall.clear()
+    hazards.clear()
+
     potion_spawns = 0
     rune_spawns = 0
     wall_type = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -117,7 +127,7 @@ def create_world_from_map(map_design):
 
     return platforms, monsters, items, rune_machines, wall, hazards
 
-platforms, classes.monsters, inventory.items, classes.rune_machines, wall, classes.hazards = create_world_from_map(map_design)
+platforms, monsters, items, rune_machines, wall, hazards = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -127,7 +137,6 @@ velocity = globals.velocity
 camera_y = globals.camera_y
 start_time = globals.start_time
 inventory_list = inventory.inventory_list
-items = inventory.items
 slot_hold_start = inventory.slot_hold_start
 slot_use_lock = inventory.slot_use_lock
 pickup_pressed = False

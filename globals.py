@@ -41,3 +41,18 @@ hitbox_display = False
 # --- Items & Inventaire ---
 INVENTORY_SLOTS = 5
 ITEM_USE_HOLD_MS = 1000
+
+
+
+# =================================
+# LISTES GLOBALES
+# =================================
+platforms = []     # Liste de toutes les plateformes du jeu
+monsters = []      # Liste de tous les monstres du jeu
+items = []         # Liste de tous les items du jeu
+rune_machines = [] # Liste de toutes les machines a runes du jeu
+wall = []          # Liste de tous les murs du jeu
+hazards = []       # Liste de tous les dangers du jeu
+arrows = []        # Liste de toutes les fleches du jeu
+shurikens = []     # Liste de tous les shurikens du jeu
+
