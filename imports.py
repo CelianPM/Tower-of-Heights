@@ -69,10 +69,16 @@ jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").c
 mushroom = pygame.image.load("Images/Monsters/Mushroom/mushroom.png").convert_alpha()
 
         # Bosses
-cerberus = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus.png").convert_alpha()
+cerberus_standing_right = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_standing.png").convert_alpha()
+cerberus_standing_left = pygame.transform.flip(cerberus_standing_right, True, False)
+cerberus_attacking_right = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attacking.png").convert_alpha()
+cerberus_walking_right1 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking1.png").convert_alpha()
+cerberus_walking_right2 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking2.png").convert_alpha()
+cerberus_walking_left1 = pygame.transform.flip(cerberus_walking_right1, True, False)
+cerberus_walking_left2 = pygame.transform.flip(cerberus_walking_right2, True, False)
 
 
-    # Objecs
+    # Objets
         # Potions
 life_potion = pygame.image.load("Images/Potions/life_potion.png").convert_alpha()    # Charger l'image de la potion de vie
 speed_potion = pygame.image.load("Images/Potions/speed_potion.png").convert_alpha()  # Charger l'image de la potion de vitesse
@@ -93,6 +99,12 @@ arrow_left = pygame.transform.flip(arrow, True, False)                # Le profi
 shuriken = pygame.image.load("Images/Ninja/shuriken.png").convert_alpha()  # Charger l'image du shuriken du ninja
 shuriken_right = shuriken                                                  # Le profil droit du shuriken est l'image de base
 shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le profil gauche du shuriken est l'image de base retournee horizontalement
+
+        # Bagues
+ring_bat = pygame.image.load("Images/Rings/ring_bat.png").convert_alpha()  # Charger l'image de la bague de chauve-souris
+ring_slug = pygame.image.load("Images/Rings/ring_slug.png").convert_alpha()  # Charger l'image de la bague de slug
+ring_slime = pygame.image.load("Images/Rings/ring_slime.png").convert_alpha()  # Charger l'image de la bague de slime
+ring_mushroom = pygame.image.load("Images/Rings/ring_mushroom.png").convert_alpha()  # Charger l'image de la bague de mushroom
 
     # Images de fond
 wall_tile = pygame.image.load("Images/Background/wall_tile.png").convert_alpha()                  # Charger l'image de la dalle sombre de l'interface
