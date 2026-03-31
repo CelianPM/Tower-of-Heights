@@ -246,6 +246,8 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     player.regeneration_effect_end_time = 0
     player.attack = False
     player.can_attack = True
+    globals.arrows.clear()
+    globals.shurikens.clear()
 
     _, classes.monsters, items, classes.rune_machines, _, classes.hazards = create_world_from_map(map_design)
 

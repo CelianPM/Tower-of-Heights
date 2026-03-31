@@ -13,12 +13,6 @@ monsters = globals.monsters
     # Liste des machines a runes
 rune_machines = globals.rune_machines
 
-   # Fleches de l'archer
-arrows = globals.arrows
-
-   # Shurikens du ninja
-shurikens = globals.shurikens
-
    # Hazards
 hazards = globals.hazards
 

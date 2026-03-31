@@ -216,7 +216,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, classes.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, classes.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -247,10 +247,10 @@ while running:
         camera_y += (target_camera - camera_y) * globals.CAMERA_SMOOTH  # Pour faire en sorte que la camera suive le joueur de maniere lissee, on calcule la position cible de la camera en fonction de la position du joueur, et on ajuste progressivement la position actuelle de la camera vers cette position cible en utilisant un facteur de lissage (globals.CAMERA_SMOOTH)
     
     if state == "game" :
-        for arrow in classes.arrows[:]: 
-            arrow.update(platforms, classes.arrows, classes.shurikens)  # Mettre a jour la position de chaque fleche en fonction de sa direction et de sa vitesse, et retirer les fleches qui sortent de l'ecran pour eviter d'avoir trop de fleches inutiles dans la liste des fleches
-        for shuriken in classes.shurikens[:]: 
-            shuriken.update(platforms, classes.arrows, classes.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
+        for arrow in globals.arrows[:]: 
+            arrow.update(platforms, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque fleche en fonction de sa direction et de sa vitesse, et retirer les fleches qui sortent de l'ecran pour eviter d'avoir trop de fleches inutiles dans la liste des fleches
+        for shuriken in globals.shurikens[:]: 
+            shuriken.update(platforms, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
     player.update_potion_effects(time)
     
     # --- Generer le jeu ---
@@ -270,10 +270,10 @@ while running:
         if monster.alive:
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
 
-    for arrow in classes.arrows:
+    for arrow in globals.arrows:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les fleches a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
 
-    for shuriken in classes.shurikens:
+    for shuriken in globals.shurikens:
         globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     if items:
         for item in items:
