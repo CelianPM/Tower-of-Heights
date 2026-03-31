@@ -6,6 +6,21 @@ from random import randint
 pygame.init()
 
 
+# --- Importer les listes
+    # Listes des monstres
+monsters = globals.monsters
+
+    # Liste des machines a runes
+rune_machines = globals.rune_machines
+
+   # Fleches de l'archer
+arrows = globals.arrows
+
+   # Shurikens du ninja
+shurikens = globals.shurikens
+
+   # Hazards
+hazards = globals.hazards
 
 
 # =================================
@@ -1366,7 +1381,7 @@ class Cerberus(Monster):
         super().__init__(
             x, 
             y, 
-            image_right = imports.cerberus,
+            image_right = imports.cerberus_standing_right,
             life = 60000,
             speed = 1,
             xp_reward = 20
@@ -1702,30 +1717,4 @@ class Lava(Hazard):
    def __init__(self, x, y, tile_size = 32, damage = 2):
        super().__init__(x, y, tile_size, damage)
        self.image = imports.lava
-
-# =================================
-# LISTES
-# =================================
-
-
-# --- Listes des monstres ---
-monsters = []
-
-
-# --- Liste des machines a runes ---
-rune_machines = []
-
-
-# ---Listes des projectiles---
-   # Fleches de l'archer
-arrows = []
-
-
-   # Shurikens du ninja
-shurikens = []
-
-   # Hazards
-hazards = []
-
-
 
