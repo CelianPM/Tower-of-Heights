@@ -1380,6 +1380,12 @@ class Cerberus(Monster):
             speed = 1,
             xp_reward = 20
         )
+                self.frames_right = [imports.cerberus_walking1, imports.cerberus_walking2]
+        self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+        self.claw_attack_frames_right = [imports.cerberus_attack_claw, imports.cerberus_attack_claw]
+        self.claw_attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.claw_attack_frames_right]
+        self.bite_attack_frames_right = [imports.cerberus_attack_bite, imports.cerberus_attack_bite]
+        self.bite_attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.bite_attack_frames_right]
         self.velocity_y = 0
         self.on_ground = False
         self.type = "cerberus"
@@ -1428,9 +1434,11 @@ class Cerberus(Monster):
         if distance_x <= self.bite_range:
             self.current_attack = "crocs"
             self.contact_damage = self.bite_damage
+            self.image = self.bite_attack_frames_right[0] if self.direction == 1 else self.bite_attack_frames_left[0]
         else:
             self.current_attack = "griffe"
             self.contact_damage = self.claw_damage
+            self.image = self.claw_attack_frames_right[0] if self.direction == 1 else self.claw_attack_frames_left[0]
 
     def regenerate(self, time):
         if not self.alive:
