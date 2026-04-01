@@ -55,10 +55,13 @@ def create_world_from_map(map_design):
     map_height_pixels = len(map_design) * tile_size
     offset_y = globals.HEIGHT - map_height_pixels
 
+    map_width_pixels = max(len(row) for row in map_design) * tile_size
+    offset_x = (globals.WIDTH - map_width_pixels) // 2
+
 
     for row_index, row in enumerate(map_design):
         for col_index, cell in enumerate(row):       
-            x = col_index * tile_size
+            x = col_index * tile_size + offset_x
             y = row_index * tile_size + offset_y
             if cell == "#":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
