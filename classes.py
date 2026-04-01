@@ -1527,12 +1527,6 @@ class Cerberus(Monster):
 
 
 
-
-
-
-
-
-
 # =================================
 # OBJETS
 # =================================
@@ -1649,6 +1643,7 @@ class Runemachine:
                    inventory_list[index] = None
                return True
        return False
+
 
 
 # =================================
