@@ -154,11 +154,11 @@ def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, a
 # =================================
 # JEU
 # =================================
-def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, shurikens, hazards):
+def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, traps, shurikens, hazards):
     """S'occupe de gerer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
     velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens)
-    velocity = player.platform_collisions(platforms, velocity)
+    velocity = player.platform_collisions(platforms, traps, velocity)
     player.monster_collisions(monsters, time, arrows, platforms, shurikens)
     player.hazard_collisions(hazards, time)
     player.player_xp()
@@ -249,7 +249,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     globals.arrows.clear()
     globals.shurikens.clear()
 
-    _, classes.monsters, items, classes.rune_machines, _, classes.hazards = create_world_from_map(map_design)
+    _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards = create_world_from_map(map_design)
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 

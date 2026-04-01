@@ -48,6 +48,7 @@ ITEM_USE_HOLD_MS = 1000
 # LISTES GLOBALES
 # =================================
 platforms = []     # Liste de toutes les plateformes du jeu
+traps = []
 monsters = []      # Liste de tous les monstres du jeu
 items = []         # Liste de tous les items du jeu
 rune_machines = [] # Liste de toutes les machines a runes du jeu

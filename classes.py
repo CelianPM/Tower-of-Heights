@@ -368,7 +368,7 @@ class Player:
 
 
 
-    def platform_collisions(self, platforms, velocity):
+    def platform_collisions(self, platforms, traps, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""
         self.on_ground = False                                                      # Par defaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
         previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
@@ -407,7 +407,16 @@ class Player:
                     self.hitbox.right = platform.left
                 else:
                     self.hitbox.left = platform.right
-                  
+
+        for trap in traps:
+            if not self.hitbox.colliderect(trap):
+                continue
+            horizontal_overlap = self.hitbox.right > trap.left and self.hitbox.left < trap.right
+            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
+                self.hitbox.bottom = platform.top
+                self.on_ground = True
+                velocity = 0
+
         return velocity
 
 
@@ -1380,7 +1389,7 @@ class Cerberus(Monster):
             speed = 1,
             xp_reward = 20
         )
-                self.frames_right = [imports.cerberus_walking1, imports.cerberus_walking2]
+        self.frames_right = [imports.cerberus_walking1, imports.cerberus_walking2]
         self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
         self.claw_attack_frames_right = [imports.cerberus_attack_claw, imports.cerberus_attack_claw]
         self.claw_attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.claw_attack_frames_right]
