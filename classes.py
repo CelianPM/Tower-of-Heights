@@ -412,8 +412,8 @@ class Player:
             if not self.hitbox.colliderect(trap):
                 continue
             horizontal_overlap = self.hitbox.right > trap.left and self.hitbox.left < trap.right
-            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
-                self.hitbox.bottom = platform.top
+            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= trap.top:
+                self.hitbox.bottom = trap.top
                 self.on_ground = True
                 velocity = 0
 
