@@ -34,6 +34,7 @@ with open("map.txt") as map_layout:
 def create_world_from_map(map_design):
     # Importe les listes de globals
     platforms = globals.platforms
+    traps = globals.traps
     monsters = globals.monsters
     items = globals.items
     rune_machines = globals.rune_machines
@@ -42,6 +43,7 @@ def create_world_from_map(map_design):
 
     # Vide les listes pour pouvoir les remplir avec les elements de la carte, et eviter d'avoir des elements en double si on recommence une partie
     platforms.clear()
+    traps.clear()
     monsters.clear()
     items.clear()
     rune_machines.clear()
@@ -66,6 +68,10 @@ def create_world_from_map(map_design):
             if cell == "#":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 platforms.append(rect)
+                wall_type.append(0)
+            elif cell == "T":
+                rect = pygame.Rect(x, y, tile_size, tile_size)
+                traps.append(rect)
                 wall_type.append(0)
             elif cell == "S":
                 monsters.append(classes.Slug(x, y - 78))
@@ -166,9 +172,9 @@ def create_world_from_map(map_design):
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
 
-    return platforms, monsters, items, rune_machines, wall, hazards
+    return platforms, traps, monsters, items, rune_machines, wall, hazards
 
-platforms, monsters, items, rune_machines, wall, hazards = create_world_from_map(map_design)
+platforms, traps, monsters, items, rune_machines, wall, hazards = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -257,7 +263,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, traps, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -297,7 +303,9 @@ while running:
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for platform in platforms:
-        pygame.draw.rect(globals.screen, (120, 60, 60), (platform.x, platform.y - camera_y, platform.width, platform.height))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+        globals.screen.blit(imports.platform_wall, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for trap in traps:
+        globals.screen.blit(imports.platform_trap, (trap.x, trap.y - camera_y))
     for wall_tile in wall:
         wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for hazard in classes.hazards:
