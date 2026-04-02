@@ -157,7 +157,7 @@ def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, a
 def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, traps, shurikens, hazards):
     """S'occupe de gerer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
-    velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens, platforms)
+    velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens)
     velocity = player.platform_collisions(platforms, traps, velocity)
     player.monster_collisions(monsters, time, arrows, platforms, shurikens)
     player.hazard_collisions(hazards, time)
@@ -173,12 +173,9 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
 
 
     # --- Monster movement ---
-    hazard_rects = [hazard.rect for hazard in hazards]
-    monster_platforms = platforms + hazard_rects
-
     for monster in monsters:
         if monster.alive:
-            monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
+            monster.update(player.hitbox, monsters, platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
 
     # --- Pour retourner a la page du depart ---
     if key[pygame.K_m]:
