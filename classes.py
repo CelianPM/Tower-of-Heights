@@ -1386,7 +1386,7 @@ class Cerberus(Monster):
         super().__init__(
             x, 
             y, 
-            image_right = imports.cerberus_standing_right,
+            image_right = imports.cerberus_standing,
             life = 60000,
             speed = 1,
             xp_reward = 20

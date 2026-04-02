@@ -70,19 +70,11 @@ mushroom = pygame.image.load("Images/Monsters/Mushroom/mushroom.png").convert_al
 
         # Bosses
             # Cerbere
-                # Standing
-cerberus_standing_right = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_standing.png").convert_alpha()
-cerberus_standing_left = pygame.transform.flip(cerberus_standing_right, True, False)
-                # Attacking
-cerberus_attacking_claw_right = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_claw.png").convert_alpha()
-cerberus_attacking_bite_right = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_bite.png").convert_alpha()
-cerberus_attacking_claw_left = pygame.transform.flip(cerberus_attacking_claw_right, True, False)
-cerberus_attacking_bite_left = pygame.transform.flip(cerberus_attacking_bite_right, True, False)
-                # Walking
-cerberus_walking_right1 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking1.png").convert_alpha()
-cerberus_walking_right2 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking2.png").convert_alpha()
-cerberus_walking_left1 = pygame.transform.flip(cerberus_walking_right1, True, False)
-cerberus_walking_left2 = pygame.transform.flip(cerberus_walking_right2, True, False)
+cerberus_standing = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_standing.png").convert_alpha()
+cerberus_attack_claw = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_claw.png").convert_alpha()
+cerberus_attack_bite = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_bite.png").convert_alpha()
+cerberus_walking1 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking1.png").convert_alpha()
+cerberus_walking2 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking2.png").convert_alpha()
 
 
     # Objets
