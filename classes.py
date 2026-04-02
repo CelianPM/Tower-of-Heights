@@ -1391,11 +1391,11 @@ class Cerberus(Monster):
             speed = 1,
             xp_reward = 20
         )
-        self.frames_right = [imports.cerberus_walking_right1, imports.cerberus_walking_right2]
+        self.frames_right = [imports.cerberus_walking1, imports.cerberus_walking2]
         self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
-        self.claw_attack_frames_right = [imports.cerberus_attacking_claw_right, imports.cerberus_attacking_claw_left]
+        self.claw_attack_frames_right = [imports.cerberus_attack_claw, imports.cerberus_attack_claw]
         self.claw_attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.claw_attack_frames_right]
-        self.bite_attack_frames_right = [imports.cerberus_attacking_bite_right, imports.cerberus_attacking_bite_left]
+        self.bite_attack_frames_right = [imports.cerberus_attack_bite, imports.cerberus_attack_bite]
         self.bite_attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.bite_attack_frames_right]
         self.velocity_y = 0
         self.on_ground = False
