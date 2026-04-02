@@ -69,8 +69,8 @@ jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").c
 mushroom = pygame.image.load("Images/Monsters/Mushroom/mushroom.png").convert_alpha()
 
         # Bosses
-            # Cerbere
-cerberus_standing = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_standing.png").convert_alpha()
+cerberus_standing_right = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_standing.png").convert_alpha()
+
 cerberus_attack_claw = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_claw.png").convert_alpha()
 cerberus_attack_bite = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_bite.png").convert_alpha()
 cerberus_walking1 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking1.png").convert_alpha()
