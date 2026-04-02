@@ -87,7 +87,7 @@ def rune_menu__manager(state, event, inventory_list, player, machine):
     rune_name = key_map[event.key]
     if machine and machine.consume_rune(inventory_list, rune_name):
         player.apply_rune_effect(rune_name)
-        return "game", f"{rune_name} utilise"
+        print("game", f"{rune_name} utilise")
 
     return state, "Pas de rune a utiliser"
 
