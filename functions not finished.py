@@ -29,6 +29,19 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
     pygame.draw.rect(globals.screen, globals.BLACK, buttons.pause_box, 3)                                                             # ...et sa bordure noire
     globals.screen.blit(buttons.text_font.render("Que veux-tu faire ?", True, globals.BLACK), (buttons.pause_box.x + 100, buttons.pause_box.y + 40))  # Pour afficher le texte
 
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.info_box)
+    pygame.draw.rect(globals.screen, globals.BLACK, buttons.info_box, 3)
+    globals.screen.blit(buttons.text_font.render("info", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 70))
+    globals.screen.blit(buttons.text_font.render("keys", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 100))
+    globals.screen.blit(buttons.text_font.render("jump = SPACE", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 130))
+    globals.screen.blit(buttons.text_font.render("move = ARROW_LEFT / ARROW_RIGHT", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 160))
+    globals.screen.blit(buttons.text_font.render("1rst attack = d", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 190))
+    globals.screen.blit(buttons.text_font.render("2nd attack = ?", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 220))
+    globals.screen.blit(buttons.text_font.render("pickup objects = e", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 250))
+    globals.screen.blit(buttons.text_font.render("use rune machine = r", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 280))
+    globals.screen.blit(buttons.text_font.render("menu d'attributs = m", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 310))
+    globals.screen.blit(buttons.text_font.render("pause = escape", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 340))
+    
     # Bouton pour continuer
     pygame.draw.rect(globals.screen, globals.GREEN, buttons.continue_button)                                                           # Pour dessiner un rectangle vert...
     pygame.draw.rect(globals.screen, globals.BLACK, buttons.continue_button, 2)                                                        # ...et sa bordure noire
@@ -39,13 +52,19 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
     pygame.draw.rect(globals.screen, globals.BLACK, buttons.quit_button, 2)                                                            # ...et sa bordure noire
     globals.screen.blit(buttons.text_font.render("Quitter", True, globals.BLACK), (buttons.quit_button.x + 40, buttons.quit_button.y + 15))            # Pour afficher le texte
 
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.lower_speed_rect)
+    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.hitbox_display_rect)
+    txt_lower_speed = buttons.text_font.render("baisser la vitesse : " + "4", True, globals.WHITE)
+    txt_hitbox_display = buttons.text_font.render("afficher la hitbox", True, globals.WHITE)
+    globals.screen.blit(txt_lower_speed, txt_lower_speed.get_rect(center = buttons.lower_speed_rect.center))
+    globals.screen.blit(txt_hitbox_display, txt_hitbox_display.get_rect(center = buttons.hitbox_display_rect.center))
     pygame.display.flip() # Pour charger la fenetre
 
 
 # =================================
 # MACHINE A RUNES
 # =================================
-def rune_menu__displayer(screen, inventory_list, machine, rune_hold_start, rune_use_lock, current_time):
+def rune_menu__displayer(screen, inventory_list, machine):
     box = pygame.Rect(globals.WIDTH//2 - 260, globals.HEIGHT//2 - 170, 520, 340)
     pygame.draw.rect(screen, globals.WHITE, box)
     pygame.draw.rect(screen, globals.BLACK, box, 3)
@@ -59,70 +78,37 @@ def rune_menu__displayer(screen, inventory_list, machine, rune_hold_start, rune_
         "rune_puissance": 0,
     }
     lines = [
-        (f"1 - Rune de vie ({counts['rune_vie']})", 0),
-        (f"2 - Rune de vitesse ({counts['rune_vitesse']})", 1),
-        (f"3 - Rune de puissance ({counts['rune_puissance']})", 2),
-        ("ECHAP - fermer", None),
+        f"1 - Rune de vie ({counts['rune_vie']})",
+        f"2 - Rune de vitesse ({counts['rune_vitesse']})",
+        f"3 - Rune de puissance ({counts['rune_puissance']})",
+        "ECHAP - fermer",
     ]
 
-    for i, (text, rune_index) in enumerate(lines):
+    for i, text in enumerate(lines):
         line = buttons.text_font.render(text, True, globals.BLACK)
         screen.blit(line, (box.x + 40, box.y + 90 + i * 45))
 
-        if rune_index is not None and rune_hold_start[rune_index] is not None and not rune_use_lock[rune_index]:
-            progress = (current_time - rune_hold_start[rune_index]) / globals.ITEM_USE_HOLD_MS
-            progress = max(0.0, min(1.0, progress))
-            bar_bg = pygame.Rect(box.x + 360, box.y + 110 + i * 45, 120, 6)
-            bar_fill = pygame.Rect(box.x + 360, box.y + 110 + i * 45, int(120 * progress), 6)
-            pygame.draw.rect(screen, (80, 80, 80), bar_bg)
-            pygame.draw.rect(screen, globals.GREEN, bar_fill)
-
     pygame.display.flip()
 
-def rune_menu__manager(state, event, inventory_list, player, machine, time, key, rune_hold_start, rune_use_lock):
-    if event and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-        for i in range(3):
-            rune_hold_start[i] = None
-            rune_use_lock[i] = False
+def rune_menu__manager(state, event, inventory_list, player, machine):
+    if event.key == pygame.K_ESCAPE:
         return "game", ""
 
     key_map = {
-        0: (pygame.K_1, "rune_vie"),
-        1: (pygame.K_2, "rune_vitesse"),
-        2: (pygame.K_3, "rune_puissance"),
+        pygame.K_1: "rune_vie",
+        pygame.K_2: "rune_vitesse",
+        pygame.K_3: "rune_puissance",
     }
 
-    held_index = None
-    for i, (key_code, _) in key_map.items():
-        if key[key_code]:
-            held_index = i
-            break
-    
-    # Reset other holds
-    for i in range(3):
-        if i != held_index:
-            rune_hold_start[i] = None
-            rune_use_lock[i] = False
-    
-    if held_index is None:
+    if event.key not in key_map:
         return state, ""
-    
-    key_code, rune_name = key_map[held_index]
 
-    if rune_hold_start[held_index] is None:
-        rune_hold_start[held_index] = time
-        rune_use_lock[held_index] = False
+    rune_name = key_map[event.key]
+    if machine and machine.consume_rune(inventory_list, rune_name):
+        player.apply_rune_effect(rune_name)
+        print("game", f"{rune_name} utilise")
 
-    if not rune_use_lock[held_index] and (time - rune_hold_start[held_index] >= globals.ITEM_USE_HOLD_MS):
-        if machine and machine.consume_rune(inventory_list, rune_name):
-            player.apply_rune_effect(rune_name)
-            rune_use_lock[held_index] = True
-            print("game", f"{rune_name} utilise")
-
-        rune_use_lock[held_index] = True
-        return state, "Pas de rune a utiliser"
-
-    return state, ""
+    return state, "Pas de rune a utiliser"
 
 
 
@@ -282,7 +268,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
     globals.arrows.clear()
     globals.shurikens.clear()
 
-    _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards, _ = create_world_from_map(map_design)
+    _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards = create_world_from_map(map_design)
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
@@ -334,8 +320,7 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.vitality_rect)
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.puissance_rect)
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.attack_delay_rect)
-    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.lower_speed_rect)
-    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.hitbox_display_rect)
+
 
         # Leur texte
     txt_continue = buttons.text_font.render("Continuer", True, globals.WHITE)                    # Definir le texte du bouton pour recommencer
@@ -343,8 +328,7 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     txt_vitality = buttons.text_font.render("vie : " + str(player.max_life*10//1/10), True, globals.WHITE)
     txt_puissance = buttons.text_font.render("puissance : " + str(player.puissance*40//100), True, globals.WHITE)
     txt_attack_delay = buttons.text_font.render("vitesse d'attaque : " + str((1000 - player.attack_delay)/50), True, globals.WHITE)
-    txt_lower_speed = buttons.text_font.render("baisser la vitesse : " + "4", True, globals.WHITE)
-    txt_hitbox_display = buttons.text_font.render("afficher la hitbox", True, globals.WHITE)
+
     
         # Les afficher
     globals.screen.blit(txt_continue, txt_continue.get_rect(center = buttons.continue_rect.center))  # Afficher le texte du bouton pour recommencer
@@ -352,8 +336,7 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     globals.screen.blit(txt_vitality, txt_vitality.get_rect(center = buttons.vitality_rect.center))
     globals.screen.blit(txt_puissance, txt_puissance.get_rect(center = buttons.puissance_rect.center))
     globals.screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center = buttons.attack_delay_rect.center))
-    globals.screen.blit(txt_lower_speed, txt_lower_speed.get_rect(center = buttons.lower_speed_rect.center))
-    globals.screen.blit(txt_hitbox_display, txt_hitbox_display.get_rect(center = buttons.hitbox_display_rect.center))
+
     
     pygame.display.flip()  # Tout generer sur la fenetre
 
