@@ -210,7 +210,7 @@ class Player:
 
 
   
-    def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens, platforms):
+    def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens):
         """Se charge de definir les mouvements du joueur et ses attaques."""
         self.prev_hitbox = self.hitbox.copy()
 
@@ -239,12 +239,10 @@ class Player:
             else:
                 self.selected_image = self.animate(self.walk_frames_right)
 
-        feet = pygame.Rect(self.hitbox.x + 2, self.hitbox.bottom, self.hitbox.width - 4, 2)
-        self.on_ground = any(feet.colliderect(platform) and self.hitbox.bottom < platform.top + 2 for platform in platforms)
 
             # Le saut
         if key[pygame.K_SPACE] and self.on_ground:               # Si la touche de saut est appuyee et que le joueur est au sol
-            velocity = min(velocity, self.jump_power)                          # Appliquer la puissance de saut a la variable de vitesse
+            velocity += self.jump_power                          # Appliquer la puissance de saut a la variable de vitesse
             self.on_ground = False                               # Le joueur n'est plus au sol apres avoir saute
             imports.jump_sound.play()                                    # Jouer le son du saut
       
@@ -375,23 +373,23 @@ class Player:
         self.on_ground = False                                                      # Par defaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
         previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
 
+
         for platform in platforms:
             if not self.hitbox.colliderect(platform):
                 continue
 
 
             horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
-            previous_horizontal_overlap = previous_hitbox.right > platform.left and previous_hitbox.left < platform.right
-            
+              
             # Collisions du haut de la plateforme
-            if velocity >= 0 and previous_horizontal_overlap and previous_hitbox.bottom <= platform.top:
+            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
                 self.hitbox.bottom = platform.top
                 self.on_ground = True
                 velocity = 0
                 continue                                                   # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
  
             # Collisions du bas de la plateforme
-            if velocity < 0 and previous_horizontal_overlap and previous_hitbox.top >= platform.bottom:
+            if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
                 self.hitbox.top = platform.bottom
                 velocity = 0
                 continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
@@ -1386,7 +1384,7 @@ class Cerberus(Monster):
         super().__init__(
             x, 
             y, 
-            image_right = imports.cerberus_standing,
+            image_right = imports.cerberus_standing_right,
             life = 60000,
             speed = 1,
             xp_reward = 20
