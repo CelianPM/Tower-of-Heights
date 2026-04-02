@@ -45,7 +45,7 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
 # =================================
 # MACHINE A RUNES
 # =================================
-def rune_menu__displayer(screen, inventory_list, machine):
+def rune_menu__displayer(screen, inventory_list, machine, rune_hold_start, rune_use_lock, current_time):
     box = pygame.Rect(globals.WIDTH//2 - 260, globals.HEIGHT//2 - 170, 520, 340)
     pygame.draw.rect(screen, globals.WHITE, box)
     pygame.draw.rect(screen, globals.BLACK, box, 3)
@@ -59,37 +59,70 @@ def rune_menu__displayer(screen, inventory_list, machine):
         "rune_puissance": 0,
     }
     lines = [
-        f"1 - Rune de vie ({counts['rune_vie']})",
-        f"2 - Rune de vitesse ({counts['rune_vitesse']})",
-        f"3 - Rune de puissance ({counts['rune_puissance']})",
-        "ECHAP - fermer",
+        (f"1 - Rune de vie ({counts['rune_vie']})", 0),
+        (f"2 - Rune de vitesse ({counts['rune_vitesse']})", 1),
+        (f"3 - Rune de puissance ({counts['rune_puissance']})", 2),
+        ("ECHAP - fermer", None),
     ]
 
-    for i, text in enumerate(lines):
+    for i, (text, rune_index) in enumerate(lines):
         line = buttons.text_font.render(text, True, globals.BLACK)
         screen.blit(line, (box.x + 40, box.y + 90 + i * 45))
 
+        if rune_index is not None and rune_hold_start[rune_index] is not None and not rune_use_lock[rune_index]:
+            progress = (current_time - rune_hold_start[rune_index]) / globals.ITEM_USE_HOLD_MS
+            progress = max(0.0, min(1.0, progress))
+            bar_bg = pygame.Rect(box.x + 360, box.y + 110 + i * 45, 120, 6)
+            bar_fill = pygame.Rect(box.x + 360, box.y + 110 + i * 45, int(120 * progress), 6)
+            pygame.draw.rect(screen, (80, 80, 80), bar_bg)
+            pygame.draw.rect(screen, globals.GREEN, bar_fill)
+
     pygame.display.flip()
 
-def rune_menu__manager(state, event, inventory_list, player, machine):
-    if event.key == pygame.K_ESCAPE:
+def rune_menu__manager(state, event, inventory_list, player, machine, time, key, rune_hold_start, rune_use_lock):
+    if event and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+        for i in range(3):
+            rune_hold_start[i] = None
+            rune_use_lock[i] = False
         return "game", ""
 
     key_map = {
-        pygame.K_1: "rune_vie",
-        pygame.K_2: "rune_vitesse",
-        pygame.K_3: "rune_puissance",
+        0: (pygame.K_1, "rune_vie"),
+        1: (pygame.K_2, "rune_vitesse"),
+        2: (pygame.K_3, "rune_puissance"),
     }
 
-    if event.key not in key_map:
+    held_index = None
+    for i, (key_code, _) in key_map.items():
+        if key[key_code]:
+            held_index = i
+            break
+    
+    # Reset other holds
+    for i in range(3):
+        if i != held_index:
+            rune_hold_start[i] = None
+            rune_use_lock[i] = False
+    
+    if held_index is None:
         return state, ""
+    
+    key_code, rune_name = key_map[held_index]
 
-    rune_name = key_map[event.key]
-    if machine and machine.consume_rune(inventory_list, rune_name):
-        player.apply_rune_effect(rune_name)
-        print("game", f"{rune_name} utilise")
+    if rune_hold_start[held_index] is None:
+        rune_hold_start[held_index] = time
+        rune_use_lock[held_index] = False
 
-    return state, "Pas de rune a utiliser"
+    if not rune_use_lock[held_index] and (time - rune_hold_start[held_index] >= globals.ITEM_USE_HOLD_MS):
+        if machine and machine.consume_rune(inventory_list, rune_name):
+            player.apply_rune_effect(rune_name)
+            rune_use_lock[held_index] = True
+            print("game", f"{rune_name} utilise")
+
+        rune_use_lock[held_index] = True
+        return state, "Pas de rune a utiliser"
+
+    return state, ""
 
 
 

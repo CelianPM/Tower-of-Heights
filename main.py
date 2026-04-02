@@ -186,6 +186,8 @@ start_time = globals.start_time
 inventory_list = inventory.inventory_list
 slot_hold_start = inventory.slot_hold_start
 slot_use_lock = inventory.slot_use_lock
+rune_hold_start = [None, None, None]
+rune_use_lock = [False, False, False]
 pickup_pressed = False
 current_rune_machine = None
 
@@ -239,13 +241,16 @@ while running:
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
             state, player = functions.attributes_menu__manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
 
-        if state == "rune_menu" and event.type == pygame.KEYDOWN:
-            state, feedback = functions.rune_menu__manager(state, event, inventory_list, player, current_rune_machine)
+        if state == "rune_menu" and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            state, feedback = functions.rune_menu__manager(state, event, inventory_list, player, current_rune_machine, time, globals.key, rune_hold_start, rune_use_lock)
             if feedback:
                 last_inventory_feedback = feedback
                 last_inventory_feedback_time = time
             if state == "game":
                 current_rune_machine = None
+                rune_hold_start[:] = [None, None, None]
+                rune_use_lock[:] = [False, False, False]
+
     
     # --- Pause ---
     if state == "paused":
@@ -253,9 +258,18 @@ while running:
         continue
 
     if state == "rune_menu":
-        functions.rune_menu__displayer(globals.screen, inventory_list, current_rune_machine)
+        state, feedback = functions.rune_menu__manager(state, None, inventory_list, player, current_rune_machine, time, globals.key, rune_hold_start, rune_use_lock)
+        if feedback:
+            last_inventory_feedback = feedback
+            last_inventory_feedback_time = time
+        if state == "game":
+            current_rune_machine = None
+            rune_hold_start[:] = [None, None, None]
+            rune_use_lock[:] = [False, False, False]
+
+        functions.rune_menu__displayer(globals.screen, inventory_list, current_rune_machine, rune_hold_start, rune_use_lock, time)
         continue
-        
+
     # --- Pour creer la page du menu de depart ---
     if state == "menu_de_debut":
         functions.beginning_menu__displayer(globals.screen, buttons.title_surface, buttons.title_rect, imports.archer_image, imports.archer_menu_rect, imports.swordsman_image, imports.swordsman_menu_rect, imports.ninja_image, imports.ninja_menu_rect, buttons.text_font)  # Pour appeler la fonction menu_de_debut2() pour afficher la page du menu de depart
