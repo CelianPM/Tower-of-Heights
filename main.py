@@ -172,9 +172,9 @@ def create_world_from_map(map_design):
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
 
-    return platforms, traps, monsters, items, rune_machines, wall, hazards
+    return platforms, traps, monsters, items, rune_machines, wall, hazards, offset_x
 
-platforms, traps, monsters, items, rune_machines, wall, hazards = create_world_from_map(map_design)
+platforms, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -225,7 +225,7 @@ while running:
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = functions.beginning_menu__manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, imports.ninja_menu_rect, imports.beggar_menu_rect, event, player)  # Appeler la fonction menu_de_debut() pour gerer les interactions avec les personnages sur la page du menu de depart, et recuperer les variables mises a jour par cette fonction
+            state, player = functions.beginning_menu__manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, imports.ninja_menu_rect, imports.beggar_menu_rect, event, player, offset_x)  # Appeler la fonction menu_de_debut() pour gerer les interactions avec les personnages sur la page du menu de depart, et recuperer les variables mises a jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:

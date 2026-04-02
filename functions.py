@@ -98,7 +98,7 @@ def rune_menu__manager(state, event, inventory_list, player, machine):
 # =================================
 
 # --- Gere les boutons ---
-def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, beggar_menu_rect, event, player):
+def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, beggar_menu_rect, event, player, offset_x):
     """Se charge de gerer les clics sur les personnages dans le menu de depart, et de definir les variables correspondantes en fonction du personnage choisi"""
     if imports.archer_menu_rect.collidepoint(event.pos):
         player.hero = "archer"     # Le joueur choisi est l'archer
@@ -120,7 +120,7 @@ def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_
 
     player.selected_attack_right = player.selected_attack                                                                               # Profil droit de l'image attaquant
     player.selected_attack_left = pygame.transform.flip(player.selected_attack, True, False)                                            # Profil gauche de l'image attaquant
-    player.perso_rect = player.selected_image.get_rect(topleft=(200, 300))                                                              # Rect de l'image
+    player.perso_rect = player.selected_image.get_rect(topleft=(200 + offset_x // 2, 300))                                                              # Rect de l'image
     player.hitbox = pygame.Rect(player.perso_rect.x, player.perso_rect.y, 32, 112)
     pygame.mixer.music.play(-1)                                                                                                         # Lancer la musique de fond en boucle
     state = "game"                                                                                                                      # Passer au jeu
