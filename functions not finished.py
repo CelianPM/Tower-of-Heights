@@ -11,53 +11,97 @@ pygame.init()
 # =================================
 
 # --- Gere les boutons ---
-def paused__buttons_manager(state, event, continue_button, quit_button):
+def paused__buttons_manager(state, event, continue_button, quit_button, player):
     """Gere les clics sur les boutons affiches boutons pour continuer ou arreter le jeu lorsqu'il est mis en pause"""
     if buttons.continue_button.collidepoint(event.pos): # Si on appuie sur le bouton pour continuer
         state = "game"                          # Continuer le jeu
-        pygame.mixer.music.unpause()            # Continuer la musique
+        if globals.music_muted:                          # Si la musique est en mode muet, ne pas la reprendre    
+            pygame.muxer.music.set_volume(0)              # S'assurer que le volume reste a 0
+        else:
+            pygame.mixer.music.unpause()            # Continuer la musique
     
     if buttons.quit_button.collidepoint(event.pos):     # Si on appuie sur le bouton pour quitter
         state = "end"                           # Arreter le jeu
+    
+    if buttons.pause_lower_speed_minus_rect.collidepoint(event.pos):
+        player.speed = max(1, round(player.speed - 0.5, 2))
+
+    if buttons.pause_lower_speed_plus_rect.collidepoint(event.pos):
+        player.speed = min(12, round(player.speed + 0.5, 2))
+
+    if buttons.pause_lower_speed_rect.collidepoint(event.pos):
+        if player.speed_click == 0:
+            player.last_player_speed = player.speed
+            player.speed = 4
+            player.speed_click = 1
+        else:
+            player.speed = player.last_player_speed
+            player.speed_click = 0
+
+    if buttons.pause_hitbox_display_rect.collidepoint(event.pos):
+        globals.hitbox_display = not globals.hitbox_display
+
+    if buttons.pause_music_toggle_rect.collidepoint(event.pos):
+        globals.music_muted = not globals.music_muted
+        pygame.mixer.music.set_volume(0 if globals.music_muted else 0.7)
     return state
 
 # --- Affiche les boutons ---
-def paused__buttons_displayer(screen, pause_box, text_font, continue_button, quit_button):
+def paused__buttons_displayer(screen, pause_box, text_font, continue_button, quit_button, player):
     """Affiche les boutons pour continuer ou arreter le jeu lorsqu'il est mis en pause"""
-    # Dessiner le rectangle de pause avec la question
-    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_box)                                                                # Pour dessiner un rectangle blanc...
-    pygame.draw.rect(globals.screen, globals.BLACK, buttons.pause_box, 3)                                                             # ...et sa bordure noire
-    globals.screen.blit(buttons.text_font.render("Que veux-tu faire ?", True, globals.BLACK), (buttons.pause_box.x + 100, buttons.pause_box.y + 40))  # Pour afficher le texte
+    pygame.draw.rect(globals.screen, (20, 20, 35), buttons.pause_box)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_box, 3)
+    pygame.draw.rect(globals.screen, (35, 35, 60), buttons.pause_header_box)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_header_box, 2)
+    globals.screen.blit(buttons.text_font.render("PAUSE - Parametres rapides", True, globals.WHITE), (buttons.pause_header_box.x + 130, buttons.pause_header_box.y + 20))
 
-    pygame.draw.rect(globals.screen, globals.WHITE, buttons.info_box)
-    pygame.draw.rect(globals.screen, globals.BLACK, buttons.info_box, 3)
-    globals.screen.blit(buttons.text_font.render("info", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 70))
-    globals.screen.blit(buttons.text_font.render("keys", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 100))
-    globals.screen.blit(buttons.text_font.render("jump = SPACE", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 130))
-    globals.screen.blit(buttons.text_font.render("move = ARROW_LEFT / ARROW_RIGHT", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 160))
-    globals.screen.blit(buttons.text_font.render("1rst attack = d", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 190))
-    globals.screen.blit(buttons.text_font.render("2nd attack = ?", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 220))
-    globals.screen.blit(buttons.text_font.render("pickup objects = e", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 250))
-    globals.screen.blit(buttons.text_font.render("use rune machine = r", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 280))
-    globals.screen.blit(buttons.text_font.render("menu d'attributs = m", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 310))
-    globals.screen.blit(buttons.text_font.render("pause = escape", True, globals.BLACK), (buttons.info_box.x + 20, buttons.pause_box.y + 340))
-    
-    # Bouton pour continuer
-    pygame.draw.rect(globals.screen, globals.GREEN, buttons.continue_button)                                                           # Pour dessiner un rectangle vert...
-    pygame.draw.rect(globals.screen, globals.BLACK, buttons.continue_button, 2)                                                        # ...et sa bordure noire
-    globals.screen.blit(buttons.text_font.render("Continuer", True, globals.BLACK), (buttons.continue_button.x + 20, buttons.continue_button.y + 15))  # Pour afficher le texte
+    pygame.draw.rect(globals.screen, (30, 30, 50), buttons.pause_info_box)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_info_box, 2)
+    pygame.draw.rect(globals.screen, (30, 30, 50), buttons.pause_options_box)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_options_box, 2)
+    pygame.draw.rect(globals.screen, (30, 30, 50), buttons.pause_actions_box)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_actions_box, 2)
 
-    # Bouton pour arreter
-    pygame.draw.rect(globals.screen, globals.RED, buttons.quit_button)                                                                 # Pour dessiner un rectangle rouge...
-    pygame.draw.rect(globals.screen, globals.BLACK, buttons.quit_button, 2)                                                            # ...et sa bordure noire
-    globals.screen.blit(buttons.text_font.render("Quitter", True, globals.BLACK), (buttons.quit_button.x + 40, buttons.quit_button.y + 15))            # Pour afficher le texte
+    lines = [
+        "Touches:",
+        "Saut = SPACE",
+        "Bouger = LEFT / RIGHT",
+        "Attaque principale = D",
+        "Ramasser objet = E",
+        "Machine a runes = R",
+        "Menu attributs = M",
+        "Pause = ESC",
+        "Objets: maintenir 1..5 = utiliser",
+        "Shift + 1..5 = jeter",
+    ]
+    for i, text in enumerate(lines):
+        globals.screen.blit(buttons.text_font.render(text, True, globals.WHITE), (buttons.pause_info_box.x + 20, buttons.pause_info_box.y + 20 + i * 30))
 
-    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.lower_speed_rect)
-    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.hitbox_display_rect)
-    txt_lower_speed = buttons.text_font.render("baisser la vitesse : " + "4", True, globals.WHITE)
-    txt_hitbox_display = buttons.text_font.render("afficher la hitbox", True, globals.WHITE)
-    globals.screen.blit(txt_lower_speed, txt_lower_speed.get_rect(center = buttons.lower_speed_rect.center))
-    globals.screen.blit(txt_hitbox_display, txt_hitbox_display.get_rect(center = buttons.hitbox_display_rect.center))
+    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.pause_lower_speed_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_lower_speed_rect, 2)
+    pygame.draw.rect(globals.screen, (120, 20, 20), buttons.pause_lower_speed_minus_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_lower_speed_minus_rect, 2)
+    pygame.draw.rect(globals.screen, (20, 120, 20), buttons.pause_lower_speed_plus_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_lower_speed_plus_rect, 2)
+    globals.screen.blit(buttons.text_font.render(f"Lower speed: {player.speed}", True, globals.WHITE), (buttons.pause_lower_speed_rect.x + 90, buttons.pause_lower_speed_rect.y + 15))
+    globals.screen.blit(buttons.text_font.render("-", True, globals.WHITE), (buttons.pause_lower_speed_minus_rect.x + 22, buttons.pause_lower_speed_minus_rect.y + 15))
+    globals.screen.blit(buttons.text_font.render("+", True, globals.WHITE), (buttons.pause_lower_speed_plus_rect.x + 19, buttons.pause_lower_speed_plus_rect.y + 14))
+
+    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.pause_hitbox_display_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_hitbox_display_rect, 2)
+    globals.screen.blit(buttons.text_font.render("Hitbox: ON" if globals.hitbox_display else "Hitbox: OFF", True, globals.WHITE), (buttons.pause_hitbox_display_rect.x + 20, buttons.pause_hitbox_display_rect.y + 15))
+
+    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.pause_music_toggle_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_music_toggle_rect, 2)
+    globals.screen.blit(buttons.text_font.render("Musique: OFF" if globals.music_muted else "Musique: ON", True, globals.WHITE), (buttons.pause_music_toggle_rect.x + 20, buttons.pause_music_toggle_rect.y + 15))
+
+    pygame.draw.rect(globals.screen, globals.GREEN, buttons.continue_button)
+    pygame.draw.rect(globals.screen, globals.BLACK, buttons.continue_button, 2)
+    globals.screen.blit(buttons.text_font.render("Continuer", True, globals.BLACK), (buttons.continue_button.x + 55, buttons.continue_button.y + 15))
+
+    pygame.draw.rect(globals.screen, globals.RED, buttons.quit_button)
+    pygame.draw.rect(globals.screen, globals.BLACK, buttons.quit_button, 2)
+    globals.screen.blit(buttons.text_font.render("Quitter", True, globals.BLACK), (buttons.quit_button.x + 80, buttons.quit_button.y + 15))
     pygame.display.flip() # Pour charger la fenetre
 
 
