@@ -206,9 +206,10 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
 
 
     # --- Monster movement ---
+    monster_platforms = platforms + traps + [hazard.rect for hazard in hazards]
     for monster in monsters:
         if monster.alive:
-            monster.update(player.hitbox, monsters, platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
+            monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
 
     # --- Pour retourner a la page du depart ---
     if key[pygame.K_m]:
