@@ -390,9 +390,13 @@ class Player:
  
             # Collisions du bas de la plateforme
             if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
-                self.hitbox.top = platform.bottom
-                velocity = 0
-                continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
+                a = self.hitbox
+                a.x = previous_hitbox.x
+                horizontal_overlap = a.right > platform.left and a.left < platform.right
+                if horizontal_overlap:
+                    self.hitbox.top = platform.bottom
+                    velocity = 0
+                    continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
 
 
             # Collisions des cotes de la plateforme
