@@ -33,9 +33,6 @@ continue_rect.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2)
 speed_rect = pygame.Rect(0, 255, 300, 30)
 speed_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 8)
 
-lower_speed_rect = pygame.Rect(0, 255, 300, 30)
-lower_speed_rect.center = (globals.WIDTH//2 + 300, globals.HEIGHT//16 * 3)
-
     # Vie
 vitality_rect = pygame.Rect(0, 255, 300, 30)
 vitality_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 9)
@@ -48,8 +45,6 @@ puissance_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 10)
 attack_delay_rect = pygame.Rect(0,255, 300, 30)
 attack_delay_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 11)
 
-hitbox_display_rect = pygame.Rect(0,255, 300, 30)
-hitbox_display_rect.center = (globals.WIDTH//2 + 300, globals.HEIGHT//16 * 4)
 
 
 # --- Celui dans l'ecran de mort pour arrêter ---
@@ -58,14 +53,21 @@ end_rect_death.center = (globals.WIDTH//2 + 150, globals.HEIGHT//2 + 120)
 
 
 # --- Ceux pour quand on pause le jeu ---
-    # Le rectangle de fond du menu de pause
-pause_box = pygame.Rect(globals.WIDTH//2 - 250, globals.HEIGHT//2 - 150, 500, 300)
-    
-    # Celui pour continuer
-continue_button = pygame.Rect(globals.WIDTH//2 - 200, globals.HEIGHT//2 + 40, 180, 60)
-    
-    # Celui pour arrêter
-quit_button = pygame.Rect(globals.WIDTH//2 + 20, globals.HEIGHT//2 + 40, 180, 60)
+pause_box = pygame.Rect(globals.WIDTH // 2 - 620, globals.HEIGHT // 2 - 340, 1240, 680)
+pause_header_box = pygame.Rect(pause_box.x + 30, pause_box.y + 20, pause_box.width - 60, 80)
+pause_info_box = pygame.Rect(pause_box.x + 30, pause_box.y + 120, 560, 380)
+pause_options_box = pygame.Rect(pause_box.x + 650, pause_box.y + 120, 560, 380)
+pause_actions_box = pygame.Rect(pause_box.x + 30, pause_box.y + 520, pause_box.width - 60, 130)
 
+pause_lower_speed_rect = pygame.Rect(pause_options_box.x + 80, pause_options_box.y + 90, 400, 60)
+pause_lower_speed_minus_rect = pygame.Rect(pause_lower_speed_rect.x - 65, pause_lower_speed_rect.y, 55, 60)
+pause_lower_speed_plus_rect = pygame.Rect(pause_lower_speed_rect.right + 10, pause_lower_speed_rect.y, 55, 60)
+pause_hitbox_display_rect = pygame.Rect(pause_options_box.x + 80, pause_options_box.y + 185, 400, 60)
+pause_music_toggle_rect = pygame.Rect(pause_options_box.x + 80, pause_options_box.y + 280, 400, 60)
+
+continue_button = pygame.Rect(pause_actions_box.x + 220, pause_actions_box.y + 35, 260, 60)
+quit_button = pygame.Rect(pause_actions_box.right - 480, pause_actions_box.y + 35, 260, 60)
+
+# --- Titre principal du menu de depart ---
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))
-title_rect = title_surface.get_rect(center=(globals.WIDTH//2, 120))
+title_rect = title_surface.get_rect(center=(globals.WIDTH // 2, 120))
