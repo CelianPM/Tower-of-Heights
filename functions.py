@@ -11,7 +11,7 @@ pygame.init()
 # =================================
 
 # --- Gere les boutons ---
-def paused__buttons_manager(state, event, continue_button, quit_button, player):
+def paused_buttons_manager(state, event, continue_button, quit_button, player):
     """Gere les clics sur les boutons affiches boutons pour continuer ou arreter le jeu lorsqu'il est mis en pause"""
     if buttons.continue_button.collidepoint(event.pos): # Si on appuie sur le bouton pour continuer
         state = "game"                          # Continuer le jeu
@@ -23,13 +23,13 @@ def paused__buttons_manager(state, event, continue_button, quit_button, player):
     if buttons.quit_button.collidepoint(event.pos):     # Si on appuie sur le bouton pour quitter
         state = "end"                           # Arreter le jeu
     
-    if buttons.pause_lower_speed_minus_rect.collidepoint(event.pos):
+    if buttons.lower_speed_minus_rect.collidepoint(event.pos):
         player.speed = max(1, round(player.speed - 0.5, 2))
 
-    if buttons.pause_lower_speed_plus_rect.collidepoint(event.pos):
+    if buttons.lower_speed_plus_rect.collidepoint(event.pos):
         player.speed = min(12, round(player.speed + 0.5, 2))
 
-    if buttons.pause_lower_speed_rect.collidepoint(event.pos):
+    if buttons.lower_speed_rect.collidepoint(event.pos):
         if player.speed_click == 0:
             player.last_player_speed = player.speed
             player.speed = 4
@@ -38,16 +38,16 @@ def paused__buttons_manager(state, event, continue_button, quit_button, player):
             player.speed = player.last_player_speed
             player.speed_click = 0
 
-    if buttons.pause_hitbox_display_rect.collidepoint(event.pos):
+    if buttons.hitbox_display_rect.collidepoint(event.pos):
         globals.hitbox_display = not globals.hitbox_display
 
-    if buttons.pause_music_toggle_rect.collidepoint(event.pos):
+    if buttons.music_toggle_rect.collidepoint(event.pos):
         globals.music_muted = not globals.music_muted
         pygame.mixer.music.set_volume(0 if globals.music_muted else 0.7)
     return state
 
 # --- Affiche les boutons ---
-def paused__buttons_displayer(screen, pause_box, text_font, continue_button, quit_button, player):
+def paused_buttons_displayer(screen, pause_box, text_font, continue_button, quit_button, player):
     """Affiche les boutons pour continuer ou arreter le jeu lorsqu'il est mis en pause"""
     pygame.draw.rect(globals.screen, (20, 20, 35), buttons.pause_box)
     pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_box, 3)
@@ -77,23 +77,23 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
     for i, text in enumerate(lines):
         globals.screen.blit(buttons.text_font.render(text, True, globals.WHITE), (buttons.pause_info_box.x + 20, buttons.pause_info_box.y + 20 + i * 30))
 
-    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.pause_lower_speed_rect)
-    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_lower_speed_rect, 2)
-    pygame.draw.rect(globals.screen, (120, 20, 20), buttons.pause_lower_speed_minus_rect)
-    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_lower_speed_minus_rect, 2)
-    pygame.draw.rect(globals.screen, (20, 120, 20), buttons.pause_lower_speed_plus_rect)
-    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_lower_speed_plus_rect, 2)
-    globals.screen.blit(buttons.text_font.render(f"Lower speed: {player.speed}", True, globals.WHITE), (buttons.pause_lower_speed_rect.x + 90, buttons.pause_lower_speed_rect.y + 15))
-    globals.screen.blit(buttons.text_font.render("-", True, globals.WHITE), (buttons.pause_lower_speed_minus_rect.x + 22, buttons.pause_lower_speed_minus_rect.y + 15))
-    globals.screen.blit(buttons.text_font.render("+", True, globals.WHITE), (buttons.pause_lower_speed_plus_rect.x + 19, buttons.pause_lower_speed_plus_rect.y + 14))
+    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.lower_speed_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.lower_speed_rect, 2)
+    pygame.draw.rect(globals.screen, (120, 20, 20), buttons.lower_speed_minus_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.lower_speed_minus_rect, 2)
+    pygame.draw.rect(globals.screen, (20, 120, 20), buttons.lower_speed_plus_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.lower_speed_plus_rect, 2)
+    globals.screen.blit(buttons.text_font.render(f"Lower speed: {player.speed}", True, globals.WHITE), (buttons.lower_speed_rect.x + 90, buttons.lower_speed_rect.y + 15))
+    globals.screen.blit(buttons.text_font.render("-", True, globals.WHITE), (buttons.lower_speed_minus_rect.x + 22, buttons.lower_speed_minus_rect.y + 15))
+    globals.screen.blit(buttons.text_font.render("+", True, globals.WHITE), (buttons.lower_speed_plus_rect.x + 19, buttons.lower_speed_plus_rect.y + 14))
 
-    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.pause_hitbox_display_rect)
-    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_hitbox_display_rect, 2)
-    globals.screen.blit(buttons.text_font.render("Hitbox: ON" if globals.hitbox_display else "Hitbox: OFF", True, globals.WHITE), (buttons.pause_hitbox_display_rect.x + 20, buttons.pause_hitbox_display_rect.y + 15))
+    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.hitbox_display_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.hitbox_display_rect, 2)
+    globals.screen.blit(buttons.text_font.render("Hitbox: ON" if globals.hitbox_display else "Hitbox: OFF", True, globals.WHITE), (buttons.hitbox_display_rect.x + 20, buttons.hitbox_display_rect.y + 15))
 
-    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.pause_music_toggle_rect)
-    pygame.draw.rect(globals.screen, globals.WHITE, buttons.pause_music_toggle_rect, 2)
-    globals.screen.blit(buttons.text_font.render("Musique: OFF" if globals.music_muted else "Musique: ON", True, globals.WHITE), (buttons.pause_music_toggle_rect.x + 20, buttons.pause_music_toggle_rect.y + 15))
+    pygame.draw.rect(globals.screen, (0, 0, 180), buttons.music_toggle_rect)
+    pygame.draw.rect(globals.screen, globals.WHITE, buttons.music_toggle_rect, 2)
+    globals.screen.blit(buttons.text_font.render("Musique: OFF" if globals.music_muted else "Musique: ON", True, globals.WHITE), (buttons.music_toggle_rect.x + 20, buttons.music_toggle_rect.y + 15))
 
     pygame.draw.rect(globals.screen, globals.GREEN, buttons.continue_button)
     pygame.draw.rect(globals.screen, globals.BLACK, buttons.continue_button, 2)
@@ -108,7 +108,7 @@ def paused__buttons_displayer(screen, pause_box, text_font, continue_button, qui
 # =================================
 # MACHINE A RUNES
 # =================================
-def rune_menu__displayer(screen, inventory_list, machine, rune_hold_start, rune_use_lock, current_time):
+def rune_menu_displayer(screen, inventory_list, machine, rune_hold_start, rune_use_lock, current_time):
     box = pygame.Rect(globals.WIDTH//2 - 260, globals.HEIGHT//2 - 170, 520, 340)
     pygame.draw.rect(screen, globals.WHITE, box)
     pygame.draw.rect(screen, globals.BLACK, box, 3)
@@ -142,7 +142,7 @@ def rune_menu__displayer(screen, inventory_list, machine, rune_hold_start, rune_
 
     pygame.display.flip()
 
-def rune_menu__manager(state, event, inventory_list, player, machine, time, key, rune_hold_start, rune_use_lock):
+def rune_menu_manager(state, event, inventory_list, player, machine, time, key, rune_hold_start, rune_use_lock):
     if event and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
         for i in range(3):
             rune_hold_start[i] = None
@@ -194,7 +194,7 @@ def rune_menu__manager(state, event, inventory_list, player, machine, time, key,
 # =================================
 
 # --- Gere les boutons ---
-def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, beggar_menu_rect, event, player, offset_x):
+def beginning_menu_manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, beggar_menu_rect, event, player, offset_x):
     """Se charge de gerer les clics sur les personnages dans le menu de depart, et de definir les variables correspondantes en fonction du personnage choisi"""
     if imports.archer_menu_rect.collidepoint(event.pos):
         player.hero = "archer"     # Le joueur choisi est l'archer
@@ -225,7 +225,7 @@ def beginning_menu__manager(state, archer_menu_rect, swordsman_menu_rect, ninja_
     return state, player
 
 # --- Affiche les boutons ---
-def beginning_menu__displayer(screen, title_surface, title_rect, archer_image, archer_menu_rect, swordsman_image, swordsman_menu_rect, ninja_image, ninja_menu_rect, text_font):
+def beginning_menu_displayer(screen, title_surface, title_rect, archer_image, archer_menu_rect, swordsman_image, swordsman_menu_rect, ninja_image, ninja_menu_rect, text_font):
     """Se charge d'afficher le menu de depart, avec les personnages a choisir et les instructions pour jouer"""
     # --- Remplir l'ecran ---
         # Avec la couleur
@@ -319,7 +319,7 @@ def background_music():
 # =================================
 # MORT DU JOUEUR
 # =================================
-def death__manager(state, event, restart_rect_death, end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, map_design, create_world_from_map):
+def death_manager(state, event, restart_rect_death, end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, map_design, create_world_from_map):
     """Se charge de gerer les clics sur les boutons pour recommencer ou arreter le jeu lorsqu'on est sur l'ecran de mort"""
 
     if restart_rect_death.collidepoint(event.pos):
@@ -350,7 +350,7 @@ def death__manager(state, event, restart_rect_death, end_rect_death, player, inv
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
-def death__displayer(screen, restart_rect_death, death_text_font, end_rect_death, monsters):
+def death_displayer(screen, restart_rect_death, death_text_font, end_rect_death, monsters):
     """S'occupe d'afficher l'ecran de mort, avec les boutons pour recommencer ou arreter le jeu, et de reinitialiser les variables du jeu pour pouvoir recommencer a zero si le joueur choisit de rejouer"""
     globals.screen.fill(globals.BLACK)  # Remplir l'ecran de noir pour l'ecran de mort
     pygame.mixer.music.stop()           # Arreter la musique de fond quand le joueur meurt
@@ -380,7 +380,7 @@ def death__displayer(screen, restart_rect_death, death_text_font, end_rect_death
 # =================================
 # MENU DES ATTRIBUTS
 # =================================
-def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
+def attributes_menu_displayer(screen, text_font, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
    
     globals.screen.fill((0, 0, 100))                                                                     # Remplir l'ecran d'une couleur de base
     txt = buttons.text_font.render("ATTRIBUT", True, globals.RED)                                                # Definir le texte de l'ecran
@@ -398,8 +398,6 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.vitality_rect)
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.puissance_rect)
     pygame.draw.rect(globals.screen, (0, 0, 200), buttons.attack_delay_rect)
-    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.lower_speed_rect)
-    pygame.draw.rect(globals.screen, (0, 0, 200), buttons.hitbox_display_rect)
 
         # Leur texte
     txt_continue = buttons.text_font.render("Continuer", True, globals.WHITE)                    # Definir le texte du bouton pour recommencer
@@ -407,8 +405,6 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     txt_vitality = buttons.text_font.render("vie : " + str(player.max_life*10//1/10), True, globals.WHITE)
     txt_puissance = buttons.text_font.render("puissance : " + str(player.puissance*40//100), True, globals.WHITE)
     txt_attack_delay = buttons.text_font.render("vitesse d'attaque : " + str((1000 - player.attack_delay)/50), True, globals.WHITE)
-    txt_lower_speed = buttons.text_font.render("baisser la vitesse : " + "4", True, globals.WHITE)
-    txt_hitbox_display = buttons.text_font.render("afficher la hitbox", True, globals.WHITE)
     
         # Les afficher
     globals.screen.blit(txt_continue, txt_continue.get_rect(center = buttons.continue_rect.center))  # Afficher le texte du bouton pour recommencer
@@ -416,12 +412,10 @@ def attributes_menu__displayer(screen, text_font, continue_rect, speed_rect, vit
     globals.screen.blit(txt_vitality, txt_vitality.get_rect(center = buttons.vitality_rect.center))
     globals.screen.blit(txt_puissance, txt_puissance.get_rect(center = buttons.puissance_rect.center))
     globals.screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center = buttons.attack_delay_rect.center))
-    globals.screen.blit(txt_lower_speed, txt_lower_speed.get_rect(center = buttons.lower_speed_rect.center))
-    globals.screen.blit(txt_hitbox_display, txt_hitbox_display.get_rect(center = buttons.hitbox_display_rect.center))
     
     pygame.display.flip()  # Tout generer sur la fenetre
 
-def attributes_menu__manager(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
+def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
     """Se charge de gerer les clics sur les boutons pour recommencer ou arreter le jeu lorsqu'on est sur l'ecran de mort"""
     hitbox_click = 0
     if continue_rect.collidepoint(event.pos):
