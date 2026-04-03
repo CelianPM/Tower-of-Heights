@@ -430,7 +430,13 @@ class Player:
             hitbox = self.hitbox
             if self.attack and self.hero in ("swordsman", "beggar"):
                 hitbox = self.hitbox_attack()
-            if monster.alive and hitbox.colliderect(monster.rect):                                  # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
+            collision_rect = monster.collide_rect if hasattr(monster, "collide_rect") else monster.rect
+            if monster.alive and hitbox.colliderect(collision_rect):                                  # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
+                if hasattr(monster, "collide_rect"):
+                    if self.prev_hitbox and self.prev_hitbox.right <= collision_rect.left and self.hitbox.right > collision_rect.left:
+                        self.hitbox.right = collision_rect.left
+                    elif self.prev_hitbox and self.prev_hitbox.left >= collision_rect.right and self.hitbox.left < collision_rect.right:
+                        self.hitbox.left = collision_rect.right
  
 
                 if self.attack:
@@ -1383,139 +1389,58 @@ class Mushroom(Monster):
         self.overlap(monsters, horizontal_only = True)
 
 
-class Cerberus(Monster):
-    def __init__(self, x, y):
+class Boss(Monster):
+    def __init__(self, x, y, image_right, life, speed, xp_reward, attacks, walk_frames_right = None):
         super().__init__(
             x, 
             y, 
-            image_right = imports.cerberus_standing,
-            life = 60000,
-            speed = 1,
-            xp_reward = 20
+            image_right = image_right,
+            life = life,
+            speed = speed,
+            xp_reward = xp_reward
         )
-        self.frames_right = [imports.cerberus_walking1, imports.cerberus_walking2]
-        self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
-        self.claw_attack_frames_right = [imports.cerberus_attack_claw, imports.cerberus_attack_claw]
-        self.claw_attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.claw_attack_frames_right]
-        self.bite_attack_frames_right = [imports.cerberus_attack_bite, imports.cerberus_attack_bite]
-        self.bite_attack_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.bite_attack_frames_right]
+        self.type = "boss"
+        self.attacks = attacks
+        self.walk_frames_right = walk_frames_right if walk_frames_right else [image_right]
+        self.walk_frames_left = self.walk_frames_right
         self.velocity_y = 0
         self.on_ground = False
-        self.type = "cerberus"
-        self.chase_distance_x = 350
-        self.lose_distance = 500
-        self.bite_range = 85
-        self.claw_range = 130
-        self.attack_cooldown = 900
-        self.attack_duration = 280
-        self.last_attack_time = 0
-        self.attack_end_time = 0
+        self.heal_power = 1200
+        self.mana = 0
+        self.max_mana = 700
+        self.mana_regen_per_second = 10
+        self.mana_cost = 100
+        self.action_pick_interval = 3000
+        self.attack_duration = 1000
+        self.last_mana_tick = pygame.time.get_ticks()
+        self.last_action_pick = pygame.time.get_ticks()
         self.current_attack = None
-        self.bite_damage = 2
-        self.claw_damage = 1
+        self.action_end_time = 0
+        self.backing_up = False
+        self.backup_target_distance = 210
+        self.collide_rect = self.rect.copy()
         self.contact_damage = 0
-        self.regen_amount = 180
-        self.regen_interval = 1200
-        self.regen_start_delay = 3500
-        self.last_regen_tick = 0
+        self.chase_distance_x = 500
+        self.lose_distance = 700
+    
+    def refresh_collide_rect(self):
+        width = max(30, int(self.rect.width * 0.6))
+        self.collide_rect = pygame.Rect(0, 0, width, self.rect.height)
+        self.collide_rect.midbottom = self.rect.midbottom
 
-    def ground_ahead(self, platforms, direction = None):
-        if direction is None:
-            direction = self.direction
-        front_x = self.rect.centerx + (direction * self.rect.width // 2)
-        front_y = self.rect.bottom + 5
-        return any(platform.collidepoint(front_x, front_y) for platform in platforms)
-
-    def update_attack(self, player_rect, time):
-        distance_x = abs(player_rect.centerx - self.rect.centerx)
-        in_melee_range = distance_x <= self.claw_range
-
-        if time < self.attack_end_time:
+    def regenerate_mana(self, time):
+        elapsed = max(0, time - self.last_mana_tick)
+        if elapsed == 0:
             return
-
-        self.contact_damage = 0
-        self.current_attack = None
-
-        if not in_melee_range:
-            return
-        if time - self.last_attack_time < self.attack_cooldown:
-            return
-
-        self.last_attack_time = time
-        self.attack_end_time = time + self.attack_duration
-
-        if distance_x <= self.bite_range:
-            self.current_attack = "crocs"
-            self.contact_damage = self.bite_damage
-            self.image = self.bite_attack_frames_right[0] if self.direction == 1 else self.bite_attack_frames_left[0]
-        else:
-            self.current_attack = "griffe"
-            self.contact_damage = self.claw_damage
-            self.image = self.claw_attack_frames_right[0] if self.direction == 1 else self.claw_attack_frames_left[0]
-
-    def regenerate(self, time):
-        if not self.alive:
-            return
-        if self.life >= self.max_life:
-            return
-        if time - self.last_damage_taken_time < self.regen_start_delay:
-            return
-        if time - self.last_regen_tick < self.regen_interval:
-            return
-        self.life = min(self.max_life, self.life + self.regen_amount)
-        self.last_regen_tick = time
-
-    def update(self, player_rect, monsters, platforms = None):
-        if not self.alive:
-            return
-
-        if platforms is None:
-            platforms = []
-
-        self.update_chase_state(player_rect)
-        self.face_player(player_rect)
-        time = pygame.time.get_ticks()
-
-        should_move_horizontally = True
-        distance_x = abs(player_rect.centerx - self.rect.centerx)
-
-        if self.chasing:
-            if distance_x <= self.claw_range:
-                should_move_horizontally = False
-            elif not self.ground_ahead(platforms, self.direction):
-                should_move_horizontally = False
-
-        previous_x = self.rect.x
-        if should_move_horizontally:
-            self.rect.x += self.speed * self.direction
-
-        hit_side_wall = False
-        for platform in platforms:
-            if not self.rect.colliderect(platform):
-                continue
-
-            if previous_x + self.rect.width <= platform.left:
-                self.rect.right = platform.left
-                hit_side_wall = True
-            elif previous_x >= platform.right:
-                self.rect.left = platform.right
-                hit_side_wall = True
-
-        if self.rect.left <= 0:
-            self.rect.left = 0
-            hit_side_wall = True
-        elif self.rect.right >= globals.WIDTH:
-            self.rect.right = globals.WIDTH
-            hit_side_wall = True
-
-        if hit_side_wall and not self.chasing:
-            self.direction *= -1
-
+        self.mana = min(self.max_mana, self.mana + (elapsed / 1000) * self.mana_regen_per_second)
+        self.last_mana_tick = time
+        
+    def apply_gravity(self, platforms):
         previous_y = self.rect.y
         self.velocity_y += globals.GRAVITY
         self.rect.y += self.velocity_y
+        self.on_ground = False
 
-        on_ground = False
         for platform in platforms:
             if not self.rect.colliderect(platform):
                 continue
@@ -1524,27 +1449,161 @@ class Cerberus(Monster):
             if self.velocity_y >= 0 and crossed_top:
                 self.rect.bottom = platform.top
                 self.velocity_y = 0
-                on_ground = True
+                self.on_ground = True
                 continue
 
             crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
             if self.velocity_y < 0 and crossed_bottom:
                 self.rect.top = platform.bottom
                 self.velocity_y = 0
+
+    def move_horizontal(self, amount, platforms):
+        previous_x = self.rect.x
+        self.rect.x += amount
+
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
                 continue
 
-        if on_ground and not self.chasing and not self.ground_ahead(platforms):
-            self.direction *= -1
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
 
-        if self.direction == 1:
-            self.image = self.image_right
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > globals.WIDTH:
+            self.rect.right = globals.WIDTH
+
+    def advance_toward_player(self, player_rect, platforms):
+        direction = 1 if player_rect.centerx > self.rect.centerx else -1
+        self.move_horizontal(direction * self.speed, platforms)
+
+    def backup_from_player(self, player_rect, platforms):
+        distance_x = abs(player_rect.centerx - self.rect.centerx)
+        if distance_x >= self.backup_target_distance:
+            self.backing_up = False
+            return
+        direction = -1 if player_rect.centerx > self.rect.centerx else 1
+        self.move_horizontal(direction * self.speed, platforms)
+
+    def choose_action(self):
+        action_roll = randint(0, len(self.attacks))
+        if action_roll == len(self.attacks):
+            return {"name": "heal", "heal": self.heal_power, "range": 0, "damage": 0, "frames_right": [self.image_right]}
+        return self.attacks[action_roll]
+
+    def start_attack(self, action, time):
+        self.current_attack = action
+        self.action_end_time = time + self.attack_duration
+        self.contact_damage = action["damage"]
+        self.image = action["frames_right"][0]
+        self.mana -= self.mana_cost
+
+    def cast_heal(self, action):
+        self.life = min(self.max_life, self.life + action["heal"])
+        self.mana -= self.mana_cost
+
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+
+        if platforms is None:
+            platforms = []
+
+        time = pygame.time.get_ticks()
+        self.direction = 1
+        self.regenerate_mana(time)
+        self.apply_gravity(platforms)
+
+        if time < self.action_end_time:
+            self.image = self.current_attack["frames_right"][0] if self.current_attack else self.image_right
+            self.refresh_collide_rect()
+            self.overlap(monsters, horizontal_only = True)
+            return
+
+        if self.current_attack is not None:
+            self.current_attack = None
+            self.contact_damage = 0
+            self.backing_up = True
+
+        if self.backing_up:
+            self.backup_from_player(player_rect, platforms)
+            walk_frame = int((time / 150) % len(self.walk_frames_right))
+            self.image = self.walk_frames_right[walk_frame]
+            self.refresh_collide_rect()
+            self.overlap(monsters, horizontal_only = True)
+            return
+
+        distance_x = abs(player_rect.centerx - self.rect.centerx)
+        if time - self.last_action_pick >= self.action_pick_interval:
+            self.last_action_pick = time
+            if self.mana >= self.mana_cost:
+                action = self.choose_action()
+                if action["name"] == "heal":
+                    self.cast_heal(action)
+                    self.backing_up = True
+                elif distance_x <= action["range"]:
+                    self.start_attack(action, time)
+                else:
+                    self.advance_toward_player(player_rect, platforms)
+            else:
+                self.advance_toward_player(player_rect, platforms)
         else:
-            self.image = self.image_left
+            self.image = self.advance_toward_player(player_rect, platforms)
 
-        self.on_ground = on_ground
-        self.update_attack(player_rect, time)
-        self.regenerate(time)
+        walk_frame = int((time / 150) % len(self.walk_frames_right))
+        self.image = self.walk_frames_right[walk_frame]
+        self.refresh_collide_rect()
         self.overlap(monsters, horizontal_only = True)
+
+    def reset(self):
+        super().reset()
+        self.mana = self.max_mana
+        self.current_attack = None
+        self.action_end_time = 0
+        self.backing_up = False
+        self.contact_damage = 0
+        self.last_mana_tick = pygame.time.get_ticks()
+        self.last_action_pick = self.last_mana_tick
+        self.refresh_collide_rect()
+
+
+class Cerberus(Boss):
+    def __init__(self, x, y):
+        attacks = [
+            {
+                "name": "claw",
+                "range": 130,
+                "damage": 1,
+                "frames_right": [imports.cerberus_attack_claw, imports.cerberus_attack_claw]
+            },
+            {
+                "name": "bite",
+                "range": 85,
+                "damage": 2,
+                "frames_right": [imports.cerberus_attack_bite, imports.cerberus_attack_bite]
+            }
+        ]
+        super().__init__(
+            x,
+            y,
+            image_right = imports.cerberus_standing,
+            life = 60000,
+            speed = 1.8,
+            xp_reward = 20,
+            attacks = attacks,
+            walk_frames_right = [imports.cerberus_walking1, imports.cerberus_walking2]
+        )
+        self.type = "cerberus"
+        self.max_mana = 1000
+        self.mana = self.max_mana
+        self.mana_regen_per_second = 10
+        self.heal_power = 2500
+        self.backup_target_distance = 230
+        self.attack_duration = 1000
+        self.action_pick_interval = 3000
+        self.refresh_collide_rect()
 
 
 
