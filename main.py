@@ -223,15 +223,15 @@ while running:
         
         # --- Boutons de pause ---
         if state == "paused" and event.type == pygame.MOUSEBUTTONDOWN:
-            state = functions.paused__buttons_manager(state, event, buttons.continue_button, buttons.quit_button)  # Si le jeu est mis en pause, faire appel a la fonction paused() pour gerer les interactions avec les boutons de la fenetre de pause
+            state = functions.paused_buttons_manager(state, event, buttons.continue_button, buttons.quit_button, player)  # Si le jeu est mis en pause, faire appel a la fonction paused() pour gerer les interactions avec les boutons de la fenetre de pause
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = functions.beginning_menu__manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, imports.ninja_menu_rect, imports.beggar_menu_rect, event, player, offset_x)  # Appeler la fonction menu_de_debut() pour gerer les interactions avec les personnages sur la page du menu de depart, et recuperer les variables mises a jour par cette fonction
+            state, player = functions.beginning_menu_manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, imports.ninja_menu_rect, imports.beggar_menu_rect, event, player, offset_x)  # Appeler la fonction menu_de_debut() pour gerer les interactions avec les personnages sur la page du menu de depart, et recuperer les variables mises a jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death__manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, map_design, create_world_from_map)  # Pour appeler la fonction death() pour gerer les interactions avec les boutons de l'ecran de mort, et recuperer les variables mis a jour par cette fonction
+            state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time = functions.death_manager(state, event, buttons.restart_rect_death, buttons.end_rect_death, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, map_design, create_world_from_map)  # Pour appeler la fonction death() pour gerer les interactions avec les boutons de l'ecran de mort, et recuperer les variables mis a jour par cette fonction
             if state == "menu_de_debut":
                 camera_y = 0
                 velocity = globals.velocity
@@ -239,10 +239,10 @@ while running:
                 player.pushback = 0
 
         if state == "menu_attribut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = functions.attributes_menu__manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
+            state, player = functions.attributes_menu_manager(state, event, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)    
 
         if state == "rune_menu" and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            state, feedback = functions.rune_menu__manager(state, event, inventory_list, player, current_rune_machine, time, globals.key, rune_hold_start, rune_use_lock)
+            state, feedback = functions.rune_menu_manager(state, event, inventory_list, player, current_rune_machine, time, globals.key, rune_hold_start, rune_use_lock)
             if feedback:
                 last_inventory_feedback = feedback
                 last_inventory_feedback_time = time
@@ -254,11 +254,11 @@ while running:
     
     # --- Pause ---
     if state == "paused":
-        functions.paused__buttons_displayer(globals.screen, buttons.pause_box, buttons.text_font, buttons.continue_button, buttons.quit_button)  # Appeler la fonction paused2() pour afficher la fenetre de pause
+        functions.paused_buttons_displayer(globals.screen, buttons.pause_box, buttons.text_font, buttons.continue_button, buttons.quit_button, player)  # Appeler la fonction paused2() pour afficher la fenetre de pause
         continue
 
     if state == "rune_menu":
-        state, feedback = functions.rune_menu__manager(state, None, inventory_list, player, current_rune_machine, time, globals.key, rune_hold_start, rune_use_lock)
+        state, feedback = functions.rune_menu_manager(state, None, inventory_list, player, current_rune_machine, time, globals.key, rune_hold_start, rune_use_lock)
         if feedback:
             last_inventory_feedback = feedback
             last_inventory_feedback_time = time
@@ -267,12 +267,12 @@ while running:
             rune_hold_start[:] = [None, None, None]
             rune_use_lock[:] = [False, False, False]
 
-        functions.rune_menu__displayer(globals.screen, inventory_list, current_rune_machine, rune_hold_start, rune_use_lock, time)
+        functions.rune_menu_displayer(globals.screen, inventory_list, current_rune_machine, rune_hold_start, rune_use_lock, time)
         continue
 
     # --- Pour creer la page du menu de depart ---
     if state == "menu_de_debut":
-        functions.beginning_menu__displayer(globals.screen, buttons.title_surface, buttons.title_rect, imports.archer_image, imports.archer_menu_rect, imports.swordsman_image, imports.swordsman_menu_rect, imports.ninja_image, imports.ninja_menu_rect, buttons.text_font)  # Pour appeler la fonction menu_de_debut2() pour afficher la page du menu de depart
+        functions.beginning_menu_displayer(globals.screen, buttons.title_surface, buttons.title_rect, imports.archer_image, imports.archer_menu_rect, imports.swordsman_image, imports.swordsman_menu_rect, imports.ninja_image, imports.ninja_menu_rect, buttons.text_font)  # Pour appeler la fonction menu_de_debut2() pour afficher la page du menu de depart
         continue
 
     # --- Pour jouer ---
@@ -281,11 +281,11 @@ while running:
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
-        functions.death__displayer(globals.screen, buttons.restart_rect_death, buttons.death_text_font, buttons.end_rect_death, classes.monsters)  # Pour appeler la fonction death2() pour afficher l'ecran de mort, et recuperer les variables mises a jour par cette fonction
+        functions.death_displayer(globals.screen, buttons.restart_rect_death, buttons.death_text_font, buttons.end_rect_death, classes.monsters)  # Pour appeler la fonction death2() pour afficher l'ecran de mort, et recuperer les variables mises a jour par cette fonction
         continue
 
     if state == "menu_attribut":
-        functions.attributes_menu__displayer(globals.screen, buttons.text_font, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)
+        functions.attributes_menu_displayer(globals.screen, buttons.text_font, buttons.continue_rect, buttons.speed_rect, buttons.vitality_rect, buttons.puissance_rect, buttons.attack_delay_rect, player)
         continue
 
     if state == "end":
