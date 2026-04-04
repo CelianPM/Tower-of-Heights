@@ -100,10 +100,10 @@ shuriken_right = shuriken                                                  # Le 
 shuriken_left = pygame.transform.flip(shuriken, True, False)               # Le profil gauche du shuriken est l'image de base retournee horizontalement
 
         # Bagues
-ring_bat = pygame.image.load("Images/Rings/ring_bat.png").convert_alpha()  # Charger l'image de la bague de chauve-souris
-ring_slug = pygame.image.load("Images/Rings/ring_slug.png").convert_alpha()  # Charger l'image de la bague de slug
-ring_slime = pygame.image.load("Images/Rings/ring_slime.png").convert_alpha()  # Charger l'image de la bague de slime
-ring_mushroom = pygame.image.load("Images/Rings/ring_mushroom.png").convert_alpha()  # Charger l'image de la bague de mushroom
+bat_ring = pygame.image.load("Images/Rings/bat_ring.png").convert_alpha()  # Charger l'image de la bague de chauve-souris
+slug_ring = pygame.image.load("Images/Rings/slug_ring.png").convert_alpha()  # Charger l'image de la bague de slug
+slime_ring = pygame.image.load("Images/Rings/slime_ring.png").convert_alpha()  # Charger l'image de la bague de slime
+mushroom_ring = pygame.image.load("Images/Rings/mushroom_ring.png").convert_alpha()  # Charger l'image de la bague de mushroom
 
     # Images de fond
 wall_tile = pygame.image.load("Images/Background/wall_tile.png").convert_alpha()                  # Charger l'image de la dalle sombre de l'interface
