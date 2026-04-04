@@ -374,6 +374,7 @@ class Player:
             self.life = min(self.life + 1, math.floor(self.max_life))
         elif rune_name == "rune_vitesse":
             self.speed += 0.5
+            self.max_speed += 0.5
         elif rune_name == "rune_puissance":
             self.puissance += 3
 
