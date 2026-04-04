@@ -49,6 +49,7 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
             player.regeneration_effect_end_time += 20000
         player.regeneration_bonus = True
         used = True
+
     elif item_name == "Potion_vitesse":
         player.speed_bonus = slot.get("heal_amount", 0)
         player.speed += player.speed_bonus
@@ -57,6 +58,7 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
         else:
             player.speed_effect_end_time += 20000
         used = True
+
     elif item_name == "Potion_puissance":
         player.power_bonus = slot.get("heal_amount", 0)
         player.puissance += player.power_bonus
@@ -64,6 +66,30 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
             player.power_effect_end_time = current_time + 20000
         else:
             player.power_effect_end_time += 20000
+        used = True
+
+    elif item_name == "bague_slug":
+        player.equipped_rings.add("slug")
+        if slot["image"] not in player.equipped_ring_images:
+            player.equipped_ring_images.append(slot["image"])
+        used = True
+    
+    elif item_name == "bague_slime":
+        player.equipped_rings.add("slime")
+        if slot["image"] not in player.equipped_ring_images:
+            player.equipped_ring_images.append(slot["image"])
+        used = True
+    
+    elif item_name == "bague_mushroom":
+        player.equipped_rings.add("mushroom")
+        if slot["image"] not in player.equipped_ring_images:
+            player.equipped_ring_images.append(slot["image"])
+        used = True
+    
+    elif item_name == "bague_bat":
+        player.equipped_rings.add("bat")
+        if slot["image"] not in player.equipped_ring_images:
+            player.equipped_ring_images.append(slot["image"])
         used = True
 
     if used:
@@ -131,6 +157,19 @@ def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, c
             pygame.draw.rect(screen, (80, 80, 80), bar_bg)
             pygame.draw.rect(screen, globals.GREEN, bar_fill)
 
+def draw_equipped_rings(screen, player):
+    """Affiche les bagues equipees en haut a droite."""
+    x = globals.WIDTH - 10
+    y = 10
+    spacing = 6
+    scale = 1.4
+
+    for ring_image in player.equipped_ring_images:
+        scaled = pygame.transform.smoothscale(ring_image, (int(ring_image.get_width() * scale), int(ring_image.get_height() * scale)))
+        x -= scaled.get_width()
+        screen.blit(scaled, (x, y))
+        x -= spacing
+
 
 
 # ================================
@@ -172,6 +211,21 @@ class power_rune(Item):
     def __init__(self, x, y):
         super().__init__("rune_puissance", x, y, imports.power_rune, quantity=1, usable=False, heal_amount=0)
 
+class slug_ring(Item):
+    def __init__(self, x, y):
+        super().__init__("bague_slug", x, y, imports.slug_ring, quantity=1, usable=True, heal_amount=0)
+
+class slime_ring(Item):
+    def __init__(self, x, y):
+        super().__init__("bague_slime", x, y, imports.slime_ring, quantity=1, usable=True, heal_amount=0)
+
+class bat_ring(Item):
+    def __init__(self, x, y):
+        super().__init__("bague_bat", x, y, imports.bat_ring, quantity=1, usable=True, heal_amount=0)
+
+class mushroom_ring(Item):
+    def __init__(self, x, y):
+        super().__init__("bague_mushroom", x, y, imports.mushroom_ring, quantity=1, usable=True, heal_amount=0)
 
 def random_potion(x, y):
     return random.choice([life_potion(x, y), power_potion(x, y), speed_potion(x, y)])
@@ -193,7 +247,6 @@ slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
 
 # --- Liste des objets presents dans le monde ---
 items = generate_default_world_items()
-
 
 # --- Inventaire du joueur (5 slots) ---
 inventory_list = [None] * globals.INVENTORY_SLOTS

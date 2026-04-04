@@ -255,7 +255,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     
     velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens)
     velocity = player.platform_collisions(platforms, traps, velocity)
-    player.monster_collisions(monsters, time, arrows, platforms, shurikens)
+    player.monster_collisions(monsters, time, arrows, platforms, items, shurikens)
     player.hazard_collisions(hazards, time)
     player.player_xp()
     items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed)
@@ -345,6 +345,8 @@ def death_manager(state, event, restart_rect_death, end_rect_death, player, inve
     player.can_attack = True
     globals.arrows.clear()
     globals.shurikens.clear()
+    player.equipped_rings = set()
+    player.equipped_ring_images = []
 
     _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards, _ = create_world_from_map(map_design)
 

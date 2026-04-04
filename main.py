@@ -345,6 +345,7 @@ while running:
             rune_hint = buttons.text_font.render("Appuie sur R pour utiliser les runes", True, globals.WHITE)
             globals.screen.blit(rune_hint, (20, 80))
     inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
+    inventory.draw_equipped_rings(globals.screen, player)
 
     feedback_y = 50
     active_effects=[]

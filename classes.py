@@ -50,9 +50,6 @@ class Player:
         self.last_player_speed = 0
         self.speed_click = 0
 
-
-
-
         self.selected_image = None         # Image selectionnee, non-definie pour l'instant
         self.selected_image_left = None    # Profil gauche de l'image selectionnee, non-definie pour l'instant
         self.selected_image_right = None   # Profil droit de l'image selectionnee, non-definie pour l'instant
@@ -66,13 +63,21 @@ class Player:
         self.on_ground = on_ground         # Variable pour savoir si le joueur est au sol, utilisee pour gerer les sauts
         self.xp_lvl_up = 0                 # L'experience necessaire pour monter de niveau, qui augmente a chaque niveau
 
-
         self.frame_index = 0
         self.animation_speed = 0.27
         self.prev_hitbox = None
         self.weapon = None
         self.attack_transition_time = 0
         self.post_attack_until = 0
+
+        self.equipped_rings = set()
+        self.equipped_ring_images = []
+        self.ring_bonus = {
+            "slug": 5,
+            "mushroom": 5,
+            "bat": 5,
+            "slime": 5
+        }
   
     def select_the_player(self):
         """Se charge de gerer les clics sur les personnages dans le menu de depart, et de definir les variables correspondantes en fonction du personnage choisi."""
@@ -424,7 +429,7 @@ class Player:
         return velocity
 
 
-    def monster_collisions(self, monsters, time, arrows, platforms, shurikens = None):
+    def monster_collisions(self, monsters, time, arrows, platforms, items, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
             hitbox = self.hitbox
@@ -461,6 +466,17 @@ class Player:
                         self.xp += monster.xp_reward
                         if self.hero == "beggar":
                             self.xp += monster.xp_reward
+                        if monster.type == "cerberus":
+                            items.append(inventory.slug_ring(monster.rect.x, monster.rect.bottom - imports.slug_ring.get_height()))
+                        elif monster.type == "king_slime":
+                            items.append(inventory.slime_ring(monster.rect.x, monster.rect.bottom - imports.slime_ring.get_height()))
+                        elif monster.type == "spider":
+                            items.append(inventory.mushroom_ring(monster.rect.x, monster.rect.bottom - imports.mushroom_ring.get_height()))
+                        elif monster.type == "knight":
+                            items.append(inventory.bat_ring(monster.rect.x, monster.rect.bottom - imports.bat_ring.get_height()))
+                            
+                        if monster.type in self.equipped_rings:
+                            self.xp += self.ring_bonus[monster.type]
                
                 else:                                                       # Si le joueur n'attaque pas
                     if time - self.last_damage_time >= self.invincibility_time:
@@ -491,7 +507,16 @@ class Player:
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
-
+                        if monster.type == "cerberus":
+                            items.append(inventory.slug_ring(monster.rect.x, monster.rect.bottom - imports.slug_ring.get_height()))
+                        elif monster.type == "king_slime":
+                            items.append(inventory.slime_ring(monster.rect.x, monster.rect.bottom - imports.slime_ring.get_height()))
+                        elif monster.type == "spider":
+                            items.append(inventory.mushroom_ring(monster.rect.x, monster.rect.bottom - imports.mushroom_ring.get_height()))
+                        elif monster.type == "knight":
+                            items.append(inventory.bat_ring(monster.rect.x, monster.rect.bottom - imports.bat_ring.get_height()))
+                        if monster.type in self.equipped_rings:
+                            self.xp += self.ring_bonus[monster.type]
 
             if shurikens is None :
                 continue
@@ -510,6 +535,16 @@ class Player:
                     if monster.life <= 0:
                         monster.alive = False                                  # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
+                        if monster.type == "cerberus":
+                            items.append(inventory.slug_ring(monster.rect.x, monster.rect.bottom - imports.slug_ring.get_height()))
+                        elif monster.type == "king_slime":
+                            items.append(inventory.slime_ring(monster.rect.x, monster.rect.bottom - imports.slime_ring.get_height()))
+                        elif monster.type == "spider":
+                            items.append(inventory.mushroom_ring(monster.rect.x, monster.rect.bottom - imports.mushroom_ring.get_height()))
+                        elif monster.type == "knight":
+                            items.append(inventory.bat_ring(monster.rect.x, monster.rect.bottom - imports.bat_ring.get_height()))
+                        if monster.type in self.equipped_rings:
+                            self.xp += self.ring_bonus[monster.type]
   
     def player_xp(self):
         """Se charge de gerer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
@@ -572,18 +607,12 @@ class Player:
                     else:
                         self.pushback -= globals.PUSHBACK                       # Si le joueur est a droite du hazard, il recule vers la droite
                 break
-      
-
-
-
-
 
 
 
 # =================================
 # MONSTRES
 # =================================
-
 
 # --- General ---
 class Monster:
@@ -1389,7 +1418,7 @@ class Cerberus(Monster):
             x, 
             y, 
             image_right = imports.cerberus_standing,
-            life = 60000,
+            life = 2,
             speed = 1,
             xp_reward = 20
         )
@@ -1549,7 +1578,7 @@ class Cerberus(Monster):
 
 
 # =================================
-# OBJETS
+# ARMES A DISTANCE
 # =================================
 
 
