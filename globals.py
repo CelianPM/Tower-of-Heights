@@ -57,5 +57,4 @@ wall = []          # Liste de tous les murs du jeu
 hazards = []       # Liste de tous les dangers du jeu
 arrows = []        # Liste de toutes les fleches du jeu
 shurikens = []     # Liste de tous les shurikens du jeu
-rings = []         # Liste de toutes les bagues du jeu utilisées par le joueur
 
