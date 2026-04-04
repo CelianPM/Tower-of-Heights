@@ -25,8 +25,8 @@ def paused_buttons_manager(state, event, continue_button, quit_button, player):
     if buttons.lower_speed_minus_rect.collidepoint(event.pos):
         player.speed = max(1, round(player.speed - 0.5, 2))
 
-    if buttons.lower_speed_plus_rect.collidepoint(event.pos):
-        player.speed = min(12, round(player.speed + 0.5, 2))
+    if buttons.lower_speed_plus_rect.collidepoint(event.pos) and player.speed < player.max_speed:
+        player.speed = min(player.max_speed, round(player.speed + 0.5, 2))
 
     if buttons.lower_speed_rect.collidepoint(event.pos):
         if player.speed_click == 0:
@@ -430,10 +430,10 @@ def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_re
         pygame.mixer.music.play()
     elif speed_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
-            if player.speed_click == 0:
-                player.point_attribut -= 1            # Si le joueur clique sur le bouton pour arreter, passer a l'etat de fin du jeu
-                player.speed = (player.speed * 20 + 1) / 20
-                player.last_player_speed = (player.last_player_speed * 20 + 1) / 20
+            player.point_attribut -= 1            # Si le joueur clique sur le bouton pour arreter, passer a l'etat de fin du jeu
+            player.speed = (player.speed * 20 + 1) / 20
+            player.max_speed = (player.max_speed * 20 + 1) / 20
+            player.last_player_speed = (player.last_player_speed * 20 + 1) / 20
     elif vitality_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
             player.point_attribut -= 1
@@ -447,16 +447,6 @@ def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_re
         if player.point_attribut > 0:
             player.point_attribut -= 1
             player.attack_delay -= 10
-    elif buttons.lower_speed_rect.collidepoint(event.pos) and player.speed_click == 0:
-        player.last_player_speed = player.speed
-        player.speed = 4
-        player.speed_click = 1
-    elif buttons.lower_speed_rect.collidepoint(event.pos) and player.speed_click == 1:
-        player.speed = player.last_player_speed
-        player.speed_click = 0
-    elif buttons.hitbox_display_rect.collidepoint(event.pos) and hitbox_click == 0:
-        globals.hitbox_display = not globals.hitbox_display
-
     return state, player
 
 
