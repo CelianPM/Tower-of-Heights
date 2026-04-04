@@ -90,6 +90,7 @@ class Player:
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
             self.selected_attack = imports.attacking_archer                                     # Telecharge l'image de l'attaque de l'archer
             self.speed = 3
+            self.max_speed = 3
             self.max_life = 4
             self.regeneration_time = 25000
             self.degat = 600
@@ -111,6 +112,7 @@ class Player:
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
             self.selected_attack = imports.attacking_swordsman                                  # Telecharge l'image de l'attaque de l'epeiste
             self.speed = 4
+            self.max_speed = 4
             self.max_life = 5
             self.regeneration_time = 20000
             self.degat = 500
@@ -130,6 +132,7 @@ class Player:
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
             self.selected_attack = imports.ninja                                                # Telecharge l'image de l'attaque de l'epeiste
             self.speed = 5
+            self.max_speed = 5
             self.max_life = 3
             self.regeneration_time = 20000
             self.degat = 300
@@ -146,6 +149,7 @@ class Player:
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
             self.selected_attack = imports.attacking_beggar                                                # Telecharge l'image de l'attaque du mendiant
             self.speed = 2
+            self.max_speed = 2
             self.max_life = 6
             self.regeneration_time = 30000
             self.degat = 400
