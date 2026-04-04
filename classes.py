@@ -78,7 +78,8 @@ class Player:
             "bat": 5,
             "slime": 5
         }
-  
+
+
     def select_the_player(self):
         """Se charge de gerer les clics sur les personnages dans le menu de depart, et de definir les variables correspondantes en fonction du personnage choisi."""
       
@@ -171,7 +172,8 @@ class Player:
             self.frame_index = 0
       
         return frames[int(self.frame_index)]
-  
+
+
     def projectile_spawn_position(self):
         """Définit la position de spawn des projectiles du joueur en fonction de sa direction et de son personnage."""
         image_width = self.selected_image.get_width()
@@ -204,7 +206,8 @@ class Player:
         projectile_x = image_left + offset_x
         projectile_y = image_top + int(image_height * offset_y_ratio)
         return projectile_x, projectile_y
-  
+
+
     def hitbox_attack(self):
         image_width = self.selected_image.get_width()
         image_height = self.selected_image.get_height()
@@ -214,7 +217,6 @@ class Player:
         return pygame.Rect(image_x, image_y, image_width, image_height)
 
 
-  
     def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens):
         """Se charge de definir les mouvements du joueur et ses attaques."""
         self.prev_hitbox = self.hitbox.copy()
@@ -341,7 +343,8 @@ class Player:
 
 
         return velocity, start_time
-  
+
+
     def update_potion_effects(self, time):
         if self.speed_bonus > 0 and time >= self.speed_effect_end_time:
             self.speed -= self.speed_bonus
@@ -369,8 +372,6 @@ class Player:
             self.speed += 0.5
         elif rune_name == "rune_puissance":
             self.puissance += 3
-
-
 
 
     def platform_collisions(self, platforms, traps, velocity):
@@ -545,7 +546,8 @@ class Player:
                             items.append(inventory.bat_ring(monster.rect.x, monster.rect.bottom - imports.bat_ring.get_height()))
                         if monster.type in self.equipped_rings:
                             self.xp += self.ring_bonus[monster.type]
-  
+
+
     def player_xp(self):
         """Se charge de gerer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
         self.xp_lvl_up = 0
@@ -554,7 +556,8 @@ class Player:
         if self.xp >= self.xp_lvl_up:
             self.level += 1
             self.point_attribut += 5
-  
+
+
     def player_inventory(self, items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed):
         """Gere le ramassage d'objet avec E et un feedback simple a l'ecran."""
 
@@ -594,6 +597,7 @@ class Player:
             state = "death"  # Si le personnage tombe en dessous de l'ecran, passer a l'ecran de mort
 
         return state
+
 
     def hazard_collisions(self, hazards, time):
         """Se charge des collisions entre le joueur et les hazard : si le joueur touche un hazard, il perd une vie."""
@@ -707,7 +711,8 @@ class Monster:
            self.direction = 1
            if self.image_right:
                self.image = self.image_right
-  
+
+
    def resolve_horizontal_collisions(self, platforms):
        # Empeche le monstre de traverser un mur apres un pushback horizontal
        if platforms is None:
@@ -787,6 +792,7 @@ class Monster:
            if self.image_right:
                self.image = self.image_right
 
+
    def update(self, player_rect, hazards, monsters, platforms = None):
        if not self.alive:
            return
@@ -829,9 +835,11 @@ class Monster:
    def draw(self, screen, camera_y = 0):
        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
+
    def get_contect_damage(self):
        return self.contact_damage
-   
+
+
    def take_damage(self, damage, time = None):
        if not self.alive:
            return
@@ -860,7 +868,8 @@ class Slug(Monster):
        self.velocity_y = 0
        self.on_ground = False
        self.type = "slug"
-  
+
+
    def ground_ahead(self, platforms, direction = None):
        # Verifie s'il y a du sol juste devant le slug
        if direction is None:
@@ -990,7 +999,6 @@ class Slug(Monster):
 
        self.on_ground = on_ground
        self.overlap(monsters, horizontal_only = True)
-
 
 
 
@@ -1126,7 +1134,8 @@ class Slime(Monster):
        self.jumping_frames_right = [imports.jumping_slime1, imports.jumping_slime2, imports.slime, imports.jumping_slime3, imports.jumping_slime4]
        self.jumping_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.jumping_frames_right]
        self.type = "slime"
-  
+
+
    def ground_ahead(self, platforms, direction = None):
        # Verifie s'il y a du sol juste devant le slime
        if direction is None:
@@ -1280,7 +1289,8 @@ class Mushroom(Monster):
         self.velocity_y = 0
         self.on_ground = False
         self.type = "mushroom"
-  
+
+
     def ground_ahead(self, platforms, direction = None):
         # Verifie s'il y a du sol juste devant le mushroom
         if direction is None:
@@ -1448,12 +1458,14 @@ class Cerberus(Monster):
         self.regen_start_delay = 3500
         self.last_regen_tick = 0
 
+
     def ground_ahead(self, platforms, direction = None):
         if direction is None:
             direction = self.direction
         front_x = self.rect.centerx + (direction * self.rect.width // 2)
         front_y = self.rect.bottom + 5
         return any(platform.collidepoint(front_x, front_y) for platform in platforms)
+
 
     def update_attack(self, player_rect, time):
         distance_x = abs(player_rect.centerx - self.rect.centerx)
@@ -1482,6 +1494,7 @@ class Cerberus(Monster):
             self.contact_damage = self.claw_damage
             self.image = self.claw_attack_frames_right[0] if self.direction == 1 else self.claw_attack_frames_left[0]
 
+
     def regenerate(self, time):
         if not self.alive:
             return
@@ -1493,6 +1506,7 @@ class Cerberus(Monster):
             return
         self.life = min(self.max_life, self.life + self.regen_amount)
         self.last_regen_tick = time
+
 
     def update(self, player_rect, monsters, platforms = None):
         if not self.alive:
@@ -1655,6 +1669,8 @@ class Shuriken(Projectile):
        self.angle = (self.angle + self.rotation_speed) % 360  # Mettre a jour l'angle de rotation du shuriken
        self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
+
+
 # --- Machine pour les runes ---
 class Runemachine:
    def __init__(self, x, ground_y, tile_size = 32):
@@ -1762,8 +1778,6 @@ class Wall:
             self.rect = self.image.get_rect(topleft = (x, y))
 
 
-
-
     def draw(self, screen, camera_y = 0):
        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
@@ -1778,12 +1792,15 @@ class Hazard:
    def draw(self, screen, camera_y = 0):
        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
+
 class Spikes(Hazard):
    def __init__(self, x, y, tile_size = 32, damage = 1):
        super().__init__(x, y, tile_size, damage)
        self.image = imports.spikes
 
+
 class Lava(Hazard):
    def __init__(self, x, y, tile_size = 32, damage = 2):
        super().__init__(x, y, tile_size, damage)
        self.image = imports.lava
+

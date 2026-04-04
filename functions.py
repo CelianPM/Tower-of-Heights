@@ -5,7 +5,6 @@ from math import floor
 pygame.init()
 
 
-
 # =================================
 # PAUSE
 # =================================
@@ -45,6 +44,7 @@ def paused_buttons_manager(state, event, continue_button, quit_button, player):
         globals.music_muted = not globals.music_muted
         pygame.mixer.music.set_volume(0 if globals.music_muted else 0.7)
     return state
+
 
 # --- Affiche les boutons ---
 def paused_buttons_displayer(screen, pause_box, text_font, continue_button, quit_button, player):
@@ -105,6 +105,7 @@ def paused_buttons_displayer(screen, pause_box, text_font, continue_button, quit
     pygame.display.flip() # Pour charger la fenetre
 
 
+
 # =================================
 # MACHINE A RUNES
 # =================================
@@ -141,6 +142,7 @@ def rune_menu_displayer(screen, inventory_list, machine, rune_hold_start, rune_u
             pygame.draw.rect(screen, globals.GREEN, bar_fill)
 
     pygame.display.flip()
+
 
 def rune_menu_manager(state, event, inventory_list, player, machine, time, key, rune_hold_start, rune_use_lock):
     if event and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -223,6 +225,7 @@ def beginning_menu_manager(state, archer_menu_rect, swordsman_menu_rect, ninja_m
     player.life = floor(player.max_life)
     player.velocity = 0
     return state, player
+
 
 # --- Affiche les boutons ---
 def beginning_menu_displayer(screen, title_surface, title_rect, archer_image, archer_menu_rect, swordsman_image, swordsman_menu_rect, ninja_image, ninja_menu_rect, text_font):
@@ -352,6 +355,7 @@ def death_manager(state, event, restart_rect_death, end_rect_death, player, inve
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
+
 def death_displayer(screen, restart_rect_death, death_text_font, end_rect_death, monsters):
     """S'occupe d'afficher l'ecran de mort, avec les boutons pour recommencer ou arreter le jeu, et de reinitialiser les variables du jeu pour pouvoir recommencer a zero si le joueur choisit de rejouer"""
     globals.screen.fill(globals.BLACK)  # Remplir l'ecran de noir pour l'ecran de mort
@@ -416,6 +420,7 @@ def attributes_menu_displayer(screen, text_font, continue_rect, speed_rect, vita
     globals.screen.blit(txt_attack_delay, txt_attack_delay.get_rect(center = buttons.attack_delay_rect.center))
     
     pygame.display.flip()  # Tout generer sur la fenetre
+
 
 def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
     """Se charge de gerer les clics sur les boutons pour recommencer ou arreter le jeu lorsqu'on est sur l'ecran de mort"""

@@ -29,6 +29,7 @@ def add_item_to_inventory(inventory_list, item):
         
     return False
 
+
 def use_inventory_slot(inventory_list, slot_index, player, current_time):
     """Utilise le slot demande si possible et retourne un message de feedback."""
     slot = inventory_list[slot_index]
@@ -101,6 +102,7 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
 
     return "Impossible d'utiliser cet objet"
 
+
 def drop_inventory_slot(inventory_list, slot_index, items, x, y):
     """Jette 1 objet du slot donne au sol proche du joueur."""
     slot = inventory_list[slot_index]
@@ -124,6 +126,7 @@ def drop_inventory_slot(inventory_list, slot_index, items, x, y):
         inventory_list[slot_index] = None
 
     return f"{item_name_for_msg} jete"
+
 
 def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, current_time):
     """Affiche 5 slots avec icones, quantites et progression de maintien (1s)."""
@@ -156,6 +159,7 @@ def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, c
             bar_fill = pygame.Rect(x, y + slot_size + 4, int(slot_size * progress), 6)
             pygame.draw.rect(screen, (80, 80, 80), bar_bg)
             pygame.draw.rect(screen, globals.GREEN, bar_fill)
+
 
 def draw_equipped_rings(screen, player):
     """Affiche les bagues equipees en haut a droite."""
@@ -227,16 +231,20 @@ class mushroom_ring(Item):
     def __init__(self, x, y):
         super().__init__("bague_mushroom", x, y, imports.mushroom_ring, quantity=1, usable=True, heal_amount=0)
 
+
 def random_potion(x, y):
     return random.choice([life_potion(x, y), power_potion(x, y), speed_potion(x, y)])
 
+
 def random_rune(x, y):
     return random.choice([life_rune(x, y), power_rune(x, y), speed_rune(x, y)])
+
 
 def generate_default_world_items():
     """Genere une liste d'items a spawn dans le monde aux positions fixes."""
     positions =  []
     return positions
+
 
 
 # ================================
