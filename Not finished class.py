@@ -430,17 +430,20 @@ class Player:
             hitbox = self.hitbox
             if self.attack and self.hero in ("swordsman", "beggar"):
                 hitbox = self.hitbox_attack()
-            if monster.alive and hitbox.colliderect(monster.rect):                                  # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
- 
+            monster_hitbox = monster.get_attack_hitbox() if hasattr(monster, "get_attack_hitbox") else monster.rect
+            player_hits_monster = hitbox.colliderect(monster.rect)
+            monster_hits_player = self.hitbox.colliderect(monster_hitbox)
+            if monster.alive and hitbox.colliderect(monster_hitbox):                                  # Si le monstre est vivant et que sa hitbox est en collision avec celle du joueur
+
 
                 if self.attack:
-                    if self.selected_image == self.selected_attack_left and self.hero in ("swordsman", "beggar"):     # Si le joueur attaque vers la gauche avec l'épée
+                    if player_hits_monster and self.selected_image == self.selected_attack_left and self.hero in ("swordsman", "beggar"):     # Si le joueur attaque vers la gauche avec l'épée
                         if monster.rect.x < self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à gauche du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
                             if monster.type == "slug" : monster.rect.x -= 5 * globals.PUSHBACK
                             else : monster.rect.x -= globals.PUSHBACK
                             monster.invincible = time + 500
-                    elif self.selected_image == self.selected_attack_right and self.hero in ("swordsman", "beggar"):  # Si le joueur attaque vers la droite avec l'épée
+                    elif player_hits_monster and self.selected_image == self.selected_attack_right and self.hero in ("swordsman", "beggar"):  # Si le joueur attaque vers la droite avec l'épée
                         if monster.rect.x > self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à droite du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
                             if monster.type == "slug" :
@@ -450,7 +453,7 @@ class Player:
                             monster.invincible = time + 500
                             monster.resolve_horizontal_collisions(platforms)
                     else:
-                        if time - self.last_damage_time >= self.invincibility_time:
+                        if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
                          damage = monster.get_contact_damage() if hasattr(monster, 'get_contact_damage') else 1
                          if damage > 0:
                              self.life -= damage
@@ -463,9 +466,9 @@ class Player:
                             self.xp += monster.xp_reward
                
                 else:                                                       # Si le joueur n'attaque pas
-                    if time - self.last_damage_time >= self.invincibility_time:
+                    if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
                         damage = monster.get_contact_damage() if hasattr(monster, 'get_contact_damage') else 1
-                        if damage < 0:
+                        if damage <= 0:
                             continue
                         self.life -= damage
                         self.last_damage_time = time
@@ -800,8 +803,14 @@ class Monster:
    def draw(self, screen, camera_y = 0):
        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
-   def get_contect_damage(self):
+   def get_contact_damage(self):
        return self.contact_damage
+   
+   def get_contect_damage(self):
+       return self.get_contact_damage()
+
+   def get_attack_hitbox(self):
+       return self.rect
    
    def take_damage(self, damage, time = None):
        if not self.alive:
@@ -1499,6 +1508,115 @@ class Cerberus(Boss):
         self.velocity_y = 0
         self.on_ground = False
         self.type = "cerberus"
+        self.bite_range = 125
+        self.claw_range = 175
+        self.attack_cooldown = 5000
+        self.attack_duration = 750
+        self.last_attack_time = 0
+        self.attack_end_time = 0
+        self.current_attack = None
+        self.bite_damage = 2
+        self.claw_damage = 1
+        self.contact_damage = 0
+        self.max_mana = 1000
+        self.mana = float(self.max_mana)
+        self.attack_mana_cost = 100
+        self.mana_regen_per_second = 50
+        self.last_mana_regen_time = pygame.time.get_ticks()
+        self.mana_safe_regen_distance = 240
+        self.depleted_mana_retreat_multiplier = 3
+        self.bite_hitbox_bonus = 50
+        self.claw_hitbox_bonus = 75
+
+    def bite_attack(self):
+        self.current_attack = "crocs"
+        self.contact_damage = self.bite_damage
+        if self.direction == 1:
+            self.image = self.bite_attack_frames[0]
+        else:
+            self.image = pygame.transform.flip(self.bite_attack_frames[0], True, False)
+
+    def claw_attack(self):
+        self.current_attack = "griffe"
+        self.contact_damage = self.claw_damage
+        if self.direction == 1:
+            self.image = self.claw_attack_frames[0]
+        else:
+            self.image = pygame.transform.flip(self.claw_attack_frames[0], True, False)
+
+    def apply_current_attack_frame(self):
+        if self.current_attack == "crocs":
+            if self.direction == 1:
+                self.image = self.bite_attack_frames[0]
+            else:
+                self.image = pygame.transform.flip(self.bite_attack_frames[0], True, False)
+        elif self.current_attack == "griffe":
+            if self.direction == 1:
+                self.image = self.claw_attack_frames[0]
+            else:
+                self.image = pygame.transform.flip(self.claw_attack_frames[0], True, False)
+
+    def get_attack_hitbox(self):
+        if self.current_attack is None:
+            return self.rect
+
+        bonus = self.bite_hitbox_bonus if self.current_attack == "crocs" else self.claw_hitbox_bonus
+        hitbox_height = max(20, self.rect.height - 12)
+        hitbox_top = self.rect.top + 6
+
+        if self.direction == 1:
+            return pygame.Rect(self.rect.left, hitbox_top, self.rect.width + bonus, hitbox_height)
+        return pygame.Rect(self.rect.left - bonus, hitbox_top, self.rect.width + bonus, hitbox_height)
+    
+    def update_attack(self, player_rect, time):
+        distance_x = abs(player_rect.centerx - self.rect.centerx)
+        in_melee_range = distance_x <= self.claw_range
+
+        if time < self.attack_end_time:
+            self.apply_current_attack_frame()
+            return
+
+        self.contact_damage = 0
+        self.current_attack = None
+
+        if not in_melee_range:
+            return
+        if time - self.last_attack_time < self.attack_cooldown:
+            return
+        if self.mana < self.attack_mana_cost:
+            return
+
+        self.last_attack_time = time
+        self.attack_end_time = time + self.attack_duration
+        self.mana -= self.attack_mana_cost
+
+        if distance_x <= self.bite_range:
+            self.bite_attack()
+        else:
+            self.claw_attack()
+
+    def regenerate_mana(self, time, player_rect):
+        if self.mana >= self.max_mana:
+            self.last_mana_regen_time = time
+            return
+        if self.current_attack is not None:
+            self.last_mana_regen_time = time
+            return
+
+        player_distance_x = abs(player_rect.centerx - self.rect.centerx)
+        if self.mana < self.attack_mana_cost and player_distance_x > self.mana_safe_regen_distance:
+            self.mana = float(self.max_mana)
+            self.last_mana_regen_time = time
+            return
+        if self.mana >= self.attack_mana_cost:
+            self.last_mana_regen_time = time
+            return
+
+        elapsed_seconds = (time - self.last_mana_regen_time) / 1000
+        if elapsed_seconds <= 0:
+            return
+        self.mana = min(self.max_mana, self.mana + (self.mana_regen_per_second * elapsed_seconds))
+        self.last_mana_regen_time = time
 
     def update(self, player_rect, monsters, platforms = None):
         if not self.alive:
@@ -1511,10 +1629,48 @@ class Cerberus(Boss):
 
         # Met a jour l'etat de poursuite
         self.update_chase_state_boss(player_rect)
+        if player_rect.centerx < self.rect.centerx:
+            self.direction = -1
+        else:
+            self.direction = 1
 
+        time = pygame.time.get_ticks()
+        self.regenerate_mana(time, player_rect)
+
+        should_move_horizontally = True
+        retreat_direction = 0
+        retreat_speed_multiplier = 1
+        distance_x = abs(player_rect.centerx - self.rect.centerx)
+        if self.chasing and distance_x <= self.bite_range and self.life >= 20000:
+            cooldown_ready = time - self.last_attack_time >= self.attack_cooldown
+            attack_active = time < self.attack_end_time
+            if self.mana < self.attack_mana_cost and not attack_active:
+                retreat_direction = -self.direction
+            elif attack_active:
+                should_move_horizontally = False
+            elif cooldown_ready:
+                should_move_horizontally = False
+            else:
+                retreat_direction = -self.direction
+                retreat_speed_multiplier = self.depleted_mana_retreat_multiplier
+        elif self.chasing and distance_x <= self.claw_range:
+            cooldown_ready = time - self.last_attack_time >= self.attack_cooldown
+            attack_active = time < self.attack_end_time
+            if self.mana < self.attack_mana_cost and not attack_active:
+                retreat_direction = -self.direction
+            elif attack_active:
+                should_move_horizontally = False
+            elif cooldown_ready:
+                should_move_horizontally = False
+            else:
+                retreat_direction = -self.direction
+                retreat_speed_multiplier = self.depleted_mana_retreat_multiplier
 
         previous_x = self.rect.x
-        self.rect.x += self.speed * self.direction
+        if retreat_direction != 0:
+            self.rect.x += self.speed * retreat_speed_multiplier
+        elif should_move_horizontally:
+            self.rect.x += self.speed * self.direction
 
 
         # Collision laterale avec les plateformes
@@ -1577,14 +1733,16 @@ class Cerberus(Boss):
                 continue
 
 
-        # En patrouille seulement, cerberus tourne au bord de la plateforme
-        # En poursuite, il reste au bord pour attendre le joueur
-        # Oriente l'image selon la direction
-        self.image = self.image_right
-
-
-
         self.on_ground = on_ground
+        self.update_attack(player_rect, pygame.time.get_ticks())
+        if self.current_attack is None:
+            # En patrouille seulement, cerberus tourne au bord de la plateforme
+            # En poursuite, il reste au bord pour attendre le joueur
+            # Oriente l'image selon la direction si cerberus n'attaque pas
+            if self.direction == 1:
+                self.image = self.image_right
+            else:
+                self.image = self.image_left
 
 
 
