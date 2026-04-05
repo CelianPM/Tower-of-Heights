@@ -233,11 +233,13 @@ class mushroom_ring(Item):
 
 
 def random_potion(x, y):
-    return random.choice([life_potion(x, y), power_potion(x, y), speed_potion(x, y)])
+    potion_cls = random.choice((life_potion, power_potion, speed_potion))
+    return potion_cls(x, y)
 
 
 def random_rune(x, y):
-    return random.choice([life_rune(x, y), power_rune(x, y), speed_rune(x, y)])
+    rune_cls = random.choice((life_rune, power_rune, speed_rune))
+    return rune_cls(x, y)
 
 
 def generate_default_world_items():
