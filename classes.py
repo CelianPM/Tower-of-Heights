@@ -1860,7 +1860,6 @@ class Shuriken(Projectile):
        if self not in shurikens:
            return  # Si le shuriken a ete retire du jeu (par exemple, s'il a touche une plateforme), ne pas continuer a mettre a jour sa rotation
       
-       center = self.rect.center  # Conserver le centre du shuriken avant de faire tourner l'image
        self.angle = (self.angle + self.rotation_speed) % 360  # Mettre a jour l'angle de rotation du shuriken
        self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle

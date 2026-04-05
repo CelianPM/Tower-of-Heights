@@ -227,7 +227,7 @@ while running:
 
         # --- Pour donner le choix de personnages sur la page menu de depart ---
         if state == "menu_de_debut" and event.type == pygame.MOUSEBUTTONDOWN:
-            state, player = functions.beginning_menu_manager(state, imports.archer_menu_rect, imports.swordsman_menu_rect, imports.ninja_menu_rect, imports.beggar_menu_rect, event, player, offset_x)  # Appeler la fonction menu_de_debut() pour gerer les interactions avec les personnages sur la page du menu de depart, et recuperer les variables mises a jour par cette fonction
+            state, player = functions.beginning_menu_manager(state, event, player, offset_x)  # Appeler la fonction menu_de_debut() pour gerer les interactions avec les personnages sur la page du menu de depart, et recuperer les variables mises a jour par cette fonction
 
         # --- Pour la page de mort ---
         if state == "death" and event.type == pygame.MOUSEBUTTONDOWN:

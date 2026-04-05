@@ -196,7 +196,7 @@ def rune_menu_manager(state, event, inventory_list, player, machine, time, key, 
 # =================================
 
 # --- Gere les boutons ---
-def beginning_menu_manager(state, archer_menu_rect, swordsman_menu_rect, ninja_menu_rect, beggar_menu_rect, event, player, offset_x):
+def beginning_menu_manager(state, event, player, offset_x):
     """Se charge de gerer les clics sur les personnages dans le menu de depart, et de definir les variables correspondantes en fonction du personnage choisi"""
     if imports.archer_menu_rect.collidepoint(event.pos):
         player.hero = "archer"     # Le joueur choisi est l'archer
@@ -424,7 +424,6 @@ def attributes_menu_displayer(screen, text_font, continue_rect, speed_rect, vita
 
 def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_rect, puissance_rect, attack_delay_rect, player):
     """Se charge de gerer les clics sur les boutons pour recommencer ou arreter le jeu lorsqu'on est sur l'ecran de mort"""
-    hitbox_click = 0
     if continue_rect.collidepoint(event.pos):
         state = "game"  # Si le joueur clique sur le bouton pour recommencer, retourner a l'etat du menu de depart
         pygame.mixer.music.play()
