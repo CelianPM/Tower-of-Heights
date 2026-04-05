@@ -3,8 +3,6 @@ import globals, imports, inventory
 from random import randint
 
 
-pygame.init()
-
 
 # --- Importer les listes
     # Listes des monstres

@@ -1,8 +1,6 @@
 import pygame
 import globals
 
-pygame.init()
-
 
 # =================================
 # IMAGES

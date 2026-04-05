@@ -1,11 +1,11 @@
 import pygame                                                              # Importer la bibliotheque pygame pour creer le jeu
 import math                                                                # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
 from random import randint
-import globals, imports, buttons, inventory, classes, functions  # Importer les autres fichiers du projet pour pouvoir utiliser les variables et les fonctions qu'ils contiennent
+import globals
 
 # Initialier pygame
-pygame.init()        # Initialiser tous les modules de pygame
-pygame.mixer.init()  # Initialiser le module de son de pygame
+globals.initialize_runtime()  # Initialiser pygame et les objets runtime partages (ecran, clock, dimensions, clavier)
+import imports, buttons, inventory, classes, functions  # Importer les autres fichiers apres l'initialisation runtime
 
 pygame.display.set_caption("Tower of Heights") # Quand la fenetre est ouverte, afficher "Tower of Heights" dans la barre de titre
 

@@ -2,8 +2,6 @@ import pygame
 import random
 import globals, imports, buttons
 
-pygame.init()
-
 
 # =================================
 # FUNCTIONS

@@ -1,7 +1,5 @@
 import pygame
 
-pygame.init()
-
 
 # =================================
 # VARIABLES GLOBALES
@@ -15,17 +13,15 @@ RED = (255, 0, 0)
 
 
 # --- Pour les touches ---
-key = pygame.key.get_pressed()  # Pour quand on appuie sur une touche
-
+key = None # initializé plus tard
 
 # --- Le FPS ---
-clock = pygame.time.Clock() # Variable de FPS
+clock = None # Variable de FPS qui sera initializé plus tard
 FPS = 60                    # Nombre de frames par seconde
 
-# --- Constantes pour la fenetre ---
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Definit la taille de la fenetre (plein ecran)
-WIDTH = screen.get_width()                                   # Largeur de l'ecran
-HEIGHT = screen.get_height()                                 # Hauteur de l'ecran
+screen = None                                                # Surface de rendu, initialisee au lancement du jeu
+WIDTH = 0                                                    # Largeur de l'ecran
+HEIGHT = 0                                                   # Hauteur de l'ecran
 camera_y = 0                                                 # Position verticale de la camera, qui va suivre le joueur quand il monte
 CAMERA_SMOOTH = 0.1                                          # Facteur de lissage pour le mouvement de la camera, plus il est eleve, plus la camera suit rapidement le joueur
 
@@ -58,3 +54,17 @@ hazards = []       # Liste de tous les dangers du jeu
 arrows = []        # Liste de toutes les fleches du jeu
 shurikens = []     # Liste de tous les shurikens du jeu
 
+def initialize_runtime():
+    """Initialise pygame et les objets runtime partages (ecran, clock, dimensions, clavier)."""
+    global screen, WIDTH, HEIGHT, clock, key
+
+    if not pygame.get_init():
+        pygame.init()
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
+
+    clock = pygame.time.Clock()
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    WIDTH = screen.get_width()
+    HEIGHT = screen.get_height()
+    key = pygame.key.get_pressed()

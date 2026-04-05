@@ -2,7 +2,6 @@ import pygame
 import globals, imports, buttons, inventory, classes
 from math import floor
 
-pygame.init()
 
 
 # =================================
