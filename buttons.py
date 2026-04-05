@@ -2,7 +2,6 @@ import pygame
 import globals
 
 
-
 # =================================
 # POLICES DE TEXTE
 # =================================
@@ -45,7 +44,6 @@ attack_delay_rect = pygame.Rect(0,255, 300, 30)
 attack_delay_rect.center = (globals.WIDTH//2 + 150, globals.HEIGHT//16 * 11)
 
 
-
 # --- Celui dans l'ecran de mort pour arrêter ---
 end_rect_death = pygame.Rect(255, 0, 200, 60)
 end_rect_death.center = (globals.WIDTH//2 + 150, globals.HEIGHT//2 + 120)
@@ -66,6 +64,7 @@ music_toggle_rect = pygame.Rect(pause_options_box.x + 80, pause_options_box.y + 
 
 continue_button = pygame.Rect(pause_actions_box.x + 220, pause_actions_box.y + 35, 260, 60)
 quit_button = pygame.Rect(pause_actions_box.right - 480, pause_actions_box.y + 35, 260, 60)
+
 
 # --- Titre principal du menu de depart ---
 title_surface = title_font.render("Tower of Heights", True, (240, 240, 240))

@@ -1,5 +1,4 @@
-import pygame
-import random
+import pygame, random
 import globals, imports, buttons
 
 
@@ -11,11 +10,13 @@ def add_item_to_inventory(inventory_list, item):
     """Ajoute un item a l'inventaire (max 5 slots). Stack d'abord, sinon premier slot libre."""
     for slot in inventory_list:
         if slot and slot["name"] == item.name:
+            """Si l'item existe deja dans l'inventaire, on augmente juste la quantite."""
             slot["quantity"] += item.quantity
             return True
 
     for index, slot in enumerate(inventory_list):
         if slot is None:
+            """Sinon, on ajoute l'item dans le premier slot libre."""
             inventory_list[index] = {
                 "name": item.name,
                 "image": item.image,
@@ -32,38 +33,49 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
     """Utilise le slot demande si possible et retourne un message de feedback."""
     slot = inventory_list[slot_index]
     if slot is None:
+        """Si le slot est vide, on ne peut rien utiliser."""
         return f"Slot {slot_index + 1} vide"
 
     if not slot.get("usable", False):
+        """Si l'item n'est pas utilisable, on ne peut pas l'utiliser."""
         return f"{slot['name']} non utilisable"
 
     used = False
     item_name = slot.get("name")
 
     if item_name == "Potion_vie":
+        """Soigne le joueur et applique un bonus de regeneration pendant 20s."""
         player.regeneration_time = player.regeneration_time / 2
         if player.regeneration_effect_end_time <= current_time:
+            """Si le bonus de regeneration n'est pas actif, on l'active pour 20s."""
             player.regeneration_effect_end_time = current_time + 20000
         else:
+            """Sinon, on prolonge sa duree de 20s supplementaires."""
             player.regeneration_effect_end_time += 20000
         player.regeneration_bonus = True
         used = True
 
     elif item_name == "Potion_vitesse":
+        """Augmente la vitesse du joueur pendant 20s."""
         player.speed_bonus = slot.get("heal_amount", 0)
         player.speed += player.speed_bonus
         if player.speed_effect_end_time <= current_time:
+            """Si le bonus de vitesse n'est pas actif, on l'active pour 20s."""
             player.speed_effect_end_time = current_time + 20000
         else:
+            """Sinon, on prolonge sa duree de 20s supplementaires."""
             player.speed_effect_end_time += 20000
         used = True
 
     elif item_name == "Potion_puissance":
+        """Augmente la puissance du joueur pendant 20s."""
         player.power_bonus = slot.get("heal_amount", 0)
         player.puissance += player.power_bonus
         if player.power_effect_end_time <= current_time:
+            """Si le bonus de puissance n'est pas actif, on l'active pour 20s."""
             player.power_effect_end_time = current_time + 20000
         else:
+            """Sinon, on prolonge sa duree de 20s supplementaires."""
             player.power_effect_end_time += 20000
         used = True
 
@@ -92,6 +104,7 @@ def use_inventory_slot(inventory_list, slot_index, player, current_time):
         used = True
 
     if used:
+        """Si l'item a ete utilise, on reduit la quantite et on retourne un message de feedback. Si la quantite tombe a 0, on vide le slot."""
         item_name_for_msg = slot["name"]
         slot["quantity"] -= 1
         if slot["quantity"] <= 0:
@@ -107,15 +120,7 @@ def drop_inventory_slot(inventory_list, slot_index, items, x, y):
     if slot is None:
         return "Rien a jeter"
 
-    item = Item(
-        slot["name"],
-        x,
-        y,
-        slot["image"],
-        quantity=1,
-        usable=slot.get("usable", False),
-        heal_amount=slot.get("heal_amount", 0),
-    )
+    item = Item(slot["name"], x, y, slot["image"], quantity=1, usable=slot.get("usable", False), heal_amount=slot.get("heal_amount", 0))
     items.append(item)
 
     item_name_for_msg = slot["name"]
@@ -128,29 +133,32 @@ def drop_inventory_slot(inventory_list, slot_index, items, x, y):
 
 def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, current_time):
     """Affiche 5 slots avec icones, quantites et progression de maintien (1s)."""
-    slot_size = 60
-    spacing = 12
-    total_width = globals.INVENTORY_SLOTS * slot_size + (globals.INVENTORY_SLOTS - 1) * spacing
-    start_x = globals.WIDTH // 2 - total_width // 2
-    y = globals.HEIGHT - slot_size - 15
+    slot_size = 60                                                                               # Taille de chaque slot d'inventaire
+    spacing = 12                                                                                 # Espace entre les slots
+    total_width = globals.INVENTORY_SLOTS * slot_size + (globals.INVENTORY_SLOTS - 1) * spacing  # Largeur totale de l'affichage de l'inventaire
+    start_x = globals.WIDTH // 2 - total_width // 2                                              # Position de départ pour centrer l'inventaire
+    y = globals.HEIGHT - slot_size - 15                                                          # Position verticale des slots (15 pixels au-dessus du bas de l'écran)
 
     for i in range(globals.INVENTORY_SLOTS):
+        """Dessine chaque slot d'inventaire, son icone, sa quantite et la barre de progression si le slot est en cours d'utilisation."""
         x = start_x + i * (slot_size + spacing)
         slot_rect = pygame.Rect(x, y, slot_size, slot_size)
         pygame.draw.rect(screen, (35, 35, 50), slot_rect)
         pygame.draw.rect(screen, globals.WHITE, slot_rect, 2)
 
-        label = buttons.text_font.render(str(i + 1), True, globals.WHITE)
+        label = buttons.text_font.render(str(i + 1), True, globals.WHITE)  # Affiche le numero du slot (1-5) en bas a droite de chaque slot
         screen.blit(label, (x + 4, y + 2))
 
         slot = inventory_list[i]
         if slot:
+            """Si le slot n'est pas vide, on affiche l'icone de l'item et sa quantite. Si le slot est en cours d'utilisation, on affiche une barre de progression en dessous du slot qui se remplit pendant 1 seconde."""
             icon_rect = slot["image"].get_rect(center=slot_rect.center)
             screen.blit(slot["image"], icon_rect)
             qty_txt = buttons.text_font.render(str(slot["quantity"]), True, globals.WHITE)
             screen.blit(qty_txt, (x + slot_size - qty_txt.get_width() - 4, y + slot_size - qty_txt.get_height() - 2))
 
         if slot_hold_start[i] is not None and slot and not slot_use_lock[i]:
+            """Si le slot est en cours d'utilisation, on affiche une barre de progression en dessous du slot qui se remplit pendant 1 seconde."""
             progress = (current_time - slot_hold_start[i]) / globals.ITEM_USE_HOLD_MS
             progress = max(0.0, min(1.0, progress))
             bar_bg = pygame.Rect(x, y + slot_size + 4, slot_size, 6)
@@ -161,12 +169,13 @@ def draw_inventory_hud(screen, inventory_list, slot_hold_start, slot_use_lock, c
 
 def draw_equipped_rings(screen, player):
     """Affiche les bagues equipees en haut a droite."""
-    x = globals.WIDTH - 10
-    y = 10
-    spacing = 6
-    scale = 1.4
+    x = globals.WIDTH - 10  # On part du bord droit de l'ecran et on decale vers la gauche pour chaque bague equipee
+    y = 10                  # On affiche les bagues en haut de l'ecran, a 10 pixels du bord superieur
+    spacing = 6             # Espace entre les icones des bagues
+    scale = 1.4             # Facteur de mise a l'echelle pour les icones des bagues (pour les rendre plus visibles)
 
     for ring_image in player.equipped_ring_images:
+        """Affiche chaque bague equipee, en les espaçant et en les mettant a l'echelle."""
         scaled = pygame.transform.smoothscale(ring_image, (int(ring_image.get_width() * scale), int(ring_image.get_height() * scale)))
         x -= scaled.get_width()
         screen.blit(scaled, (x, y))
@@ -231,11 +240,13 @@ class mushroom_ring(Item):
 
 
 def random_potion(x, y):
+    """Genere une potion aleatoire (vie, puissance ou vitesse) a la position x, y."""
     potion_cls = random.choice((life_potion, power_potion, speed_potion))
     return potion_cls(x, y)
 
 
 def random_rune(x, y):
+    """Genere une rune aleatoire (vie, puissance ou vitesse) a la position x, y."""
     rune_cls = random.choice((life_rune, power_rune, speed_rune))
     return rune_cls(x, y)
 
@@ -251,12 +262,12 @@ def generate_default_world_items():
 # LISTES
 # ================================
 
-slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]
+slot_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5]  # Touches pour utiliser les slots d'inventaire (1-5)
 
 # --- Liste des objets presents dans le monde ---
 items = generate_default_world_items()
 
 # --- Inventaire du joueur (5 slots) ---
-inventory_list = [None] * globals.INVENTORY_SLOTS
-slot_hold_start = [None] * globals.INVENTORY_SLOTS
-slot_use_lock = [False] * globals.INVENTORY_SLOTS
+inventory_list = [None] * globals.INVENTORY_SLOTS   # Chaque slot peut etre None (vide) ou un dict avec les infos de l'item (name, image, quantity, usable, heal_amount)
+slot_hold_start = [None] * globals.INVENTORY_SLOTS  # Temps de debut de maintien pour chaque slot (None si pas en cours de maintien)
+slot_use_lock = [False] * globals.INVENTORY_SLOTS   # Verrou pour empecher l'utilisation multiple d'un slot pendant le maintien (True si le slot a deja ete utilise pendant ce maintien)

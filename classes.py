@@ -1,7 +1,6 @@
 import pygame, math
-import globals, imports, inventory
 from random import randint
-
+import globals, imports, inventory
 
 
 # --- Importer les listes
@@ -20,62 +19,66 @@ hazards = globals.hazards
 # =================================
 class Player:
     def __init__(self, on_ground):
-        """Definit les variables requises par le joueur et importe la viariable on_ground pour en avoir une specialement pour le joueur."""
-        self.speed = 0            # Vitesse du joueur
-        self.jump_power = -15     # Puissance de saut
-        self.attack = False       # Le hero n'attaque pas encore
-        self.direction = "right"  # Direction initiale
-        self.attack_delay = 0     # Le temps qu'il faut attendre avant de pouvoir rattaquer
-        self.max_life = 0         # Nombres de vies de depart
-        self.last_attack_time = 0
-        self.attack_animation_time = 0
-        self.can_attack = True   # Si le heros peut attaquer, defini comme oui au debut
-        self.level = 0           # Le niveau du joueur, qui augmente avec le temps en gagnant de l'XP
-        self.point_attribut = 0  # Le nombre de points d'attibuts, utilises pour ameliorer les caracteristiques du joueur
-        self.last_damage_time = 0
-        self.regeneration_time = 0
-        self.invincibility_time = 1000
-        self.degat = 0
-        self.puissance = 0
-        self.speed_bonus = 0
-        self.power_bonus = 0
-        self.regeneration_bonus = False
-        self.speed_effect_end_time = 0
-        self.power_effect_end_time = 0
-        self.regeneration_effect_end_time = 0
-        self.pushback = 0
-        self.is_speed_lowered = False
-        self.last_player_speed = 0
-        self.speed_click = 0
+        """Definit les variables requises par le joueur et importe la variable on_ground pour en avoir une specialement pour le joueur."""
+        # Variables liees au mouvement
+        self.speed = 0                         # Vitesse du joueur
+        self.jump_power = -15                  # Puissance de saut
+        self.attack = False                    # Le hero n'attaque pas encore
+        self.direction = "right"               # Direction initiale
+        self.pushback = 0                      # Distance de recul quand le joueur est touche, qui est appliquee a la position du joueur et qui revient progressivement a 0 pour faire revenir le joueur a sa position normale apres un recul
 
-        self.selected_image = None         # Image selectionnee, non-definie pour l'instant
-        self.selected_image_left = None    # Profil gauche de l'image selectionnee, non-definie pour l'instant
-        self.selected_image_right = None   # Profil droit de l'image selectionnee, non-definie pour l'instant
-        self.selected_attack = None        # Image de base de l'attaque, non-definie pour l'instant
-        self.selected_attack_left = None   # Profil gauche de l'image attaquant, non-definie pour l'instant
-        self.selected_attack_right = None  # Profil droit de l'image attaquant, non-definie pour l'instant
-        self.perso_rect = None             # Rect de l'image selectionnee, non-definie pour l'instant
-        self.hero = None                   # Qui sera le hero, non-definie pour l'instant
-        self.hitbox = None                 # Hitbox du personnage ( pour les collisions), non-definie pour l'instant
-        self.xp = 0                        # L'experience du joueur, qui augmente en tuant des monstres et permet de monter de niveau
-        self.on_ground = on_ground         # Variable pour savoir si le joueur est au sol, utilisee pour gerer les sauts
-        self.xp_lvl_up = 0                 # L'experience necessaire pour monter de niveau, qui augmente a chaque niveau
+        self.max_life = 0                      # Nombres de vies de depart
+        
+        # Variables liees au combat
+        self.attack_delay = 0                  # Le temps qu'il faut attendre avant de pouvoir rattaquer
+        self.last_attack_time = 0              # Le temps de la derniere attaque, utilise pour gerer le delai entre les attaques
+        self.attack_animation_time = 0         # Duree de l'animation d'attaque, qui peut etre differente du delai entre les attaques
+        self.can_attack = True                 # Si le heros peut attaquer, defini comme oui au debut
+        self.weapon = None                     # Arme du joueur, qui peut etre "bow" ou "shuriken" pour le mendiant, et qui determine le type de projectile que le mendiant lance quand il attaque
+        self.post_attack_until = 0             # Le moment jusqu'auquel le joueur est considere comme etant en train d'attaquer apres le debut de l'attaque, utilise pour garder le joueur dans une posture d'attaque pendant un certain temps meme apres la fin de l'animation d'attaque, pour les attaques qui ont un delai entre les attaques plus long que la duree de l'animation d'attaque (comme celle de l'archer)
+        
+        # Variables de progression du joueur
+        self.level = 0                         # Le niveau du joueur, qui augmente avec le temps en gagnant de l'XP
+        self.point_attribut = 0                # Le nombre de points d'attibuts, utilises pour ameliorer les caracteristiques du joueur
+        self.xp = 0                            # L'experience du joueur, qui augmente en tuant des monstres et permet de monter de niveau
+        self.xp_lvl_up = 0                     # L'experience necessaire pour monter de niveau, qui augmente a chaque niveau
+        self.attack_transition_time = 0        # Le moment ou l'attaque atteint son point de transition (quand le degat est applique), utilise pour changer l'image du joueur a ce moment la pendant l'animation d'attaque
+        
+        # Variables des caracteristiques du joueur
+        self.last_damage_time = 0              # Le temps de la derniere fois que le joueur a subi des degats, utilise pour gerer l'invincibilite temporaire apres avoir subi des degats
+        self.regeneration_time = 0             # Le temps qu'il faut attendre pour que le joueur regene de la vie, qui peut etre reduit par des potions de regeneration
+        self.invincibility_time = 1000         # Duree de l'invincibilite temporaire apres avoir subi des degats, pendant laquelle le joueur ne peut pas subir de nouveaux degats
+        self.degat = 0                         # Le degat de base du joueur, qui peut etre augmente par des potions de puissance ou des runes de puissance
+        self.puissance = 0                     # La puissance d'attaque du joueur, qui determine les degats infliges aux monstres et qui peut etre augmente par des potions de puissance ou des runes de puissance
+        self.speed_bonus = 0                   # Le bonus de vitesse temporaire du joueur, qui est applique a la vitesse du joueur et qui revient a 0 apres la fin de l'effet de la potion de vitesse
+        self.power_bonus = 0                   # Le bonus de puissance temporaire du joueur, qui est applique a la puissance du joueur et qui revient a 0 apres la fin de l'effet de la potion de puissance
+        self.regeneration_bonus = False        # Si le joueur a un bonus de regeneration actif, qui reduit le temps de regeneration de la vie du joueur, et qui est desactive apres la fin de l'effet de la potion de regeneration
+        self.speed_effect_end_time = 0         # Le temps de fin de l'effet de vitesse, apres lequel le bonus de vitesse est retire et la vitesse du joueur revient a la normale
+        self.power_effect_end_time = 0         # Le temps de fin de l'effet de puissance, apres lequel le bonus de puissance est retire et la puissance du joueur revient a la normale
+        self.regeneration_effect_end_time = 0  # Le temps de fin de l'effet de regeneration, apres lequel le bonus de regeneration est retire et la vitesse de regeneration revient a la normale
+        self.is_speed_lowered = False          # Si la vitesse du joueur est reduite
+        self.last_player_speed = 0             # La derniere vitesse du joueur avant que sa vitesse soit modifiee, utilise pour restaurer la vitesse du joueur apres un effet de potion qui modifie la vitesse
+        self.speed_click = 0                   # Le nombre de fois que le joueur a clique pour baisser la vitesse, utilise pour gerer les effets de potion qui reduisent la vitesse
 
-        self.frame_index = 0
-        self.animation_speed = 0.27
+        # Variables des images et animations du joueur
+        self.selected_image = None             # Image selectionnee, non-definie pour l'instant
+        self.selected_image_left = None        # Profil gauche de l'image selectionnee, non-definie pour l'instant
+        self.selected_image_right = None       # Profil droit de l'image selectionnee, non-definie pour l'instant
+        self.selected_attack = None            # Image de base de l'attaque, non-definie pour l'instant
+        self.selected_attack_left = None       # Profil gauche de l'image attaquant, non-definie pour l'instant
+        self.selected_attack_right = None      # Profil droit de l'image attaquant, non-definie pour l'instant
+        self.perso_rect = None                 # Rect de l'image selectionnee, non-definie pour l'instant
+        self.hero = None                       # Qui sera le hero, non-definie pour l'instant
+        self.hitbox = None                     # Hitbox du personnage ( pour les collisions), non-definie pour l'instant
+        self.on_ground = on_ground             # Variable pour savoir si le joueur est au sol, utilisee pour gerer les sauts
         self.prev_hitbox = None
-        self.weapon = None
-        self.attack_transition_time = 0
-        self.post_attack_until = 0
+        self.frame_index = 0                   # Index de l'animation, utilise pour faire defiler les images d'animation du joueur
+        self.animation_speed = 0.27            # Vitesse de l'animation, utilise pour faire defiler les images d'animation du joueur a une certaine vitesse
 
+        # Variables d'equipement du joueur
         self.equipped_rings = set()
         self.equipped_ring_images = []
-        self.ring_bonus = {
-            "slug": 5,
-            "mushroom": 5,
-            "bat": 5,
-            "slime": 5
-        }
+        self.ring_bonus = {"slug": 5, "mushroom": 5, "bat": 5, "slime": 5}
 
 
     def select_the_player(self):
@@ -142,10 +145,10 @@ class Player:
 
         elif self.hero == "beggar":
             self.attack_delay = 500                                                             # Definit le temps entre les attaques pour le mendiant, pour qui c'est moyen
-            self.selected_image = imports.beggar_image                                           # L'image selectionnee est celle du mendiant
+            self.selected_image = imports.beggar_image                                          # L'image selectionnee est celle du mendiant
             self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
-            self.selected_attack = imports.attacking_beggar                                                # Telecharge l'image de l'attaque du mendiant
+            self.selected_attack = imports.attacking_beggar                                     # Telecharge l'image de l'attaque du mendiant
             self.speed = 2
             self.max_speed = 2
             self.max_life = 6
@@ -161,9 +164,9 @@ class Player:
 
 
         self.attack_animation_time = 300
-        self.selected_attack_right = self.selected_attack                                                          # Profil droit de l'image attaquant
-        self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)                       # Profil gauche de l'image attaquant
-        self.perso_rect = self.selected_image.get_rect(topleft=(200, 300))                                         # Rect de l'image
+        self.selected_attack_right = self.selected_attack                                     # Profil droit de l'image attaquant
+        self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)  # Profil gauche de l'image attaquant
+        self.perso_rect = self.selected_image.get_rect(topleft=(200, 300))                    # Rect de l'image
         self.hitbox = pygame.Rect(0, 0, 32, 112)  # Hitbox du personnage
         self.life = math.floor(self.max_life)
 

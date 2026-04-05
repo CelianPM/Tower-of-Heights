@@ -13,31 +13,34 @@ RED = (255, 0, 0)
 
 
 # --- Pour les touches ---
-key = None # initializé plus tard
+key = None # initialisé plus tard
 
-# --- Le FPS ---
-clock = None # Variable de FPS qui sera initializé plus tard
-FPS = 60                    # Nombre de frames par seconde
 
-screen = None                                                # Surface de rendu, initialisee au lancement du jeu
-WIDTH = 0                                                    # Largeur de l'ecran
-HEIGHT = 0                                                   # Hauteur de l'ecran
-camera_y = 0                                                 # Position verticale de la camera, qui va suivre le joueur quand il monte
-CAMERA_SMOOTH = 0.1                                          # Facteur de lissage pour le mouvement de la camera, plus il est eleve, plus la camera suit rapidement le joueur
+# --- Pour le FPS ---
+clock = None  # Variable de FPS qui sera initialisé plus tard
+FPS = 60      # Nombre de frames par seconde
+
+
+# --- Pour la camera ---
+screen = None        # Surface de rendu, initialisee au lancement du jeu
+WIDTH = 0            # Largeur de l'ecran
+HEIGHT = 0           # Hauteur de l'ecran
+camera_y = 0         # Position verticale de la camera, qui va suivre le joueur quand il monte
+CAMERA_SMOOTH = 0.1  # Facteur de lissage pour le mouvement de la camera, plus il est eleve, plus la camera suit rapidement le joueur
 
 
 # --- Variables communes ---
-GRAVITY = 0.4      # Vitesse de chute
-velocity = 0       # Variable = vitesse de saut - vitesse de chute
-on_ground = False  # Contact avec le sol
-start_time = 0     # Lorsque le jeu commence, le temps de depart est a 0
-PUSHBACK = 30     # La distance de recul quand le joueur ou le monstre est touche
-hitbox_display = False
-music_muted = False
+GRAVITY = 0.4           # Vitesse de chute
+velocity = 0            # Variable = vitesse de saut - vitesse de chute
+on_ground = False       # Contact avec le sol
+start_time = 0          # Lorsque le jeu commence, le temps de depart est a 0
+PUSHBACK = 30           # La distance de recul quand le joueur ou le monstre est touche
+hitbox_display = False  # Affiche les hitboxes des entites
+music_muted = False     # Indique si la musique est mise en pause ou non
 
 # --- Items & Inventaire ---
-INVENTORY_SLOTS = 5
-ITEM_USE_HOLD_MS = 1000
+INVENTORY_SLOTS = 5      # Nombre de slots d'inventaire disponibles pour le joueur
+ITEM_USE_HOLD_MS = 1000  # Temps en millisecondes pour que l'utilisation d'un item soit considere comme un "hold" (maintenir la touche enfoncee)
 
 
 
@@ -54,9 +57,13 @@ hazards = []       # Liste de tous les dangers du jeu
 arrows = []        # Liste de toutes les fleches du jeu
 shurikens = []     # Liste de tous les shurikens du jeu
 
-def initialize_runtime():
+
+# =================================
+# INITIALISATION DES VARIABLES DE RUNTIME
+# =================================
+
+def initialize_runtime(screen, WIDTH, HEIGHT, clock, key):
     """Initialise pygame et les objets runtime partages (ecran, clock, dimensions, clavier)."""
-    global screen, WIDTH, HEIGHT, clock, key
 
     if not pygame.get_init():
         pygame.init()
@@ -68,3 +75,6 @@ def initialize_runtime():
     WIDTH = screen.get_width()
     HEIGHT = screen.get_height()
     key = pygame.key.get_pressed()
+
+    return screen, WIDTH, HEIGHT, clock, key
+
