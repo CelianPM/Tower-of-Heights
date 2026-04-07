@@ -186,7 +186,8 @@ def rune_menu_manager(state, event, inventory_list, player, machine, time, key, 
         if machine and machine.consume_rune(inventory_list, rune_name):
             player.apply_rune_effect(rune_name)
             rune_use_lock[held_index] = True
-            print("game", f"{rune_name} utilise")
+            print("game", f"{rune_name} utilisee")
+            return state, f"{rune_name} utilisee"
 
         rune_use_lock[held_index] = True
         return state, "Pas de rune a utiliser"
