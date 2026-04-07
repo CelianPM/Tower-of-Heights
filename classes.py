@@ -96,7 +96,9 @@ class Player:
             self.regeneration_time = 25000
             self.degat = 600
             self.walk_frames_right = [
-               imports.archer_image,
+               imports.walking_archer1, 
+               imports.walking_archer2, 
+               imports.walking_archer3, 
            ]
           
             self.attack_frames_right = [
@@ -118,10 +120,10 @@ class Player:
             self.regeneration_time = 20000
             self.degat = 500
             self.walk_frames_right = [
-                imports.standing_swordsman,
                 imports.walking_swordsman1,
-                imports.standing_swordsman,
                 imports.walking_swordsman2,
+                imports.walking_swordsman3, 
+                imports.walking_swordsman4, 
            ]
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
@@ -131,14 +133,16 @@ class Player:
             self.selected_image = imports.ninja_image                                           # L'image selectionnee est celle de l'epeiste
             self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
-            self.selected_attack = imports.ninja                                                # Telecharge l'image de l'attaque de l'epeiste
+            self.selected_attack = imports.ninja_ash                                                # Telecharge l'image de l'attaque de l'epeiste
             self.speed = 5
             self.max_speed = 5
             self.max_life = 3
             self.regeneration_time = 20000
             self.degat = 300
             self.walk_frames_right = [
-                imports.ninja,
+                imports.walking_ninja1, 
+                imports.walking_ninja2, 
+                imports.walking_ninja3, 
            ]
             self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.walk_frames_right]
 
