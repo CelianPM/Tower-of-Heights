@@ -62,9 +62,9 @@ shurikens = []     # Liste de tous les shurikens du jeu
 # INITIALISATION DES VARIABLES DE RUNTIME
 # =================================
 
-def initialize_runtime(screen, WIDTH, HEIGHT, clock, key):
+def initialize_runtime():
     """Initialise pygame et les objets runtime partages (ecran, clock, dimensions, clavier)."""
-
+    global screen, WIDTH, HEIGHT, clock, key
     if not pygame.get_init():
         pygame.init()
     if not pygame.mixer.get_init():
@@ -76,5 +76,4 @@ def initialize_runtime(screen, WIDTH, HEIGHT, clock, key):
     HEIGHT = screen.get_height()
     key = pygame.key.get_pressed()
 
-    return screen, WIDTH, HEIGHT, clock, key
 
