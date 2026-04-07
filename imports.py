@@ -28,15 +28,24 @@ beggar_menu_rect = beggar_image.get_rect(center = (globals.WIDTH//2 + 300, globa
         # Archer
 post_attacking_archer = pygame.image.load("Images/Archer/post_attacking_archer.png").convert_alpha()  # Charger l'image de l'archer apres son attaque
 attacking_archer = pygame.image.load("Images/Archer/attacking_archer.png").convert_alpha()            # Charger l'image de l'archer pendant son attaque
-
+walking_archer = pygame.image.load("Images/Archer/walking_archer1.png").convert_alpha()
+walking_archer = pygame.image.load("Images/Archer/walking_archer2.png").convert_alpha()
+walking_archer = pygame.image.load("Images/Archer/walking_archer3.png").convert_alpha()
         # Epeiste
 attacking_swordsman = pygame.image.load("Images/Swordsman/attacking_swordsman.png").convert_alpha()  # Charger l'image de l'epeiste pendant son attaque
 standing_swordsman = pygame.image.load("Images/Swordsman/standing_swordsman.png").convert_alpha()    # Charger l'image de l'epeiste pendant qu'il ne fait rien
 walking_swordsman1 = pygame.image.load("Images/Swordsman/walking_swordsman1.png").convert_alpha()    # Charger l'image de l'epeiste pendant qu'il marche
 walking_swordsman2 = pygame.image.load("Images/Swordsman/walking_swordsman2.png").convert_alpha()    # Charger l'image de l'epeiste pendant qu'il marche (2)
+walking_swordsman3 = pygame.image.load("Images/Swordsman/walking_swordsman3.png").convert_alpha()
+walking_swordsman4 = pygame.image.load("Images/Swordsman/walking_swordsman4.png").convert_alpha()
 
         # Ninja
-ninja = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()  # Charger l'image du ninja pendant qu'il ne fait rien
+ninja = pygame.image.load("Images/Ninja/ninja.png").convert_alpha()  # Charger l'image du ninja pendant qu'il ne fait rien
+ninja_shuriken = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()
+ninja_dague = pygame.image.load("Images/Ninja/ninja_ada.png").convert_alpha()
+walking_ninja1 = pygame.image.load("Images/Ninja/walking_ninja1.png").convert_alpha()
+walking_ninja2 = pygame.image.load("Images/Ninja/walking_ninja2.png").convert_alpha()
+walking_ninja3 = pygame.image.load("Images/Ninja/walking_ninja3.png").convert_alpha()
 
         # Beggar
 beggar = pygame.image.load("Images/Beggar/standing_beggar.png").convert_alpha()  # Charger l'image du mendiant pendant qu'il ne fait rien
