@@ -281,18 +281,20 @@ class Player:
             self.attack = True
             start_time = time        # Enregistrer le temps de debut de l''attaque pour gerer le delai entre les attaques
             self.last_attack_time = time
+            self.attack_transition_time = time + self.attack_animation_time // 2  # Le moment ou l'attaque atteint son point de transition (quand le degat est applique) est le temps de debut de l'attaque plus le temps d'animation de l'attaque
+
 
 
             if self.direction == "left":
                 self.selected_image = self.selected_attack_left   # Si la direction est a gauche, changer l''image selectionnee par celle de l''attaque du profil gauche
             else:
                 self.selected_image = self.selected_attack_right  # Si la direction est a droite, changer l''image selectionnee par celle de l''attaque du profil droit
-                self.attack_transition_time = time + self.attack_animation_time // 2  # Le moment ou l'attaque atteint son point de transition (quand le degat est applique) est le temps de debut de l'attaque plus le temps d'animation de l'attaque
 
             projectile_x, projectile_y = self.projectile_spawn_position()  # Obtenir la position de spawn du projectile en fonction de la direction du joueur
             if self.hero == "archer":
                 arrows.append(Arrow(projectile_x, projectile_y, self))
                 self.last_attack_time = time
+                self.post_attack_until = time + 120
 
 
             if self.hero =="ninja":
@@ -325,8 +327,7 @@ class Player:
                 self.selected_image = self.selected_image_right   # L'image revient a celle du profil droit de l'image selectionnee
             self.attack = False                                   # Apres le delai d'attaque, le joueur n'est plus en train d'attaquer, et son image revient a celle de base
       
-        if self.hero == "archer":
-            self.post_attack_until = time + 120
+        if self.hero == "archer" and not self.attack and time < self.post_attack_until:
             if self.direction == "left":
                 self.selected_image = self.attack_frames_left[1]
             else:
