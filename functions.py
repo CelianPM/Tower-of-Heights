@@ -51,6 +51,13 @@ def paused_buttons_manager(state, event, continue_button, quit_button, player):
     
     if buttons.quit_button.collidepoint(event.pos):
         state = "end"                                   # Si on appuie sur le bouton pour quitter, arreter le jeu
+
+    if buttons.restart_button.collidepoint(event.pos):
+        state = "death"
+        if globals.music_muted:
+            pygame.mixer.music.set_volume(0)
+        else:
+            pygame.mixer.music.unpause()
     
     if buttons.lower_speed_minus_rect.collidepoint(event.pos):
         player.speed = max(1, round(player.speed - 0.5, 2))  # Limiter la vitesse minimale a 1 pour eviter les bugs de mouvement, et arrondir a 2 decimales pour eviter les valeurs bizarres
@@ -133,6 +140,11 @@ def paused_buttons_displayer(screen, pause_box, text_font, continue_button, quit
     pygame.draw.rect(globals.screen, globals.RED, buttons.quit_button)
     pygame.draw.rect(globals.screen, globals.BLACK, buttons.quit_button, 2)
     globals.screen.blit(buttons.text_font.render("Quitter", True, globals.BLACK), (buttons.quit_button.x + 80, buttons.quit_button.y + 15))
+
+        pygame.draw.rect(globals.screen, globals.BLUE, buttons.restart_button)
+    pygame.draw.rect(globals.screen, globals.BLACK, buttons.restart_button, 2)
+    globals.screen.blit(buttons.text_font.render("Recommencer", True, globals.BLACK), (buttons.restart_button.x + 40, buttons.quit_button.y + 15))
+    
     pygame.display.flip() # Pour charger la fenetre
 
 
