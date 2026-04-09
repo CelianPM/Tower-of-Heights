@@ -222,7 +222,8 @@ def beginning_menu_manager(state, event, player, offset_x):
 
     player.selected_attack_right = player.selected_attack                                     # Profil droit de l'image attaquant
     player.selected_attack_left = pygame.transform.flip(player.selected_attack, True, False)  # Profil gauche de l'image attaquant
-    player.perso_rect = player.selected_image.get_rect(topleft=(200 + offset_x // 2, 300))    # Rect de l'image
+    spawn_x = offset_x + 2 * 32
+    player.perso_rect = player.selected_image.get_rect(topleft=(spawn_x, 300))    # Rect de l'image
     player.hitbox = pygame.Rect(player.perso_rect.x, player.perso_rect.y, 32, 112)            # Hitbox du personnage, positionnee par rapport au rect de l'image du personnage pour que le joueur puisse cliquer sur le personnage lui meme pour le selectionner dans le menu de depart, et pour que les collisions avec les plateformes et les monstres soient plus precises pendant le jeu
     pygame.mixer.music.play(-1)                                                               # Lancer la musique de fond en boucle
     state = "game"                                                                            # Passer au jeu
