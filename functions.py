@@ -141,7 +141,7 @@ def paused_buttons_displayer(screen, pause_box, text_font, continue_button, quit
     pygame.draw.rect(globals.screen, globals.BLACK, buttons.quit_button, 2)
     globals.screen.blit(buttons.text_font.render("Quitter", True, globals.BLACK), (buttons.quit_button.x + 80, buttons.quit_button.y + 15))
 
-        pygame.draw.rect(globals.screen, globals.BLUE, buttons.restart_button)
+    pygame.draw.rect(globals.screen, globals.BLUE, buttons.restart_button)
     pygame.draw.rect(globals.screen, globals.BLACK, buttons.restart_button, 2)
     globals.screen.blit(buttons.text_font.render("Recommencer", True, globals.BLACK), (buttons.restart_button.x + 40, buttons.quit_button.y + 15))
     
