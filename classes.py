@@ -234,7 +234,7 @@ class Player:
 
         # --- Mouvements du joueur ---
             # Gauche
-        if key[pygame.K_LEFT]:                                   # Si la touche de gauche est appuyee
+        if key[pygame.K_LEFT] and not key[pygame.K_RIGHT]:                                   # Si la touche de gauche est appuyee
             self.hitbox.x -= self.speed                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
             if self.direction == "right":
                 self.selected_image = self.selected_image_left   # Si la direction precedente etait a droite, changer l'image selectionnee par celle du profil gauche
@@ -242,7 +242,7 @@ class Player:
 
 
             # Droite
-        if key[pygame.K_RIGHT]:                                  # Si la touche de droite est appuyee
+        if key[pygame.K_RIGHT] and not key[pygame.K_LEFT]:                                  # Si la touche de droite est appuyee
             self.hitbox.x += self.speed                          # Deplacer la hitbox vers la droite en fonction de la vitesse du joueur
             if self.direction == "left":
                 self.selected_image = self.selected_image_right  # Si la direction precedente etait a gauche, changer l'image selectionnee par celle du profil droit
@@ -2013,4 +2013,3 @@ class Lava(Hazard):
    def __init__(self, x, y, tile_size = 32, damage = 2):
        super().__init__(x, y, tile_size, damage)
        self.image = imports.lava
-

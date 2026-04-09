@@ -25,6 +25,9 @@ restart_rect_death.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2 + 120)
 continue_rect = pygame.Rect(0, 255, 200, 60)
 continue_rect.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2)
 
+restart_rect = pygame.Rect(0, 255, 200, 60)
+restart_rect.center = (globals.WIDTH//2 - 150, globals.HEIGHT//2 + 120)
+
 
 # --- Ceux pour les ameliorations de statistiques ---
     # Vitesse
@@ -62,8 +65,10 @@ lower_speed_plus_rect = pygame.Rect(lower_speed_rect.right + 10, lower_speed_rec
 hitbox_display_rect = pygame.Rect(pause_options_box.x + 80, pause_options_box.y + 185, 400, 60)
 music_toggle_rect = pygame.Rect(pause_options_box.x + 80, pause_options_box.y + 280, 400, 60)
 
-continue_button = pygame.Rect(pause_actions_box.x + 220, pause_actions_box.y + 35, 260, 60)
-quit_button = pygame.Rect(pause_actions_box.right - 480, pause_actions_box.y + 35, 260, 60)
+continue_button = pygame.Rect(pause_actions_box.x + 150, pause_actions_box.y + 35, 260, 60)
+quit_button = pygame.Rect(pause_actions_box.x + 770, pause_actions_box.y + 35, 260, 60)
+restart_button = pygame.Rect(pause_actions_box.x + 460, pause_actions_box.y + 35, 260, 60)
+
 
 
 # --- Titre principal du menu de depart ---

@@ -12,7 +12,7 @@ pygame.display.set_caption("Tower of Heights") # Quand la fenetre est ouverte, a
 
 # --- Pour les bruitages ---
     # Pour la musique de fond
-pygame.mixer.music.set_volume(0.7)                      # Regler le volume de la musique de fond a 70%
+pygame.mixer.music.set_volume(globals.music_volume)                      # Regler le volume de la musique de fond a 70%
 
 # --- Pour la fenetre ---
     # L'ecran
@@ -20,7 +20,7 @@ globals.screen.fill((40, 40, 55))  # Remplir la fenetre avec une couleur de base
 
 
 state = "menu_de_debut"       # Le jeu demarre sur la fenetre de menu
-functions.background_music()  # Lancer la musique de fond
+functions.play_music("menu")  # Lancer la musique de menu
 
 # --- Images et classes---
     # Heros
@@ -253,7 +253,8 @@ while running:
     globals.clock.tick(globals.FPS)          # FPS
     time = pygame.time.get_ticks()           # pour relever le temps ecoule depuis le debut du jeu (en millisecondes)
     globals.key = pygame.key.get_pressed()  # Pour relever les touches actuellement appuyees
-
+    functions.update_music_for_state(state, classes.monsters)
+    
     for event in pygame.event.get():
         # --- Pour quitter le jeu ---
         if event.type == pygame.QUIT or (state not in ("game", "rune_menu") and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
