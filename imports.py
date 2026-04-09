@@ -16,7 +16,7 @@ swordsman_image = pygame.image.load("Images/Swordsman/standing_swordsman.png").c
 swordsman_menu_rect = swordsman_image.get_rect(center = (globals.WIDTH//2 - 150, globals.HEIGHT//2))  # Rect de l'image de l'epeiste dans le menu de depart
 
     # Ninja
-ninja_image = pygame.image.load("Images/Ninja/ninja_ash.png").convert_alpha()                 # Charger l'image du ninja
+ninja_image = pygame.image.load("Images/Ninja/ninja.png").convert_alpha()                 # Charger l'image du ninja
 ninja_menu_rect = ninja_image.get_rect(center = (globals.WIDTH//2 + 150, globals.HEIGHT//2))  # Rect de l'image du ninja dans le menu de depart
 
     # Beggar
