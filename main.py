@@ -116,6 +116,10 @@ def create_world_from_map(map_design):
                 monsters.append(classes.Cerberus(x, y))
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
+            elif cell == "A":
+                monsters.append(classes.Spider(x, y))
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(3)
 
             elif cell == "P":
                 potion_spawns += 1
