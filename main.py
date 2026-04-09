@@ -31,6 +31,26 @@ tile_size = 32
 with open("map.txt") as map_layout:
     map_design = map_layout.read().splitlines()
 
+boss_traps_spawned = set()  # Pour suivre les boss dont les plateformes traversables ont déjà été générés
+boss_trap_tiles = {  # Dictionnaire pour stocker les coordonnées des tuiles de plateformes traversables associées à chaque boss, afin de pouvoir les générer lorsque le boss correspondant est vaincu
+    "cerberus": [],
+    "king_slime": [],
+    "spider": [],
+    "knight": []
+}
+
+for row_index, row in enumerate(map_design):
+    for col_index, cell in enumerate(row):
+        if cell == "1":
+            boss_trap_tiles["cerberus"].append((row_index, col_index))  # Ajouter les coordonnées de la tuile traversable du boss Cerbere à la liste correspondante dans le dictionnaire boss_trap_tiles
+        elif cell == "2":
+            boss_trap_tiles["king_slime"].append((row_index, col_index))
+        elif cell == "3":
+            boss_trap_tiles["spider"].append((row_index, col_index))
+        elif cell == "4":
+            boss_trap_tiles["knight"].append((row_index, col_index))
+
+
 def create_world_from_map(map_design):
     # Importe les listes de globals
     platforms = globals.platforms
@@ -65,6 +85,7 @@ def create_world_from_map(map_design):
         for col_index, cell in enumerate(row):       
             x = col_index * tile_size + offset_x
             y = row_index * tile_size + offset_y
+
             if cell == "#":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 platforms.append(rect)
@@ -73,6 +94,7 @@ def create_world_from_map(map_design):
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 traps.append(rect)
                 wall_type.append(0)
+
             elif cell == "S":
                 monsters.append(classes.Slug(x, y - 78))
                 wall.append(classes.Wall(x, y, tile_size))
@@ -89,10 +111,12 @@ def create_world_from_map(map_design):
                 monsters.append(classes.Mushroom(x,y))
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
+
             elif cell == "C":
                 monsters.append(classes.Cerberus(x, y))
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
+
             elif cell == "P":
                 potion_spawns += 1
                 items.append(inventory.random_potion(x, y))
@@ -103,10 +127,12 @@ def create_world_from_map(map_design):
                 items.append(inventory.random_rune(x, y))
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
+
             elif cell == "M":
                 rune_machines.append(classes.Runemachine(x, y, tile_size))
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
+
             elif cell == "^":
                 hazards.append(classes.Spikes(x, y, tile_size, damage = 1))
                 wall.append(classes.Wall(x, y, tile_size))
@@ -115,6 +141,31 @@ def create_world_from_map(map_design):
                 wall_type.append(1)
                 hazards.append(classes.Lava(x, y, tile_size, damage = 2))
                 wall.append(classes.Wall(x, y, tile_size))
+
+            elif cell == "1":
+                for monster in monsters:
+                    if monster.type == "cerberus" and not monster.alive:
+                        rect = pygame.Rect(x, y, tile_size, tile_size)
+                        traps.append(rect)
+                        wall_type.append(1)
+            elif cell == "2":
+                for monster in monsters:
+                    if monster.type == "king_slime" and not monster.alive:
+                        rect = pygame.Rect(x, y, tile_size, tile_size)
+                        traps.append(rect)
+                        wall_type.append(1)
+            elif cell == "3":
+                for monster in monsters:
+                    if monster.type == "spider" and not monster.alive:
+                        rect = pygame.Rect(x, y, tile_size, tile_size)
+                        traps.append(rect)
+                        wall_type.append(1)
+            elif cell == "4":
+                for monster in monsters:
+                    if monster.type == "knight" and not monster.alive:
+                        rect = pygame.Rect(x, y, tile_size, tile_size)
+                        traps.append(rect)
+                        wall_type.append(1)
 
             elif cell == ".":
                 wall_prob = randint(0,1000)
@@ -314,6 +365,21 @@ while running:
             shuriken.update(platforms, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
     player.update_potion_effects(time)
     
+    map_height_pixels = len(map_design) * tile_size
+    offset_y = globals.HEIGHT - map_height_pixels
+    map_width_pixels = max(len(row) for row in map_design) * tile_size
+    offset_x = (globals.WIDTH - map_width_pixels) // 2
+
+    for monster in globals.monsters:
+        if not monster.alive and monster.type in boss_trap_tiles:
+            if monster.type not in boss_traps_spawned:
+                for row_index, col_index in boss_trap_tiles[monster.type]:
+                    x = col_index * tile_size + offset_x
+                    y = row_index * tile_size + offset_y
+                    traps.append(pygame.Rect(x, y, tile_size, tile_size))
+                boss_traps_spawned.add(monster.type)
+
+
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for platform in platforms:
