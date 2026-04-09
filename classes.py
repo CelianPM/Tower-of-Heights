@@ -43,7 +43,8 @@ class Player:
         self.xp = 0                            # L'experience du joueur, qui augmente en tuant des monstres et permet de monter de niveau
         self.xp_lvl_up = 0                     # L'experience necessaire pour monter de niveau, qui augmente a chaque niveau
         self.attack_transition_time = 0        # Le moment ou l'attaque atteint son point de transition (quand le degat est applique), utilise pour changer l'image du joueur a ce moment la pendant l'animation d'attaque
-        
+        self.ninja_attack_mode = "ash"
+
         # Variables des caracteristiques du joueur
         self.last_damage_time = 0              # Le temps de la derniere fois que le joueur a subi des degats, utilise pour gerer l'invincibilite temporaire apres avoir subi des degats
         self.regeneration_time = 0             # Le temps qu'il faut attendre pour que le joueur regene de la vie, qui peut etre reduit par des potions de regeneration
@@ -278,6 +279,15 @@ class Player:
         # --- L'attaque du joueur ---
             # Attaque
         if key[pygame.K_d] and not self.attack and self.can_attack and state == "game":  # Si la touche D est appuyee et que le joueur n''est pas deja en train d''attaquer
+            if self.hero == "ninja":
+                if pygame.key.get_mods() & pygame.KMOD_CAPS:
+                    self.ninja_attack_mode = "ash"
+                    self.selected_attack = imports.ninja_ash
+                else:
+                    self.ninja_attack_mode = "ada"
+                    self.selected_attack = imports.ninja_ada
+                self.selected_attack_right = self.selected_attack
+                self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)
             self.attack = True
             start_time = time        # Enregistrer le temps de debut de l''attaque pour gerer le delai entre les attaques
             self.last_attack_time = time
@@ -297,7 +307,7 @@ class Player:
                 self.post_attack_until = time + 120
 
 
-            if self.hero =="ninja":
+            if self.hero =="ninja" and self.ninja_attack_mode == "ash":
                 shurikens.append(Shuriken(projectile_x, projectile_y, self))
                 self.last_attack_time = time
 
@@ -445,7 +455,7 @@ class Player:
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
             hitbox = self.hitbox
-            if self.attack and self.hero in ("swordsman", "beggar"):
+            if self.attack and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):
                 hitbox = self.hitbox_attack()
             monster_hitbox = monster.get_attack_hitbox() if hasattr(monster, "get_attack_hitbox") else monster.rect
             player_hits_monster = hitbox.colliderect(monster.rect)
@@ -454,13 +464,13 @@ class Player:
  
 
                 if self.attack:
-                    if player_hits_monster and self.selected_image == self.selected_attack_left and self.hero in ("swordsman", "beggar"):     # Si le joueur attaque vers la gauche avec l'épée
+                    if player_hits_monster and self.selected_image == self.selected_attack_left and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):     # Si le joueur attaque vers la gauche avec l'épée
                         if monster.rect.x < self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à gauche du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
                             if monster.type == "slug" : monster.rect.x -= 5 * globals.PUSHBACK
                             else : monster.rect.x -= globals.PUSHBACK
                             monster.invincible = time + 500
-                    elif player_hits_monster and self.selected_image == self.selected_attack_right and self.hero in ("swordsman", "beggar"):  # Si le joueur attaque vers la droite avec l'épée
+                    elif player_hits_monster and self.selected_image == self.selected_attack_right and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):  # Si le joueur attaque vers la droite avec l'épée
                         if monster.rect.x > self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à droite du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
                             if monster.type == "slug" :
