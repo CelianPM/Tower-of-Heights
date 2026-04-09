@@ -392,7 +392,7 @@ class Player:
             self.speed += 0.5
             self.max_speed += 0.5
         elif rune_name == "rune_puissance":
-            self.puissance += 3
+            self.puissance += 48
 
 
     def platform_collisions(self, platforms, traps, velocity):

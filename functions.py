@@ -453,7 +453,8 @@ def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_re
         if player.point_attribut > 0:
             player.point_attribut -= 1
             player.max_life += 0.2
-            player.regeneration_time -= 500
+            if player.regeneration_time > 10000:
+                player.regeneration_time -= 500
     
     elif puissance_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
@@ -463,7 +464,8 @@ def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_re
     elif attack_delay_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
             player.point_attribut -= 1
-            player.attack_delay -= 10
+            if player.attack_delay > 200:
+                player.attack_delay -= 10
     
     return state, player
 
