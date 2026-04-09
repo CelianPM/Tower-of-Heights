@@ -2,6 +2,39 @@ import pygame
 from math import floor
 import globals, imports, buttons, inventory, classes
 
+MUSIC_TRACKS = {
+    "game": "Sounds/background_music.mp3",
+    "boss": "Sounds/musique_de_boss.mp3",
+    "menu": "Sounds/musique_de_menu.mp3",
+}
+_current_music_track = None
+
+
+def play_music(music_name):
+    """Charge et joue une musique en boucle"""
+    global _current_music_track
+    if music_name not in MUSIC_TRACKS:
+        return
+    target_file = MUSIC_TRACKS[music_name]
+    if _current_music_track == target_file and pygame.mixer.music.get_busy():
+        pygame.mixer.music.set_volume(0 if globals.music_muted else globals.music_volume)
+        return
+    pygame.mixer.music.load(target_file)
+    _current_music_track = target_file
+    pygame.mixer.music.set_volume(0 if globals.music_muted else globals.music_volume)
+    pygame.mixer.music.play(-1)
+
+def update_music_for_state(state, monsters):
+    """Choisit automatiquement la bonne musique selon l'etat du jeu (menu, jeu, boss)."""
+    menu_states = {"menu_de_debut", "menu_attribut", "paused", "rune_menu", "death", "end"}
+    if state in menu_states:
+        play_music("menu")
+        return
+    if state == "game":
+        boss_alive = any(isinstance(monster, classes.Boss) and monster.alive for monster in monsters)
+        play_music("boss" if boss_alive else "game")
+
+
 
 # =================================
 # PAUSE
@@ -41,7 +74,7 @@ def paused_buttons_manager(state, event, continue_button, quit_button, player):
 
     if buttons.music_toggle_rect.collidepoint(event.pos):
         globals.music_muted = not globals.music_muted                     # Si on clique sur le bouton pour basculer la musique, basculer le mode muet
-        pygame.mixer.music.set_volume(0 if globals.music_muted else 0.7)  # Et ajuste le volume en consequence
+        pygame.mixer.music.set_volume(0 if globals.music_muted else globals.music_volume)  # Et ajuste le volume en consequence
     return state
 
 
@@ -225,7 +258,6 @@ def beginning_menu_manager(state, event, player, offset_x):
     spawn_x = offset_x + 2 * 32
     player.perso_rect = player.selected_image.get_rect(topleft=(spawn_x, 300))    # Rect de l'image
     player.hitbox = pygame.Rect(player.perso_rect.x, player.perso_rect.y, 32, 112)            # Hitbox du personnage, positionnee par rapport au rect de l'image du personnage pour que le joueur puisse cliquer sur le personnage lui meme pour le selectionner dans le menu de depart, et pour que les collisions avec les plateformes et les monstres soient plus precises pendant le jeu
-    pygame.mixer.music.play(-1)                                                               # Lancer la musique de fond en boucle
     state = "game"                                                                            # Passer au jeu
     player.life = floor(player.max_life)                                                      # S'assurer que la vie du joueur est a son maximum au debut du jeu, au cas ou le joueur aurait clique sur plusieurs personnages dans le menu de depart et que la variable player.life aurait ete modifiee par les caracteristiques d'un personnage avant que le joueur ne choisisse finalement un autre personnage avec des caracteristiques differentes
     player.velocity = 0                                                                       # S'assurer que la vitesse du joueur est a 0 au debut du jeu, pour eviter les bugs de mouvement si le joueur avait clique sur plusieurs personnages dans le menu de depart et que la variable player.velocity aurait ete modifiee par les caracteristiques d'un personnage avant que le joueur ne choisisse finalement un autre personnage avec des caracteristiques differentes
@@ -285,7 +317,6 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     # --- Pour retourner a la page du depart ---
     if key[pygame.K_m]:
         state = "menu_attribut"    # Passer a l'etat correspondant a celui du menu d'attributs du joueur
-        pygame.mixer.music.stop()  # Arreter la musique de fond
     
     
     # --- Utilisation des slots (maintenir 1-5 pendant 1s) ---
@@ -320,9 +351,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
 
 def background_music():
     """S'occupe de lancer la musique de fond du jeu en boucle, avec un volume ajuste a 0.7 pour ne pas etre trop forte par rapport aux autres sons du jeu"""
-    pygame.mixer.music.load("Sounds/background_music.mp3")
-    pygame.mixer.music.set_volume(0.7)
-    pygame.mixer.music.play(-1)
+    play_music("game")
 
 
 
@@ -369,7 +398,6 @@ def death_manager(state, event, restart_rect_death, end_rect_death, player, inve
 def death_displayer(screen, restart_rect_death, death_text_font, end_rect_death, monsters):
     """S'occupe d'afficher l'ecran de mort, avec les boutons pour recommencer ou arreter le jeu, et de reinitialiser les variables du jeu pour pouvoir recommencer a zero si le joueur choisit de rejouer"""
     globals.screen.fill(globals.BLACK)  # Remplir l'ecran de noir pour l'ecran de mort
-    pygame.mixer.music.stop()           # Arreter la musique de fond quand le joueur meurt
 
     txt = buttons.death_text_font.render("Bienvenue au Royaume des Defunts", True, (150, 20, 40))  # Definir le texte de l'ecran de mort
     globals.screen.blit(txt, txt.get_rect(center = (globals.WIDTH//2, globals.HEIGHT//2 - 100)))   # Afficher le texte de l'ecran de mort
@@ -440,7 +468,6 @@ def attributes_menu_manager(state, event, continue_rect, speed_rect, vitality_re
     
     if continue_rect.collidepoint(event.pos):
         state = "game"
-        pygame.mixer.music.play()
     
     elif speed_rect.collidepoint(event.pos):
         if player.point_attribut > 0:
