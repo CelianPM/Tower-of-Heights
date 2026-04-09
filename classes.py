@@ -395,11 +395,49 @@ class Player:
             self.puissance += 48
 
 
-    def platform_collisions(self, platforms, traps, velocity):
+    def platform_collisions(self, platforms, block, traps, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""
         self.on_ground = False                                                      # Par defaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
         previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
 
+
+        for platform in block:
+            if not self.hitbox.colliderect(platform):
+                continue
+
+
+            horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
+              
+            # Collisions du haut de la plateforme
+            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
+                self.hitbox.bottom = platform.top
+                self.on_ground = True
+                velocity = 0
+                continue                                                   # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
+ 
+            # Collisions du bas de la plateforme
+            if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
+                a = self.hitbox
+                a.x = previous_hitbox.x
+                horizontal_overlap = a.right > platform.left and a.left < platform.right
+                if horizontal_overlap:
+                    self.hitbox.top = platform.bottom
+                    velocity = 0
+                    continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
+
+
+            # Collisions des cotes de la plateforme
+            if previous_hitbox.right <= platform.left and self.hitbox.right > platform.left:
+                self.hitbox.right = platform.left
+            elif previous_hitbox.left >= platform.right and self.hitbox.left < platform.right:
+                self.hitbox.left = platform.right
+            else:
+                overlap_left = self.hitbox.right - platform.left
+                overlap_right = platform.right - self.hitbox.left
+                if overlap_left < overlap_right:
+                    self.hitbox.right = platform.left
+                else:
+                    self.hitbox.left = platform.right
 
         for platform in platforms:
             if not self.hitbox.colliderect(platform):
@@ -451,7 +489,7 @@ class Player:
         return velocity
 
 
-    def monster_collisions(self, monsters, time, arrows, platforms, items, shurikens = None):
+    def monster_collisions(self, monsters, time, arrows, platforms, block, items, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
             hitbox = self.hitbox

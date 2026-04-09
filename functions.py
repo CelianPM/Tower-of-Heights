@@ -301,13 +301,13 @@ def beginning_menu_displayer(screen, title_surface, title_rect, archer_image, ar
 # =================================
 # JEU
 # =================================
-def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, traps, shurikens, hazards):
+def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, block, traps, shurikens, hazards):
     """S'occupe de gerer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
     # --- Mouvements et collisions du joueur ---
     velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens)
-    velocity = player.platform_collisions(platforms, traps, velocity)
-    player.monster_collisions(monsters, time, arrows, platforms, items, shurikens)
+    velocity = player.platform_collisions(platforms, block, traps, velocity)
+    player.monster_collisions(monsters, time, arrows, platforms, block, items, shurikens)
     player.hazard_collisions(hazards, time)
     player.player_xp()
     items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed)

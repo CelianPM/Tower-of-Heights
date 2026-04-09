@@ -69,6 +69,7 @@ def create_world_from_map(map_design):
     rune_machines.clear()
     wall.clear()
     hazards.clear()
+    block = []
 
     potion_spawns = 0
     rune_spawns = 0
@@ -86,10 +87,14 @@ def create_world_from_map(map_design):
             x = col_index * tile_size + offset_x
             y = row_index * tile_size + offset_y
 
-            if cell == "#":
+            if cell == "/":
+                rect = pygame.Rect(x, y, tile_size, tile_size)
+                block.append(rect)
+                wall_type.append(0)
+            elif cell == "#":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 platforms.append(rect)
-                wall_type.append(0)
+                wall_type.append(1)
             elif cell == "T":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 traps.append(rect)
@@ -227,9 +232,9 @@ def create_world_from_map(map_design):
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
 
-    return platforms, traps, monsters, items, rune_machines, wall, hazards, offset_x
+    return platforms, block, traps, monsters, items, rune_machines, wall, hazards, offset_x
 
-platforms, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
+platforms, block, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -333,7 +338,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, traps, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, block, traps, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -388,7 +393,10 @@ while running:
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for platform in platforms:
+        globals.screen.blit(imports.platform_1, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for platform in block:
         globals.screen.blit(imports.platform_wall, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+
     for trap in traps:
         globals.screen.blit(imports.platform_trap, (trap.x, trap.y - camera_y))
     for wall_tile in wall:

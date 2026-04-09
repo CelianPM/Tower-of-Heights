@@ -157,8 +157,8 @@ rune_machine = pygame.image.load("Images/rune_machine.png").convert_alpha()  # C
     # Autres images pour les plateformes
 platform_trap = pygame.image.load("Images/Background/Platforms/platform_trap.png").convert_alpha()  # Charger l'image de la plateforme piegee
 platform_wall = pygame.image.load("Images/Background/Platforms/platform_wall.png").convert_alpha()  # Charger l'image de la plateforme murale
-
-
+platform_1 = pygame.image.load("Images/Background/Platforms/platform_floor1.png").convert_alpha()
+platform_2 = pygame.image.load("Images/Background/Platforms/platform_floor2.png").convert_alpha()
 
 # =================================
 # SONS
