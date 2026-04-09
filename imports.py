@@ -83,6 +83,9 @@ cerberus_attack_bite = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerber
 cerberus_walking1 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking1.png").convert_alpha()
 cerberus_walking2 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking2.png").convert_alpha()
 
+spider_walking1 = pygame.image.load("Images/Monsters/Bosses/walking_spider1.png").convert_alpha()
+spider_walking2 = pygame.image.load("Images/Monsters/Bosses/walking_spider2.png").convert_alpha()
+spider_jaw_attack = pygame.image.load("Images/Monsters/Bosses/spider_attack_jaw.png").convert_alpha()
 
     # Objets
         # Potions
