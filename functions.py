@@ -111,6 +111,7 @@ def paused_buttons_displayer(screen, pause_box, text_font, continue_button, quit
         "Pause = ESC",
         "Objets: maintenir 1..5 = utiliser",
         "Shift + 1..5 = jeter",
+        "Caps_Lock = changer d'attaque (ninja)",
     ]
     for i, text in enumerate(lines):
         globals.screen.blit(buttons.text_font.render(text, True, globals.WHITE), (buttons.pause_info_box.x + 20, buttons.pause_info_box.y + 20 + i * 30))
