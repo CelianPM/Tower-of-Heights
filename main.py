@@ -89,12 +89,14 @@ def create_world_from_map(map_design):
 
             if cell == "/":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
+                wall.append(classes.Wall(x, y, tile_size))
                 block.append(rect)
                 wall_type.append(0)
             elif cell == "#":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
+                wall.append(classes.Wall(x, y, tile_size))
                 platforms.append(rect)
-                wall_type.append(1)
+                wall_type.append(0)
             elif cell == "T":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 traps.append(rect)
@@ -145,9 +147,9 @@ def create_world_from_map(map_design):
             elif cell == "^":
                 hazards.append(classes.Spikes(x, y, tile_size, damage = 1))
                 wall.append(classes.Wall(x, y, tile_size))
-                wall_type.append(1)
+                wall_type.append(0)
             elif cell == "L":
-                wall_type.append(1)
+                wall_type.append(0)
                 hazards.append(classes.Lava(x, y, tile_size, damage = 2))
                 wall.append(classes.Wall(x, y, tile_size))
 
@@ -178,7 +180,10 @@ def create_world_from_map(map_design):
 
             elif cell == ".":
                 wall_prob = randint(0,1000)
-                if wall_type[-32] == 2:
+                if wall_type[-32] == 0:
+                    wall.append(classes.Wall(x, y, tile_size, 0))
+                    wall_type.append(1)
+                elif wall_type[-32] == 2:
                     wall.append(classes.Wall(x, y, tile_size, 1))
                     wall_type.append(1)
                 elif wall_type[-32] == 3:
@@ -392,16 +397,14 @@ while running:
 
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
-    for platform in platforms:
-        globals.screen.blit(imports.platform_1, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
-
-    for platform in block:
-        globals.screen.blit(imports.platform_wall, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
-
-    for trap in traps:
-        globals.screen.blit(imports.platform_trap, (trap.x, trap.y - camera_y))
     for wall_tile in wall:
         wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for platform in platforms:
+        globals.screen.blit(imports.platform_1, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for platform in block:
+        globals.screen.blit(imports.platform_wall, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for trap in traps:
+        globals.screen.blit(imports.platform_trap, (trap.x, trap.y - camera_y))
     for hazard in classes.hazards:
         hazard.draw(globals.screen, camera_y)
     if globals.hitbox_display:

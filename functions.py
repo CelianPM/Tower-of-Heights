@@ -321,7 +321,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
 
 
     # --- Monster movement ---
-    monster_platforms = platforms + traps + [hazard.rect for hazard in hazards]
+    monster_platforms = platforms + traps + [hazard.rect for hazard in hazards] + block
     for monster in monsters:
         if monster.alive:
             monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox

@@ -2222,6 +2222,9 @@ class Wall:
     def __init__(self, x, y, tile_size = 32, type = 0):
         wall_prob = randint(0,1000)
         blood_prob = randint(0,2)
+        if type == 0:
+            self.image = imports.wall_tile
+            self.rect = self.image.get_rect(topleft = (x, y))
         if type == 1:
             self.image = imports.wall_tile_cuffs
             self.rect = self.image.get_rect(topleft = (x, y))
