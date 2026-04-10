@@ -402,7 +402,7 @@ def death_manager(state, event, restart_rect_death, end_rect_death, player, inve
     player.equipped_rings = set()
     player.equipped_ring_images = []
 
-    _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards, _ = create_world_from_map(map_design)
+    _, _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards, _ = create_world_from_map(map_design)
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 
