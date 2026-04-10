@@ -301,13 +301,13 @@ def beginning_menu_displayer(screen, title_surface, title_rect, archer_image, ar
 # =================================
 # JEU
 # =================================
-def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, block, traps, shurikens, hazards):
+def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms_1, platforms_2, block, traps, shurikens, hazards):
     """S'occupe de gerer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
     # --- Mouvements et collisions du joueur ---
     velocity, start_time = player.move(imports.jump_sound, state, time, key, velocity, start_time, arrows, shurikens)
-    velocity = player.platform_collisions(platforms, block, traps, velocity)
-    player.monster_collisions(monsters, time, arrows, platforms, block, items, shurikens)
+    velocity = player.platform_collisions(platforms_1, platforms_2, block, traps, velocity)
+    player.monster_collisions(monsters, time, arrows, platforms_1, platforms_2, block, items, shurikens)
     player.hazard_collisions(hazards, time)
     player.player_xp()
     items, inventory_list, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = player.player_inventory(items, inventory_list, key, time, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed)
@@ -321,7 +321,7 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
 
 
     # --- Monster movement ---
-    monster_platforms = platforms + traps + [hazard.rect for hazard in hazards] + block
+    monster_platforms = platforms_1 + platforms_2 + traps + [hazard.rect for hazard in hazards] + block
     for monster in monsters:
         if monster.alive:
             monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
@@ -402,7 +402,7 @@ def death_manager(state, event, restart_rect_death, end_rect_death, player, inve
     player.equipped_rings = set()
     player.equipped_ring_images = []
 
-    _, _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards, _ = create_world_from_map(map_design)
+    _, _, _, _, classes.monsters, items, classes.rune_machines, _, classes.hazards, _ = create_world_from_map(map_design)
 
     return state, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time
 

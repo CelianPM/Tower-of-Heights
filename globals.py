@@ -49,7 +49,8 @@ ITEM_USE_HOLD_MS = 1000  # Temps en millisecondes pour que l'utilisation d'un it
 # =================================
 # LISTES GLOBALES
 # =================================
-platforms = []     # Liste de toutes les plateformes du jeu
+platforms_1 = []     # Liste de toutes les plateformes du jeu
+platforms_2 = []
 traps = []         # Liste de toutes les plateforms traversables du jeu
 monsters = []      # Liste de tous les monstres du jeu
 items = []         # Liste de tous les items du jeu

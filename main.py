@@ -53,7 +53,8 @@ for row_index, row in enumerate(map_design):
 
 def create_world_from_map(map_design):
     # Importe les listes de globals
-    platforms = globals.platforms
+    platforms_1 = globals.platforms_1
+    platforms_2 = globals.platforms_2
     traps = globals.traps
     monsters = globals.monsters
     items = globals.items
@@ -62,7 +63,8 @@ def create_world_from_map(map_design):
     hazards = globals.hazards
 
     # Vide les listes pour pouvoir les remplir avec les elements de la carte, et eviter d'avoir des elements en double si on recommence une partie
-    platforms.clear()
+    platforms_1.clear()
+    platforms_2.clear()
     traps.clear()
     monsters.clear()
     items.clear()
@@ -93,9 +95,12 @@ def create_world_from_map(map_design):
                 block.append(rect)
                 wall_type.append(0)
             elif cell == "#":
+                plat_prob = randint(0, 1)
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 wall.append(classes.Wall(x, y, tile_size))
-                platforms.append(rect)
+                if plat_prob == 0:
+                    platforms_1.append(rect)
+                else: platforms_2.append(rect)
                 wall_type.append(0)
             elif cell == "T":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
@@ -237,9 +242,9 @@ def create_world_from_map(map_design):
     if potion_spawns == 0 and rune_spawns == 0:
         items.extend(inventory.generate_default_world_items())
 
-    return platforms, block, traps, monsters, items, rune_machines, wall, hazards, offset_x
+    return platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x
 
-platforms, block, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
+platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
 
 
 # --- Variables importees ---
@@ -343,7 +348,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms, block, traps, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms_1, platforms_2, block, traps, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -375,9 +380,9 @@ while running:
     
     if state == "game" :
         for arrow in globals.arrows[:]: 
-            arrow.update(platforms, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque fleche en fonction de sa direction et de sa vitesse, et retirer les fleches qui sortent de l'ecran pour eviter d'avoir trop de fleches inutiles dans la liste des fleches
+            arrow.update(platforms_1, platforms_2, block, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque fleche en fonction de sa direction et de sa vitesse, et retirer les fleches qui sortent de l'ecran pour eviter d'avoir trop de fleches inutiles dans la liste des fleches
         for shuriken in globals.shurikens[:]: 
-            shuriken.update(platforms, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
+            shuriken.update(platforms_1, platforms_2, block, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
     player.update_potion_effects(time)
     
     map_height_pixels = len(map_design) * tile_size
@@ -399,8 +404,11 @@ while running:
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for wall_tile in wall:
         wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
-    for platform in platforms:
+    for platform in platforms_1:
         globals.screen.blit(imports.platform_1, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    for platform in platforms_2:
+        globals.screen.blit(imports.platform_2, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+
     for platform in block:
         globals.screen.blit(imports.platform_wall, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for trap in traps:

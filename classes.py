@@ -395,7 +395,7 @@ class Player:
             self.puissance += 48
 
 
-    def platform_collisions(self, platforms, block, traps, velocity):
+    def platform_collisions(self, platforms_1, platforms_2, block, traps, velocity):
         """S'occupe des collisoins avec les plateformes : si le joueur est en contact avec une plateforme, il n epeut pas la traverser."""
         self.on_ground = False                                                      # Par defaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
         previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
@@ -439,7 +439,7 @@ class Player:
                 else:
                     self.hitbox.left = platform.right
 
-        for platform in platforms:
+        for platform in platforms_1:
             if not self.hitbox.colliderect(platform):
                 continue
 
@@ -477,6 +477,45 @@ class Player:
                 else:
                     self.hitbox.left = platform.right
 
+        for platform in platforms_2:
+            if not self.hitbox.colliderect(platform):
+                continue
+
+
+            horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
+              
+            # Collisions du haut de la plateforme
+            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
+                self.hitbox.bottom = platform.top
+                self.on_ground = True
+                velocity = 0
+                continue                                                   # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
+ 
+            # Collisions du bas de la plateforme
+            if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
+                a = self.hitbox
+                a.x = previous_hitbox.x
+                horizontal_overlap = a.right > platform.left and a.left < platform.right
+                if horizontal_overlap:
+                    self.hitbox.top = platform.bottom
+                    velocity = 0
+                    continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
+
+
+            # Collisions des cotes de la plateforme
+            if previous_hitbox.right <= platform.left and self.hitbox.right > platform.left:
+                self.hitbox.right = platform.left
+            elif previous_hitbox.left >= platform.right and self.hitbox.left < platform.right:
+                self.hitbox.left = platform.right
+            else:
+                overlap_left = self.hitbox.right - platform.left
+                overlap_right = platform.right - self.hitbox.left
+                if overlap_left < overlap_right:
+                    self.hitbox.right = platform.left
+                else:
+                    self.hitbox.left = platform.right
+
+
         for trap in traps:
             if not self.hitbox.colliderect(trap):
                 continue
@@ -489,7 +528,7 @@ class Player:
         return velocity
 
 
-    def monster_collisions(self, monsters, time, arrows, platforms, block, items, shurikens = None):
+    def monster_collisions(self, monsters, time, arrows, platforms_1, platforms_2, block, items, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         for monster in monsters[:]:
             hitbox = self.hitbox
@@ -516,7 +555,7 @@ class Player:
                             else :
                                 monster.rect.x += globals.PUSHBACK
                             monster.invincible = time + 500
-                            monster.resolve_horizontal_collisions(platforms)
+                            monster.resolve_horizontal_collisions(platforms_1, platforms_2)
                     else:
                         if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
                          damage = monster.get_contact_damage() if hasattr(monster, 'get_contact_damage') else 1
@@ -565,7 +604,7 @@ class Player:
                             monster.rect.x += globals.PUSHBACK
                     else:
                         monster.rect.x -= globals.PUSHBACK                  # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                    monster.resolve_horizontal_collisions(platforms)
+                    monster.resolve_horizontal_collisions(platforms_1, platforms_2)
                     arrows.remove(arrow)                                    # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
@@ -593,7 +632,7 @@ class Player:
                             monster.rect.x += globals.PUSHBACK
                     else:
                         monster.rect.x -= globals.PUSHBACK                     # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                    monster.resolve_horizontal_collisions(platforms)
+                    monster.resolve_horizontal_collisions(platforms_1, platforms_2)
                     shurikens.remove(shuriken)                                 # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                                  # Quand le monstre n'a plus de vies, il est retire du jeu
@@ -775,32 +814,49 @@ class Monster:
                self.image = self.image_right
 
 
-   def resolve_horizontal_collisions(self, platforms):
+   def resolve_horizontal_collisions(self, platforms_1, platforms_2):
        # Empeche le monstre de traverser un mur apres un pushback horizontal
-       if platforms is None:
-           platforms = []
+        if platforms_1 is None:
+            platforms_1 = []
+
+        if platforms_2 is None:
+           platforms_2 = []
 
 
-       for platform in platforms:
-           if not self.rect.colliderect(platform):
-               continue
+        for platform in platforms_1:
+            if not self.rect.colliderect(platform):
+                continue
 
 
-           overlap_left = self.rect.right - platform.left
-           overlap_right = platform.right - self.rect.left
+            overlap_left = self.rect.right - platform.left
+            overlap_right = platform.right - self.rect.left
 
 
-           if overlap_left < overlap_right:
-               self.rect.right = platform.left
-           else:
-               self.rect.left = platform.right
+            if overlap_left < overlap_right:
+                self.rect.right = platform.left
+            else:
+                self.rect.left = platform.right
+
+        for platform in platforms_2:
+            if not self.rect.colliderect(platform):
+                continue
+
+
+            overlap_left = self.rect.right - platform.left
+            overlap_right = platform.right - self.rect.left
+
+
+            if overlap_left < overlap_right:
+                self.rect.right = platform.left
+            else:
+                self.rect.left = platform.right
 
 
        # Empeche aussi de sortir de l'ecran
-       if self.rect.left < 0:
-           self.rect.left = 0
-       if self.rect.right > globals.WIDTH:
-           self.rect.right = globals.WIDTH
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > globals.WIDTH:
+            self.rect.right = globals.WIDTH
 
 
    def patrol_horizontally(self, platforms = None):
@@ -2100,21 +2156,28 @@ class Spider(Boss):
 
 # --- General ---
 class Projectile:
-   def __init__(self, x, y, player):
-       self.direction = player.direction     # La direction du projectile est definie par la direction du joueur au moment du tir, et ne change pas apres
+    def __init__(self, x, y, player):
+        self.direction = player.direction     # La direction du projectile est definie par la direction du joueur au moment du tir, et ne change pas apres
 
 
-   def update(self, platforms, arrows, shurikens):
-       if self.direction == "right":
+    def update(self, platforms_1, platforms_2, block, arrows, shurikens):
+        if self.direction == "right":
            self.rect.x += self.speed  # La fleche se deplace vers la droite si sa direction est a droite
-       else:
+        else:
            self.rect.x -= self.speed  # La fleche se deplace vers la gauche si sa direction est a gauche
-       if self.rect.right < 0 or self.rect.left > globals.WIDTH:  # Si la fleche sort de l'ecran, elle est retiree du jeu
+        if self.rect.right < 0 or self.rect.left > globals.WIDTH:  # Si la fleche sort de l'ecran, elle est retiree du jeu
            if self in arrows:
                arrows.remove(self)
            if self in shurikens:
                shurikens.remove(self)
-       for platform in platforms:
+        for platform in platforms_1:
+            if self.rect.colliderect(platform):
+                if self in arrows:
+                    arrows.remove(self)
+                if self in shurikens:
+                    shurikens.remove(self)
+                break
+        for platform in platforms_2:
            if self.rect.colliderect(platform):
                if self in arrows:
                    arrows.remove(self)
@@ -2123,7 +2186,7 @@ class Projectile:
                break
 
 
-   def draw(self, screen):
+    def draw(self, screen):
        screen.blit(self.image, self.rect)  # Afficher la fleche a sa position actuelle sur l'ecran
 
 
@@ -2162,8 +2225,8 @@ class Shuriken(Projectile):
        self.image = self.base_image
 
 
-   def update(self, platforms, arrows, shurikens):
-       super().update(platforms, arrows, shurikens)
+   def update(self, platforms_1, platforms_2, block, arrows, shurikens):
+       super().update(platforms_1, platforms_2, block, arrows, shurikens)
        if self not in shurikens:
            return  # Si le shuriken a ete retire du jeu (par exemple, s'il a touche une plateforme), ne pas continuer a mettre a jour sa rotation
       
