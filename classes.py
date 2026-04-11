@@ -547,6 +547,7 @@ class Player:
                             if monster.type == "slug" : monster.rect.x -= 5 * globals.PUSHBACK
                             else : monster.rect.x -= globals.PUSHBACK
                             monster.invincible = time + 500
+                            monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
                     elif player_hits_monster and self.selected_image == self.selected_attack_right and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):  # Si le joueur attaque vers la droite avec l'épée
                         if monster.rect.x > self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à droite du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
@@ -555,7 +556,7 @@ class Player:
                             else :
                                 monster.rect.x += globals.PUSHBACK
                             monster.invincible = time + 500
-                            monster.resolve_horizontal_collisions(platforms_1, platforms_2)
+                            monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
                     else:
                         if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
                          damage = monster.get_contact_damage() if hasattr(monster, 'get_contact_damage') else 1
@@ -604,7 +605,7 @@ class Player:
                             monster.rect.x += globals.PUSHBACK
                     else:
                         monster.rect.x -= globals.PUSHBACK                  # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                    monster.resolve_horizontal_collisions(platforms_1, platforms_2)
+                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
                     arrows.remove(arrow)                                    # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
@@ -632,7 +633,7 @@ class Player:
                             monster.rect.x += globals.PUSHBACK
                     else:
                         monster.rect.x -= globals.PUSHBACK                     # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                    monster.resolve_horizontal_collisions(platforms_1, platforms_2)
+                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
                     shurikens.remove(shuriken)                                 # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                                  # Quand le monstre n'a plus de vies, il est retire du jeu
@@ -814,7 +815,7 @@ class Monster:
                self.image = self.image_right
 
 
-   def resolve_horizontal_collisions(self, platforms_1, platforms_2):
+   def resolve_horizontal_collisions(self, platforms_1, platforms_2, blocks = None):
        # Empeche le monstre de traverser un mur apres un pushback horizontal
         if platforms_1 is None:
             platforms_1 = []
@@ -851,6 +852,20 @@ class Monster:
             else:
                 self.rect.left = platform.right
 
+        if blocks is None:
+            blocks = []
+
+        for block in blocks:
+            if not self.rect.colliderect(block):
+                continue
+
+            overlap_left = self.rect.right - block.left
+            overlap_right = block.right - self.rect.left
+
+            if overlap_left < overlap_right:
+                self.rect.right = block.left
+            else:
+                self.rect.left = block.right
 
        # Empeche aussi de sortir de l'ecran
         if self.rect.left < 0:
@@ -1889,10 +1904,20 @@ class Cerberus(Boss):
             # En patrouille seulement, cerberus tourne au bord de la plateforme
             # En poursuite, il reste au bord pour attendre le joueur
             # Oriente l'image selon la direction si cerberus n'attaque pas
-            if self.direction == 1:
-                self.image = self.image_right
+            if should_move_horizontally:
+                self.frame_index += self.animation_speed
+                if self.frame_index >= len(self.frames):
+                    self.frame_index = 0
+                base_frame = self.frames[int(self.frame_index)]
+                if self.direction == 1:
+                    self.image = base_frame
+                else:
+                    pygame.transform.flip(base_frame, True, False)
             else:
-                self.image = self.image_left
+                if self.direction == 1:
+                    self.image = self.image_right
+                else: 
+                    self.image = self.image_left
 
 
 class Spider(Boss):
@@ -2142,10 +2167,20 @@ class Spider(Boss):
             # En patrouille seulement, cerberus tourne au bord de la plateforme
             # En poursuite, il reste au bord pour attendre le joueur
             # Oriente l'image selon la direction si cerberus n'attaque pas
-            if self.direction == 1:
-                self.image = self.image_right
+            if should_move_horizontally:
+                self.frame_index += self.animation_speed
+                if self.frame_index >= len(self.frames):
+                    self.frame_index = 0
+                base_frame = self.frames[int(self.frame_index)]
+                if self.direction == 1:
+                    self.image = base_frame
+                else:
+                    pygame.transform.flip(base_frame, True, False)
             else:
-                self.image = self.image_left
+                if self.direction == 1:
+                    self.image = self.image_right
+                else: 
+                    self.image = self.image_left
 
 
 class King_Slime(Boss):
@@ -2421,6 +2456,13 @@ class Projectile:
                 break
         for platform in platforms_2:
            if self.rect.colliderect(platform):
+               if self in arrows:
+                   arrows.remove(self)
+               if self in shurikens:
+                   shurikens.remove(self)
+               break
+        for tile in block:
+           if self.rect.colliderect(tile):
                if self in arrows:
                    arrows.remove(self)
                if self in shurikens:

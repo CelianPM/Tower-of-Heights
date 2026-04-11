@@ -85,9 +85,9 @@ cerberus_walking2 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_
 
 King_Slime = pygame.image.load("Images/Monsters/Bosses/king_slime.png").convert_alpha()
 
-spider_walking1 = pygame.image.load("Images/Monsters/Bosses/walking_spider1.png").convert_alpha()
-spider_walking2 = pygame.image.load("Images/Monsters/Bosses/walking_spider2.png").convert_alpha()
-spider_jaw_attack = pygame.image.load("Images/Monsters/Bosses/spider_attack_jaw.png").convert_alpha()
+spider_walking1 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/walking_spider1.png").convert_alpha(), (200, 200))
+spider_walking2 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/walking_spider2.png").convert_alpha(), (200, 200))
+spider_jaw_attack = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/spider_attack_jaw.png").convert_alpha(), (200, 200))
 
     # Objets
         # Potions
