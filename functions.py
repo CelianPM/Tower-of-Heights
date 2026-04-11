@@ -24,15 +24,24 @@ def play_music(music_name):
     pygame.mixer.music.set_volume(0 if globals.music_muted else globals.music_volume)
     pygame.mixer.music.play(-1)
 
-def update_music_for_state(state, monsters):
+def update_music_for_state(state, monsters, player = None):
     """Choisit automatiquement la bonne musique selon l'etat du jeu (menu, jeu, boss)."""
     menu_states = {"menu_de_debut", "menu_attribut", "paused", "rune_menu", "death", "end"}
     if state in menu_states:
         play_music("menu")
         return
     if state == "game":
-        boss_alive = any(isinstance(monster, classes.Boss) and monster.alive for monster in monsters)
-        play_music("boss" if boss_alive else "game")
+        boss_alive = [monster for monster in monsters if isinstance(monster, classes.Boss) and monster.alive]
+        if not boss_alive or player is None:
+            play_music("game")
+            return
+
+        player_center_y = player.hitbox.centery
+        in_boss_room = any(
+            abs(player_center_y - boss.rect.centery) <= 280
+            for boss in boss_alive
+        )
+        play_music("boss" if in_boss_room else "game")
 
 
 

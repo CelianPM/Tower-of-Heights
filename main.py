@@ -276,7 +276,7 @@ while running:
     globals.clock.tick(globals.FPS)          # FPS
     time = pygame.time.get_ticks()           # pour relever le temps ecoule depuis le debut du jeu (en millisecondes)
     globals.key = pygame.key.get_pressed()  # Pour relever les touches actuellement appuyees
-    functions.update_music_for_state(state, classes.monsters)
+    functions.update_music_for_state(state, classes.monsters, player)
     
     for event in pygame.event.get():
         # --- Pour quitter le jeu ---
