@@ -257,6 +257,7 @@ last_inventory_feedback_time = 0
 velocity = globals.velocity
 camera_y = globals.camera_y
 start_time = globals.start_time
+paused_time = globals.paused_time
 inventory_list = inventory.inventory_list
 slot_hold_start = inventory.slot_hold_start
 slot_use_lock = inventory.slot_use_lock
@@ -275,18 +276,24 @@ running = True # Variable du jeu
 while running:
     globals.clock.tick(globals.FPS)          # FPS
     time = pygame.time.get_ticks()           # pour relever le temps ecoule depuis le debut du jeu (en millisecondes)
-    globals.key = pygame.key.get_pressed()  # Pour relever les touches actuellement appuyees
+    globals.key = pygame.key.get_pressed()   # Pour relever les touches actuellement appuyees
     functions.update_music_for_state(state, classes.monsters, player)
     
     for event in pygame.event.get():
         # --- Pour quitter le jeu ---
-        if event.type == pygame.QUIT or (state not in ("game", "rune_menu") and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.QUIT or (state not in ("game", "rune_menu", "paused") and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             running = False             # Pour sortir du jeu si on clique sur la croix ou si on appuie sur ECHAPE dans les menus
 
         # --- Pour mettre le jeu en pause ---
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state == "game":
             state = "paused"            # Si l'etat est celui du jeu et que le joueur appuie sur la touche ECHAPE, alors definir l'etat comme etant celui de pause
             pygame.mixer.music.pause()  # Arreter la musique
+            paused_time = time  # Enregistrer le moment ou le jeu a ete mis en pause
+
+        # Ferme le menu de pause en cliquant sur ECHAPE
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state == "paused" and time - paused_time > 1:  # Ajouter une condition de temps
+            state = "game"                # Si l'etat est celui de pause et que le joueur appuie sur la touche ECHAPE, alors definir l'etat comme etant celui du jeu pour fermer le menu de pause
+            pygame.mixer.music.unpause()  # Reprendre la musique la ou elle s'est arretee
 
         # --- Ouvrir la machine a runes ---
         if state == "game" and event.type == pygame.KEYDOWN and event.key == pygame.K_r:

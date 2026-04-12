@@ -35,6 +35,7 @@ GRAVITY = 0.4           # Vitesse de chute
 velocity = 0            # Variable = vitesse de saut - vitesse de chute
 on_ground = False       # Contact avec le sol
 start_time = 0          # Lorsque le jeu commence, le temps de depart est a 0
+paused_time = 0         # Moment ou le joueur met le jeu en pause
 PUSHBACK = 30           # La distance de recul quand le joueur ou le monstre est touche
 hitbox_display = False  # Affiche les hitboxes des entites
 music_muted = False     # Indique si la musique est mise en pause ou non
