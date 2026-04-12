@@ -57,7 +57,7 @@ beggar_walk4 = pygame.image.load("Images/Beggar/walking_beggar4.png").convert_al
 
     # Monstres
         # Slug
-slug = pygame.transform.scale(pygame.image.load("Images/Monsters/Slug/slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du slug et la redimensionner
+slug = pygame.transform.scale(pygame.image.load("Images/Monsters/slug.png").convert_alpha(), (150, 112.5))  # Charger l'image du slug et la redimensionner
 slug_left = pygame.transform.flip(slug, True, False)                                                        # Creer une version retournee horizontalement de l'image du slug pour le faire aller vers la gauche
 
         # Chauve-souris
@@ -73,21 +73,23 @@ jumping_slime3 = pygame.image.load("Images/Monsters/Slime/jumping_slime3.png").c
 jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").convert_alpha()
 
         # Mushroom
-mushroom = pygame.image.load("Images/Monsters/Mushroom/mushroom.png").convert_alpha()
+mushroom = pygame.image.load("Images/Monsters/mushroom.png").convert_alpha()
 
         # Bosses
+            # Cerbere
 cerberus_standing = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_standing.png").convert_alpha()
-
 cerberus_attack_claw = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_claw.png").convert_alpha()
 cerberus_attack_bite = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_attack_bite.png").convert_alpha()
 cerberus_walking1 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking1.png").convert_alpha()
 cerberus_walking2 = pygame.image.load("Images/Monsters/Bosses/Cerberus/cerberus_walking2.png").convert_alpha()
 
+            # King_Slime
 King_Slime = pygame.image.load("Images/Monsters/Bosses/king_slime.png").convert_alpha()
 
-spider_walking1 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/walking_spider1.png").convert_alpha(), (200, 200))
-spider_walking2 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/walking_spider2.png").convert_alpha(), (200, 200))
-spider_jaw_attack = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/spider_attack_jaw.png").convert_alpha(), (200, 200))
+            # Spider
+spider_walking1 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/Spider/walking_spider1.png").convert_alpha(), (200, 200))
+spider_walking2 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/Spider/walking_spider2.png").convert_alpha(), (200, 200))
+spider_jaw_attack = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/Spider/spider_attack_jaw.png").convert_alpha(), (200, 200))
 
     # Objets
         # Potions
