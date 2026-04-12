@@ -544,19 +544,23 @@ class Player:
                     if player_hits_monster and self.selected_image == self.selected_attack_left and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):     # Si le joueur attaque vers la gauche avec l'épée
                         if monster.rect.x < self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à gauche du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
-                            if monster.type == "slug" : monster.rect.x -= 5 * globals.PUSHBACK
-                            else : monster.rect.x -= globals.PUSHBACK
+                            if monster.type == "slug" :
+                                for _ in range(5):
+                                    monster.rect.x -= globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
+                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
+                            else :
+                                monster.rect.x -= globals.PUSHBACK
                             monster.invincible = time + 500
-                            monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
                     elif player_hits_monster and self.selected_image == self.selected_attack_right and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):  # Si le joueur attaque vers la droite avec l'épée
                         if monster.rect.x > self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à droite du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
                             if monster.type == "slug" :
-                                monster.rect.x += 5 * globals.PUSHBACK
+                                for _ in range(5):
+                                    monster.rect.x += globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
+                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
                             else :
                                 monster.rect.x += globals.PUSHBACK
                             monster.invincible = time + 500
-                            monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
                     else:
                         if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
                          damage = monster.get_contact_damage() if hasattr(monster, 'get_contact_damage') else 1
@@ -591,21 +595,27 @@ class Player:
 
 
                         if self.hitbox.x < monster.rect.x:
-                            self.pushback -= globals.PUSHBACK                       # Si le joueur est a gauche du monstre, il recule vers la gauche
+                            self.pushback -= globals.PUSHBACK  # Si le joueur est a gauche du monstre, il recule vers la gauche
                         else:
-                            self.pushback += globals.PUSHBACK                       # Si le joueur est a droite du monstre, il recule vers la droite
+                            self.pushback += globals.PUSHBACK  # Si le joueur est a droite du monstre, il recule vers la droite
           
             for arrow in arrows[:]:
                 if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
-                    monster.take_damage(self.degat + self.puissance, time)             # Le monstre perd une vie
+                    monster.take_damage(self.degat + self.puissance, time)  # Le monstre perd une vie
                     if arrow.direction == "right":
-                        if monster.type == "slug":
-                            monster.rect.x += 5 * globals.PUSHBACK
+                        if monster.type == "slug" :
+                                for _ in range(5):
+                                    monster.rect.x += globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
+                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
                         else:
                             monster.rect.x += globals.PUSHBACK
-                    else:
-                        monster.rect.x -= globals.PUSHBACK                  # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
+                    else:  # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                        if monster.type == "slug" :
+                                for _ in range(5):
+                                    monster.rect.x -= globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
+                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
+                        else :
+                            monster.rect.x -= globals.PUSHBACK
                     arrows.remove(arrow)                                    # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
@@ -627,13 +637,19 @@ class Player:
                 if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                     monster.take_damage(self.degat + self.puissance, time)                # Le monstre perd une vie
                     if shuriken.direction == "right":
-                        if monster.type == "slug":
-                            monster.rect.x += 5 * globals.PUSHBACK
+                        if monster.type == "slug" :
+                                for _ in range(5):
+                                    monster.rect.x += globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
+                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
                         else:
                             monster.rect.x += globals.PUSHBACK
-                    else:
-                        monster.rect.x -= globals.PUSHBACK                     # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
+                    else:  # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                        if monster.type == "slug" :
+                                for _ in range(5):
+                                    monster.rect.x -= globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
+                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
+                        else :
+                            monster.rect.x -= globals.PUSHBACK
                     shurikens.remove(shuriken)                                 # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                                  # Quand le monstre n'a plus de vies, il est retire du jeu
@@ -1650,11 +1666,6 @@ class Boss(Monster):
            self.last_damage_taken_time = time
        if self.life <= 0:
            self.alive = False
-
-
-
-
-
 
 
 class Cerberus(Boss):
