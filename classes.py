@@ -135,11 +135,11 @@ class Player:
             self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
             self.selected_attack = imports.ninja_ash                                                # Telecharge l'image de l'attaque de l'epeiste
-            self.speed = 5
-            self.max_speed = 5
-            self.max_life = 3
-            self.regeneration_time = 20000
-            self.degat = 300
+            self.speed = 9
+            self.max_speed = 9
+            self.max_life = 30
+            self.regeneration_time = 200
+            self.degat = 30000
             self.walk_frames_right = [
                 imports.walking_ninja1, 
                 imports.walking_ninja2, 
@@ -1844,7 +1844,7 @@ class Cerberus(Boss):
 
         previous_x = self.rect.x
         if retreat_direction != 0:
-            self.rect.x += self.speed * retreat_speed_multiplier
+            self.rect.x += self.speed * retreat_speed_multiplier * retreat_direction
         elif should_move_horizontally:
             self.rect.x += self.speed * self.direction
 
@@ -1923,7 +1923,7 @@ class Cerberus(Boss):
                 if self.direction == 1:
                     self.image = base_frame
                 else:
-                    pygame.transform.flip(base_frame, True, False)
+                    self.image = pygame.transform.flip(base_frame, True, False)
             else:
                 if self.direction == 1:
                     self.image = self.image_right
@@ -2107,7 +2107,7 @@ class Spider(Boss):
 
         previous_x = self.rect.x
         if retreat_direction != 0:
-            self.rect.x += self.speed * retreat_speed_multiplier
+            self.rect.x += self.speed * retreat_speed_multiplier * retreat_direction
         elif should_move_horizontally:
             self.rect.x += self.speed * self.direction
 
@@ -2186,7 +2186,7 @@ class Spider(Boss):
                 if self.direction == 1:
                     self.image = base_frame
                 else:
-                    pygame.transform.flip(base_frame, True, False)
+                    self.image = pygame.transform.flip(base_frame, True, False)
             else:
                 if self.direction == 1:
                     self.image = self.image_right
@@ -2359,7 +2359,7 @@ class King_Slime(Boss):
 
         previous_x = self.rect.x
         if retreat_direction != 0:
-            self.rect.x += self.speed * retreat_speed_multiplier
+            self.rect.x += self.speed * retreat_speed_multiplier * retreat_direction
         elif should_move_horizontally:
             self.rect.x += self.speed * self.direction
 
