@@ -434,8 +434,7 @@ while running:
     if globals.hitbox_display:
         pygame.draw.rect(globals.screen, (255, 255, 0), (player.hitbox.x, player.hitbox.y - camera_y, player.hitbox.width, player.hitbox.height), 2)
     for machine in classes.rune_machines:
-        if is_visible(wall_tile.rect, camera_y):
-            machine.draw(globals.screen, camera_y)
+        machine.draw(globals.screen, camera_y)
     globals.screen.blit(player.selected_image, (player.perso_rect.x, player.perso_rect.y - camera_y))                                                   # Afficher l'image du personnage a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for monster in classes.monsters:
         if monster.alive and is_visible(monster.rect, camera_y):
@@ -448,8 +447,7 @@ while running:
         globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     if items:
         for item in items:
-            if is_visible(wall_tile.rect, camera_y):
-                item.draw(globals.screen, camera_y) 
+            item.draw(globals.screen, camera_y) 
         if any(machine.can_interact(player.hitbox) for machine in classes.rune_machines):
             rune_hint = buttons.text_font.render("Appuie sur R pour utiliser les runes", True, globals.WHITE)
             globals.screen.blit(rune_hint, (20, 80))
