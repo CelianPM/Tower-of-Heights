@@ -135,11 +135,11 @@ class Player:
             self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
             self.selected_attack = imports.ninja_ash                                                # Telecharge l'image de l'attaque de l'epeiste
-            self.speed = 9
-            self.max_speed = 9
-            self.max_life = 30
-            self.regeneration_time = 200
-            self.degat = 30000
+            self.speed = 5
+            self.max_speed = 5
+            self.max_life = 3
+            self.regeneration_time = 15000
+            self.degat = 200
             self.walk_frames_right = [
                 imports.walking_ninja1, 
                 imports.walking_ninja2, 
