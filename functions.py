@@ -333,7 +333,8 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
     # --- Monster movement ---
     for monster in monsters:
         if monster.alive:
-            monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
+            if abs(monster.rect.centery - player.hitbox.centery) < 2000:
+                monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivantet proche du joueur, il suit le joueur en fonction de la position de sa hitbox
 
     # --- Pour retourner a la page du depart ---
     if key[pygame.K_m]:

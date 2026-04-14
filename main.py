@@ -250,6 +250,8 @@ def create_world_from_map(map_design):
 
 platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
 monster_platforms = platforms_1 + platforms_2 + traps + [hazard.rect for hazard in hazards] + block
+map_height_pixels = len(map_design) * tile_size
+offset_y = globals.HEIGHT - map_height_pixels
 
 # --- Variables importees ---
 last_inventory_feedback = ""
@@ -400,11 +402,6 @@ while running:
         for shuriken in globals.shurikens[:]: 
             shuriken.update(platforms_1, platforms_2, block, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
     player.update_potion_effects(time)
-    
-    map_height_pixels = len(map_design) * tile_size
-    offset_y = globals.HEIGHT - map_height_pixels
-    map_width_pixels = max(len(row) for row in map_design) * tile_size
-    offset_x = (globals.WIDTH - map_width_pixels) // 2
 
     for monster in globals.monsters:
         if not monster.alive and monster.type in boss_trap_tiles:
