@@ -599,6 +599,18 @@ class Player:
                         else:
                             self.pushback += globals.PUSHBACK  # Si le joueur est a droite du monstre, il recule vers la droite
           
+            if hasattr(monster, "poison_projectiles"):
+                for projectile in monster.poison_projectiles[:]:
+                    if projectile.destroyed:
+                        monster.poison_projectiles.remove(projectile)
+                        continue
+                    if self.hitbox.colliderect(projectile.rect):
+                        if time - self.last_damage_time >= self.invincibility_time:
+                            self.life -= projectile.damage
+                            self.last_damage_time = time
+                        projectile.destroyed = True
+                        monster.poison_projectiles.remove(projectile)
+
             for arrow in arrows[:]:
                 if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                     monster.take_damage(self.degat + self.puissance, time)  # Le monstre perd une vie
@@ -1948,6 +1960,7 @@ class Spider(Boss):
         self.on_ground = False
         self.type = "spider"
         self.bite_range = 200
+        self.poison_range = 520
         self.attack_cooldown = 5000
         self.attack_duration = 750
         self.last_attack_time = 0
@@ -1964,6 +1977,7 @@ class Spider(Boss):
         self.mana_safe_regen_distance = 240
         self.depleted_mana_retreat_multiplier = 3
         self.bite_hitbox_bonus = 50
+        self.poison_projectiles = []
 
     def bite_attack(self):
         self.current_attack = "crocs"
@@ -1975,7 +1989,10 @@ class Spider(Boss):
 
     def poison_attack(self):
         self.current_attack = "poison"
-        self.contact_damage = self.poison_damage
+        self.contact_damage = 0
+        projectile_x = self.rect.right - 30 if self.direction == 1 else self.rect.left + 30
+        projectile_y = self.rect.centery - 10
+        self.poison_projectiles.append(SpiderPoisonBall(projectile_x, projectile_y, self.direction, self.poison_damage))
         if self.direction == 1:
             self.image = self.poison_attack_frames[0]
         else:
@@ -2008,7 +2025,7 @@ class Spider(Boss):
     
     def update_attack(self, player_rect, time):
         distance_x = abs(player_rect.centerx - self.rect.centerx)
-        in_melee_range = distance_x <= self.bite_range
+        in_attack_range = distance_x <= self.poison_range
 
         if time < self.attack_end_time:
             self.apply_current_attack_frame()
@@ -2017,7 +2034,7 @@ class Spider(Boss):
         self.contact_damage = 0
         self.current_attack = None
 
-        if not in_melee_range:
+        if not in_attack_range:
             return
         if time - self.last_attack_time < self.attack_cooldown:
             return
@@ -2032,6 +2049,12 @@ class Spider(Boss):
             self.bite_attack()
         else:
             self.poison_attack()
+
+    def update_poison_projectiles(self, platforms):
+        for projectile in self.poison_projectiles[:]:
+            projectile.update(platforms)
+            if projectile.destroyed:
+                self.poison_projectiles.remove(projectile)
 
     def regenerate_mana(self, time, player_rect):
         if self.mana >= self.max_mana:
@@ -2172,6 +2195,7 @@ class Spider(Boss):
 
 
         self.on_ground = on_ground
+        self.update_poison_projectiles(platforms)
         self.update_attack(player_rect, pygame.time.get_ticks())
         if self.current_attack is None:
             # En patrouille seulement, cerberus tourne au bord de la plateforme
@@ -2434,7 +2458,9 @@ class King_Slime(Boss):
             else:
                 self.image = self.image_left
 
-
+    def reset_boss(self):
+        super().reset_boss()
+        self.poison_projectiles.clear()
 
 # =================================
 # ARMES A DISTANCE
@@ -2529,6 +2555,36 @@ class Shuriken(Projectile):
        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
 
 
+
+
+class SpiderPoisonBall:
+   def __init__(self, x, y, direction, damage = 1):
+       self.direction = direction
+       self.damage = damage
+       self.speed = 8
+       self.destroyed = False
+       self.image = imports.spider_poison_ball
+       if self.direction == 1:
+           self.rect = self.image.get_rect(midleft = (x, y))
+       else:
+           self.rect = self.image.get_rect(midright = (x, y))
+
+   def update(self, platforms):
+       if self.destroyed:
+           return
+
+       self.rect.x += self.speed * self.direction
+
+       if self.rect.right < 0 or self.rect.left > globals.WIDTH:
+           self.destroyed = True
+           return
+
+       for platform in platforms:
+           if self.rect.colliderect(platform):
+               self.destroyed = True
+               return
+           
+           
 # --- Machine pour les runes ---
 class Runemachine:
    def __init__(self, x, ground_y, tile_size = 32):
