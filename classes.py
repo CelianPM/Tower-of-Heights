@@ -2203,17 +2203,15 @@ class King_Slime(Boss):
             y, 
             image_right = imports.King_Slime,
             life = 60000,
-            speed = 0.5,
+            speed = 1,
             xp_reward = 20
         )
         self.frames = [imports.King_Slime]
-        self.dash_attack_frames_attack_frames = [imports.King_Slime]
+        self.dash_attack_frames = [imports.King_Slime]
         self.birth_attack_frames = [imports.King_Slime]
         self.velocity_y = 0
         self.on_ground = False
-        self.type = "spider"
-        self.bite_range = 125
-        self.claw_range = 175
+        self.type = "king_slime"
         self.attack_cooldown = 5000
         self.attack_duration = 750
         self.last_attack_time = 0
@@ -2221,7 +2219,7 @@ class King_Slime(Boss):
         self.current_attack = None
         self.dash_damage = 2
         self.birth_damage = 0
-        self.contact_damage = 0
+        self.contact_damage = 1
         self.max_mana = 1000
         self.mana = float(self.max_mana)
         self.attack_mana_cost = 100
@@ -2229,23 +2227,36 @@ class King_Slime(Boss):
         self.last_mana_regen_time = pygame.time.get_ticks()
         self.mana_safe_regen_distance = 240
         self.depleted_mana_retreat_multiplier = 3
+        self.dash_distance = 50
+        self.actual_dash_distance = 0
+        self.birth_spawn_count = 3
 
     def dash_attack(self):
         self.current_attack = "dash"
         self.contact_damage = self.dash_damage
-        self.velocity_y = -5
-        if self.direction == 1:
-            self.image = self.dash_attack_frames[0]
+        self.actual_dash_distance = self.dash_distance
+        self.rect.x += self.actual_dash_distance * self.direction
+        if self.actual_dash_distance > 0:
+            self.actual_dash_distance -= 10
         else:
-            self.image = pygame.transform.flip(self.dash_attack_frames[0], True, False)
+            self.actual_dash_distance = 0
 
-    def birth_attack(self):
+    def spawn_birth_slimes(self, monsters):
+        spawn_step = max(20, self.rect.width // 3)
+        start_x = self.rect.centerx - ((self.birth_spawn_count - 1) * spawn_step) // 2
+        spawn_y = self.rect.bottom - 10
+
+        for i in range(self.birth_spawn_count):
+            spawn_x = start_x + (i * spawn_step)
+            slime = Slime(spawn_x, spawn_y)
+            slime.direction = self.direction
+            slime.chasing = True
+            monsters.append(slime)
+
+    def birth_attack(self, monsters):
         self.current_attack = "birth"
         self.contact_damage = self.birth_damage
-        if self.direction == 1:
-            self.image = self.birth_attack_frames[0]
-        else:
-            self.image = pygame.transform.flip(self.birth_attack_frames[0], True, False)
+        self.spawn_birth_slimes(monsters)
 
 
 
@@ -2255,16 +2266,18 @@ class King_Slime(Boss):
                 self.image = self.dash_attack_frames[0]
             else:
                 self.image = pygame.transform.flip(self.dash_attack_frames[0], True, False)
+            self.rect.x += self.actual_dash_distance * self.direction
+            if self.actual_dash_distance > 0:
+                self.actual_dash_distance -= 10
+            else:
+                self.actual_dash_distance = 0
         elif self.current_attack == "birth":
             if self.direction == 1:
                 self.image = self.birth_attack_frames[0]
             else:
                 self.image = pygame.transform.flip(self.birth_attack_frames[0], True, False)
 
-    def update_attack(self, player_rect, time):
-        distance_x = abs(player_rect.centerx - self.rect.centerx)
-        in_melee_range = distance_x <= self.claw_range
-
+    def update_attack(self, player_rect, monsters, time):
         if time < self.attack_end_time:
             self.apply_current_attack_frame()
             return
@@ -2272,8 +2285,6 @@ class King_Slime(Boss):
         self.contact_damage = 0
         self.current_attack = None
 
-        if not in_melee_range:
-            return
         if time - self.last_attack_time < self.attack_cooldown:
             return
         if self.mana < self.attack_mana_cost:
@@ -2283,11 +2294,11 @@ class King_Slime(Boss):
         self.attack_end_time = time + self.attack_duration
         self.mana -= self.attack_mana_cost
 
-        if distance_x <= self.bite_range:
-            self.bite_attack()
+        attack = randint(0, 10)
+        if attack <= 7:
+            self.dash_attack()
         else:
-            self.claw_attack()
-
+            self.birth_attack(monsters)
     def regenerate_mana(self, time, player_rect):
         if self.mana >= self.max_mana:
             self.last_mana_regen_time = time
@@ -2296,8 +2307,7 @@ class King_Slime(Boss):
             self.last_mana_regen_time = time
             return
 
-        player_distance_x = abs(player_rect.centerx - self.rect.centerx)
-        if self.mana < self.attack_mana_cost and player_distance_x > self.mana_safe_regen_distance:
+        if self.mana < self.attack_mana_cost:
             self.mana = float(self.max_mana)
             self.last_mana_regen_time = time
             return
@@ -2329,42 +2339,10 @@ class King_Slime(Boss):
 
         time = pygame.time.get_ticks()
         self.regenerate_mana(time, player_rect)
-
-        should_move_horizontally = True
-        retreat_direction = 0
-        retreat_speed_multiplier = 1
-        distance_x = abs(player_rect.centerx - self.rect.centerx)
-        if self.chasing and distance_x <= self.bite_range and self.life >= 20000:
-            cooldown_ready = time - self.last_attack_time >= self.attack_cooldown
-            attack_active = time < self.attack_end_time
-            if self.mana < self.attack_mana_cost and not attack_active:
-                retreat_direction = -self.direction
-            elif attack_active:
-                should_move_horizontally = False
-            elif cooldown_ready:
-                should_move_horizontally = False
-            else:
-                retreat_direction = -self.direction
-                retreat_speed_multiplier = self.depleted_mana_retreat_multiplier
-        elif self.chasing and distance_x <= self.claw_range:
-            cooldown_ready = time - self.last_attack_time >= self.attack_cooldown
-            attack_active = time < self.attack_end_time
-            if self.mana < self.attack_mana_cost and not attack_active:
-                retreat_direction = -self.direction
-            elif attack_active:
-                should_move_horizontally = False
-            elif cooldown_ready:
-                should_move_horizontally = False
-            else:
-                retreat_direction = -self.direction
-                retreat_speed_multiplier = self.depleted_mana_retreat_multiplier
-
+        
         previous_x = self.rect.x
-        if retreat_direction != 0:
-            self.rect.x += self.speed * retreat_speed_multiplier * retreat_direction
-        elif should_move_horizontally:
-            self.rect.x += self.speed * self.direction
 
+        self.rect.x += self.speed * self.direction
 
         # Collision laterale avec les plateformes
         hit_side_wall = False
@@ -2427,11 +2405,11 @@ class King_Slime(Boss):
 
 
         self.on_ground = on_ground
-        self.update_attack(player_rect, pygame.time.get_ticks())
+        self.update_attack(player_rect, monsters, pygame.time.get_ticks())
         if self.current_attack is None:
-            # En patrouille seulement, cerberus tourne au bord de la plateforme
+            # En patrouille seulement, king slime tourne au bord de la plateforme
             # En poursuite, il reste au bord pour attendre le joueur
-            # Oriente l'image selon la direction si cerberus n'attaque pas
+            # Oriente l'image selon la direction si king slime n'attaque pas
             if self.direction == 1:
                 self.image = self.image_right
             else:
