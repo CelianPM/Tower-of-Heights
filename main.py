@@ -436,6 +436,11 @@ while running:
     for monster in classes.monsters:
         if monster.alive and is_visible(monster.rect, camera_y):
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+            if hasattr(monster, "poison_projectiles"):
+                for projectile in monster.poison_projectiles:
+                    if is_visible(projectile.rect, camera_y):
+                        globals.screen.blit(projectile.image, (projectile.rect.x, projectile.rect.y - camera_y))
+
 
     for arrow in globals.arrows:
         globals.screen.blit(arrow.image, (arrow.rect.x, arrow.rect.y - camera_y))                                                  # Afficher les fleches a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
