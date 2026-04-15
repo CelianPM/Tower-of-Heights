@@ -2242,9 +2242,9 @@ class King_Slime(Boss):
             self.actual_dash_distance = 0
 
     def spawn_birth_slimes(self, monsters):
-        spawn_step = max(20, self.rect.width // 3)
+        spawn_step =  self.rect.width // 3
         start_x = self.rect.centerx - ((self.birth_spawn_count - 1) * spawn_step) // 2
-        spawn_y = self.rect.bottom - 10
+        spawn_y = self.rect.bottom - 50
 
         for i in range(self.birth_spawn_count):
             spawn_x = start_x + (i * spawn_step)
