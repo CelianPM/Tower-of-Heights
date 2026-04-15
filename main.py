@@ -1,10 +1,13 @@
-import pygame                                                              # Importer la bibliotheque pygame pour creer le jeu
-import math                                                                # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
-from random import randint
+# --- Importer les bibliothèques et fichiers nécessaires pour le jeu ---
+
+import pygame                 # Importer la bibliotheque pygame pour creer le jeu
+import math                   # Impoter la bibliotheque math pour les calculs de distance et de direction des monstres volants
+from random import randint    # Importer la fonction randint de la bibliotheque random pour generer des nombres aleatoires, notamment pour le spawn des plateformes et des items
 import globals
 
-# Initialier pygame
+# Initialiser pygame
 globals.initialize_runtime()  # Initialiser pygame et les objets runtime partages (ecran, clock, dimensions, clavier)
+
 import imports, buttons, inventory, classes, functions  # Importer les autres fichiers apres l'initialisation runtime
 
 pygame.display.set_caption("Tower of Heights") # Quand la fenetre est ouverte, afficher "Tower of Heights" dans la barre de titre
@@ -12,7 +15,8 @@ pygame.display.set_caption("Tower of Heights") # Quand la fenetre est ouverte, a
 
 # --- Pour les bruitages ---
     # Pour la musique de fond
-pygame.mixer.music.set_volume(globals.music_volume)                      # Regler le volume de la musique de fond a 70%
+pygame.mixer.music.set_volume(globals.music_volume)  # Regler le volume de la musique de fond a 70%
+
 
 # --- Pour la fenetre ---
     # L'ecran
@@ -22,22 +26,34 @@ globals.screen.fill((40, 40, 55))  # Remplir la fenetre avec une couleur de base
 state = "menu_de_debut"       # Le jeu demarre sur la fenetre de menu
 functions.play_music("menu")  # Lancer la musique de menu
 
-# --- Images et classes---
+
+# --- Images, classes et listes ---
     # Heros
 player = classes.Player(globals.on_ground)  # Definit le joueur comme etant membre de la classe Player
+
+    # Listes pour la map
+platforms_1 = globals.platforms_1
+platforms_2 = globals.platforms_2
+traps = globals.traps
+monsters = globals.monsters
+items = globals.items
+rune_machines = globals.rune_machines
+wall = globals.wall
+hazards = globals.hazards
 
 # --- Plateformes ---
 tile_size = 32
 with open("map.txt") as map_layout:
-    map_design = map_layout.read().splitlines()
+    map_design = map_layout.read().splitlines()  # Lire le fichier map.txt et stocker son contenu ligne par ligne dans une liste de strings, ou chaque string correspond a une ligne du fichier, pour pouvoir ensuite parcourir cette liste et generer les elements du jeu en fonction des caracteres presentes dans chaque ligne
 
 boss_traps_spawned = set()  # Pour suivre les boss dont les plateformes traversables ont déjà été générés
-boss_trap_tiles = {  # Dictionnaire pour stocker les coordonnées des tuiles de plateformes traversables associées à chaque boss, afin de pouvoir les générer lorsque le boss correspondant est vaincu
+boss_trap_tiles = {         # Dictionnaire pour stocker les coordonnées des tuiles de plateformes traversables associées à chaque boss, afin de pouvoir les générer lorsque le boss correspondant est vaincu
     "cerberus": [],
     "king_slime": [],
     "spider": [],
     "knight": []
 }
+
 
 for row_index, row in enumerate(map_design):
     for col_index, cell in enumerate(row):
@@ -52,16 +68,6 @@ for row_index, row in enumerate(map_design):
 
 
 def create_world_from_map(map_design):
-    # Importe les listes de globals
-    platforms_1 = globals.platforms_1
-    platforms_2 = globals.platforms_2
-    traps = globals.traps
-    monsters = globals.monsters
-    items = globals.items
-    rune_machines = globals.rune_machines
-    wall = globals.wall
-    hazards = globals.hazards
-
     # Vide les listes pour pouvoir les remplir avec les elements de la carte, et eviter d'avoir des elements en double si on recommence une partie
     platforms_1.clear()
     platforms_2.clear()
@@ -75,7 +81,7 @@ def create_world_from_map(map_design):
 
     potion_spawns = 0
     rune_spawns = 0
-    wall_type = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    wall_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     map_height_pixels = len(map_design) * tile_size
     offset_y = globals.HEIGHT - map_height_pixels
@@ -89,6 +95,7 @@ def create_world_from_map(map_design):
             x = col_index * tile_size + offset_x
             y = row_index * tile_size + offset_y
 
+            # Plateformes
             if cell == "/":
                 rect = pygame.Rect(x, y, tile_size, tile_size)
                 wall.append(classes.Wall(x, y, tile_size))
@@ -107,6 +114,7 @@ def create_world_from_map(map_design):
                 traps.append(rect)
                 wall_type.append(0)
 
+            # Monstres
             elif cell == "S":
                 monsters.append(classes.Slug(x, y - 78))
                 wall.append(classes.Wall(x, y, tile_size))
@@ -124,6 +132,7 @@ def create_world_from_map(map_design):
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
 
+            # Bosses
             elif cell == "C":
                 monsters.append(classes.Cerberus(x, y))
                 wall.append(classes.Wall(x, y, tile_size))
@@ -137,6 +146,7 @@ def create_world_from_map(map_design):
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(2)
 
+            # Items
             elif cell == "P":
                 potion_spawns += 1
                 items.append(inventory.random_potion(x, y))
@@ -148,11 +158,13 @@ def create_world_from_map(map_design):
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
 
+            # Machine a runes
             elif cell == "M":
                 rune_machines.append(classes.Runemachine(x, y, tile_size))
                 wall.append(classes.Wall(x, y, tile_size))
                 wall_type.append(1)
 
+            # Hazards
             elif cell == "^":
                 hazards.append(classes.Spikes(x, y, tile_size, damage = 1))
                 wall.append(classes.Wall(x, y, tile_size))
@@ -162,6 +174,7 @@ def create_world_from_map(map_design):
                 hazards.append(classes.Lava(x, y, tile_size, damage = 2))
                 wall.append(classes.Wall(x, y, tile_size))
 
+            # Plateformes traversables de boss
             elif cell == "1":
                 for monster in monsters:
                     if monster.type == "cerberus" and not monster.alive:
@@ -187,32 +200,41 @@ def create_world_from_map(map_design):
                         traps.append(rect)
                         wall_type.append(1)
 
+            # Background
             elif cell == ".":
                 wall_prob = randint(0,1000)
                 if wall_type[-32] == 0:
                     wall.append(classes.Wall(x, y, tile_size, 0))
                     wall_type.append(1)
+                
                 elif wall_type[-32] == 2:
                     wall.append(classes.Wall(x, y, tile_size, 1))
                     wall_type.append(1)
+                
                 elif wall_type[-32] == 3:
                     wall.append(classes.Wall(x, y, tile_size, 4))
                     wall_type.append(4)
+                
                 elif wall_type[-1] == 5:
                     wall.append(classes.Wall(x, y, tile_size, 6))
                     wall_type.append(6)
+                
                 elif wall_type[-32] == 5:
                     wall.append(classes.Wall(x, y, tile_size, 7))
                     wall_type.append(7)
+                
                 elif wall_type[-32] == 6:
                     wall.append(classes.Wall(x, y, tile_size, 8))
                     wall_type.append(8)
+                
                 elif wall_type[-32] == 9:
                     wall.append(classes.Wall(x, y, tile_size, 10))
                     wall_type.append(10)
+                
                 elif wall_type[-32] == 10 and wall_prob > 500:
                     wall.append(classes.Wall(x, y, tile_size, 11))
                     wall_type.append(11)
+                
                 elif wall_type[-32] == 10:
                     wall.append(classes.Wall(x, y, tile_size, 10))
                     wall_type.append(10)
@@ -220,24 +242,31 @@ def create_world_from_map(map_design):
                 elif wall_prob == 0:
                     wall.append(classes.Wall(x, y, tile_size, 2))
                     wall_type.append(2)
+                
                 elif wall_prob > 850:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
+                
                 elif wall_type[-32] and wall_prob > 700:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
+                
                 elif wall_type[-32] and wall_type[-64] and wall_prob > 400:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
+                
                 elif wall_prob <= 2:
                     wall.append(classes.Wall(x, y, tile_size, 3))
                     wall_type.append(3)
+                
                 elif wall_prob <= 4:
                     wall.append(classes.Wall(x, y, tile_size, 5))
                     wall_type.append(5)
+                
                 elif wall_prob <= 6:
                     wall.append(classes.Wall(x, y, tile_size, 9))
                     wall_type.append(9)
+                
                 else:
                     wall.append(classes.Wall(x, y, tile_size))
                     wall_type.append(1)
@@ -248,10 +277,11 @@ def create_world_from_map(map_design):
 
     return platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x
 
-platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
+platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)  # Creer le monde a partir de la map
 monster_platforms = platforms_1 + platforms_2 + traps + [hazard.rect for hazard in hazards] + block
 map_height_pixels = len(map_design) * tile_size
 offset_y = globals.HEIGHT - map_height_pixels
+
 
 # --- Variables importees ---
 last_inventory_feedback = ""
@@ -269,11 +299,17 @@ pickup_pressed = False
 current_rune_machine = None
 
 def is_visible(rect, camera_y, margin = 64):
+    """Determine si un rectangle est visible a l'ecran en fonction de sa position et de celle de la camera, en tenant compte d'une marge pour afficher les elements avant qu'ils n'entrent dans l'ecran et les garder affiches un peu apres qu'ils soient sortis de l'ecran pour eviter les pop-in visuels."""
     screen_y = rect.y - camera_y
     return screen_y + rect.height >= -margin and screen_y <= globals.HEIGHT + margin
+
 def blit_if_visible(surface, image, rect, camera_y):
+    """Affiche une image a la position d'un rectangle sur une surface, en tenant compte de la position de la camera, uniquement si le rectangle est visible a l'ecran pour eviter les pop-in visuels et economiser des ressources en n'affichant pas les elements qui ne sont pas visibles."""
     if is_visible(rect, camera_y):
         surface.blit(image, (rect.x, rect.y - camera_y))
+
+
+
 # ===============================
 # BOUCLE PRINCIPALE
 # ===============================
@@ -281,10 +317,10 @@ def blit_if_visible(surface, image, rect, camera_y):
 running = True # Variable du jeu
 
 while running:
-    globals.clock.tick(globals.FPS)          # FPS
-    time = pygame.time.get_ticks()           # pour relever le temps ecoule depuis le debut du jeu (en millisecondes)
-    globals.key = pygame.key.get_pressed()   # Pour relever les touches actuellement appuyees
-    functions.update_music_for_state(state, classes.monsters, player)
+    globals.clock.tick(globals.FPS)                                    # FPS
+    time = pygame.time.get_ticks()                                     # Pour relever le temps ecoule depuis le debut du jeu (en millisecondes)
+    globals.key = pygame.key.get_pressed()                             # Pour relever les touches actuellement appuyees
+    functions.update_music_for_state(state, classes.monsters, player)  # Mettre a jour la musique de fond en fonction de l'etat du jeu et des monstres presents
     
     for event in pygame.event.get():
         # --- Pour quitter le jeu ---
@@ -297,12 +333,8 @@ while running:
             pygame.mixer.music.pause()  # Arreter la musique
             paused_time = time  # Enregistrer le moment ou le jeu a ete mis en pause
 
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state == "menu_attribut":
-            state = "game"                # Si l'etat est celui du menu d'attributs et que le joueur appuie sur la touche ECHAPE, alors definir l'etat comme etant celui du jeu pour fermer le menu d'attributs
-            pygame.mixer.music.unpause()  # Reprendre la musique la ou elle s'est arretee
-
-        # Ferme le menu de pause en cliquant sur ECHAPE
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state == "paused" and time - paused_time > 1:  # Ajouter une condition de temps
+        # Ferme le menu de pause et celui d'attributs en cliquant sur ECHAPE
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and state in ("paused", "menu_attribut") and time - paused_time > 1:  # Ajouter une condition de temps
             state = "game"                # Si l'etat est celui de pause et que le joueur appuie sur la touche ECHAPE, alors definir l'etat comme etant celui du jeu pour fermer le menu de pause
             pygame.mixer.music.unpause()  # Reprendre la musique la ou elle s'est arretee
 
@@ -419,24 +451,34 @@ while running:
 
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
+    
     for wall_tile in wall:
         if is_visible(wall_tile.rect, camera_y):
             wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    
     for platform in platforms_1:
         blit_if_visible(globals.screen, imports.platform_1, platform, camera_y)
+    
     for platform in platforms_2:
         blit_if_visible(globals.screen, imports.platform_2, platform, camera_y)
+    
     for platform in block:
         blit_if_visible(globals.screen, imports.platform_wall, platform, camera_y)
+    
     for trap in traps:
         blit_if_visible(globals.screen, imports.platform_trap, trap, camera_y)
+    
     for hazard in classes.hazards:
         hazard.draw(globals.screen, camera_y)
+    
     if globals.hitbox_display:
         pygame.draw.rect(globals.screen, (255, 255, 0), (player.hitbox.x, player.hitbox.y - camera_y, player.hitbox.width, player.hitbox.height), 2)
+    
     for machine in classes.rune_machines:
         machine.draw(globals.screen, camera_y)
+    
     globals.screen.blit(player.selected_image, (player.perso_rect.x, player.perso_rect.y - camera_y))                                                   # Afficher l'image du personnage a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    
     for monster in classes.monsters:
         if monster.alive and is_visible(monster.rect, camera_y):
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
@@ -451,6 +493,7 @@ while running:
 
     for shuriken in globals.shurikens:
         globals.screen.blit(shuriken.image, (shuriken.rect.x, shuriken.rect.y - camera_y))                                                  # Afficher les shurikens a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+    
     if items:
         for item in items:
             item.draw(globals.screen, camera_y) 
@@ -460,30 +503,37 @@ while running:
     inventory.draw_inventory_hud(globals.screen, inventory_list, slot_hold_start, slot_use_lock, time)
     inventory.draw_equipped_rings(globals.screen, player)
 
+
     feedback_y = 50
     active_effects=[]
+
     if player.regeneration_bonus:
         regen_remaining = (player.regeneration_effect_end_time - time)//1000
         active_effects.append("Regen " + str(regen_remaining) + "s")
+
     if player.speed_bonus > 0:
         speed_remaining = max(0, (player.speed_effect_end_time - time) // 1000)
         active_effects.append("Vitesse " + str(speed_remaining) + "s")
+
     if player.power_bonus > 0:
         power_remaining = max(0, (player.power_effect_end_time - time) // 1000)
         active_effects.append("Puissance " + str(power_remaining) + "s")
+
     if active_effects:
         effect_feedback = "Effet(s)" + " | ".join(active_effects)
         feedback_text = buttons.text_font.render(effect_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, feedback_y))
         feedback_y += 30
-    if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
 
+    if time - last_inventory_feedback_time <= 1400 and last_inventory_feedback:
         feedback_text = buttons.text_font.render(last_inventory_feedback, True, globals.WHITE)
         globals.screen.blit(feedback_text, (20, feedback_y))
 
     txt = buttons.text_font.render("Vie : " + str(player.life) + "/" + str(math.floor(player.max_life)), True, globals.WHITE)
     globals.screen.blit(txt, (20, 20))
-    pygame.display.flip()                                                                                                  # Tout generer sur la fenetre
+    pygame.display.flip()  # Tout generer sur la fenetre
+
+
 
 pygame.quit()  # Arreter Pygame et fermer la fenetre du jeu
 
