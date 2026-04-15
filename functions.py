@@ -311,7 +311,7 @@ def beginning_menu_displayer(screen, title_surface, title_rect, archer_image, ar
 # =================================
 # JEU
 # =================================
-def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms_1, platforms_2, block, traps, shurikens, hazards):
+def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms_1, platforms_2, block, traps, shurikens, hazards, monster_platforms):
     """S'occupe de gerer les mouvements du joueur, les attaques, les collisions avec les plateformes et les monstres, et la mort du joueur"""
     
     # --- Mouvements et collisions du joueur ---
@@ -331,10 +331,10 @@ def game(velocity, state, monsters, arrows, camera_y, time, key, start_time, pla
 
 
     # --- Monster movement ---
-    monster_platforms = platforms_1 + platforms_2 + traps + [hazard.rect for hazard in hazards] + block
     for monster in monsters:
         if monster.alive:
-            monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivant, il suit le joueur en fonction de la position de sa hitbox
+            if abs(monster.rect.centery - player.hitbox.centery) < 2000:
+                monster.update(player.hitbox, monsters, monster_platforms)  # Si le monstre est vivantet proche du joueur, il suit le joueur en fonction de la position de sa hitbox
 
     # --- Pour retourner a la page du depart ---
     if key[pygame.K_m]:

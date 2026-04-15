@@ -249,7 +249,9 @@ def create_world_from_map(map_design):
     return platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x
 
 platforms_1, platforms_2, block, traps, monsters, items, rune_machines, wall, hazards, offset_x = create_world_from_map(map_design)
-
+monster_platforms = platforms_1 + platforms_2 + traps + [hazard.rect for hazard in hazards] + block
+map_height_pixels = len(map_design) * tile_size
+offset_y = globals.HEIGHT - map_height_pixels
 
 # --- Variables importees ---
 last_inventory_feedback = ""
@@ -266,7 +268,12 @@ rune_use_lock = [False, False, False]
 pickup_pressed = False
 current_rune_machine = None
 
-
+def is_visible(rect, camera_y, margin = 64):
+    screen_y = rect.y - camera_y
+    return screen_y + rect.height >= -margin and screen_y <= globals.HEIGHT + margin
+def blit_if_visible(surface, image, rect, camera_y):
+    if is_visible(rect, camera_y):
+        surface.blit(image, (rect.x, rect.y - camera_y))
 # ===============================
 # BOUCLE PRINCIPALE
 # ===============================
@@ -359,7 +366,7 @@ while running:
 
     # --- Pour jouer ---
     if state == "game":
-        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms_1, platforms_2, block, traps, globals.shurikens, classes.hazards)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
+        velocity, state, player, start_time, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed = functions.game(velocity, state, classes.monsters, globals.arrows, camera_y, time, globals.key, start_time, player, inventory_list, items, slot_hold_start, slot_use_lock, last_inventory_feedback, last_inventory_feedback_time, pickup_pressed, platforms_1, platforms_2, block, traps, globals.shurikens, classes.hazards, monster_platforms)  # Pour appeler la fonction game() pour gerer les mecaniques du jeu, et recuperer les variables mises a jour par cette fonction
 
     # --- Pour generer l'ecran de mort ---
     if state == "death":
@@ -395,11 +402,6 @@ while running:
         for shuriken in globals.shurikens[:]: 
             shuriken.update(platforms_1, platforms_2, block, globals.arrows, globals.shurikens)  # Mettre a jour la position de chaque shuriken en fonction de sa direction et de sa vitesse, et retirer les shurikens qui sortent de l'ecran pour eviter d'avoir trop de shurikens inutiles dans la liste des shurikens
     player.update_potion_effects(time)
-    
-    map_height_pixels = len(map_design) * tile_size
-    offset_y = globals.HEIGHT - map_height_pixels
-    map_width_pixels = max(len(row) for row in map_design) * tile_size
-    offset_x = (globals.WIDTH - map_width_pixels) // 2
 
     for monster in globals.monsters:
         if not monster.alive and monster.type in boss_trap_tiles:
@@ -414,16 +416,16 @@ while running:
     # --- Generer le jeu ---
     globals.screen.fill((40, 40, 55))                                                                                              # Remplir l'ecran avec une couleur de base pour le jeu
     for wall_tile in wall:
-        wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+        if is_visible(wall_tile.rect, camera_y):
+            wall_tile.draw(globals.screen, camera_y)                                                                                      # Afficher les dalles de mur a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for platform in platforms_1:
-        globals.screen.blit(imports.platform_1, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+        blit_if_visible(globals.screen, imports.platform_1, platform, camera_y)
     for platform in platforms_2:
-        globals.screen.blit(imports.platform_2, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
-
+        blit_if_visible(globals.screen, imports.platform_2, platform, camera_y)
     for platform in block:
-        globals.screen.blit(imports.platform_wall, (platform.x, platform.y - camera_y))  # Afficher les plateformes a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
+        blit_if_visible(globals.screen, imports.platform_wall, platform, camera_y)
     for trap in traps:
-        globals.screen.blit(imports.platform_trap, (trap.x, trap.y - camera_y))
+        blit_if_visible(globals.screen, imports.platform_trap, trap, camera_y)
     for hazard in classes.hazards:
         hazard.draw(globals.screen, camera_y)
     if globals.hitbox_display:
@@ -432,7 +434,7 @@ while running:
         machine.draw(globals.screen, camera_y)
     globals.screen.blit(player.selected_image, (player.perso_rect.x, player.perso_rect.y - camera_y))                                                   # Afficher l'image du personnage a sa position actuelle sur l'ecran, en tenant compte du decalage de la camera
     for monster in classes.monsters:
-        if monster.alive:
+        if monster.alive and is_visible(monster.rect, camera_y):
             globals.screen.blit(monster.image, (monster.rect.x, monster.rect.y - camera_y))                                        # Afficher les monstres vivants a leur position actuelle sur l'ecran, en tenant compte du decalage de la camera
 
     for arrow in globals.arrows:

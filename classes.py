@@ -1942,20 +1942,19 @@ class Spider(Boss):
             xp_reward = 20
         )
         self.frames = [imports.spider_walking1, imports.spider_walking2]
-        self.claw_attack_frames = [imports.spider_jaw_attack, imports.spider_jaw_attack]
+        self.poison_attack_frames = [imports.spider_jaw_attack, imports.spider_jaw_attack]
         self.bite_attack_frames = [imports.spider_jaw_attack, imports.spider_jaw_attack]
         self.velocity_y = 0
         self.on_ground = False
         self.type = "spider"
-        self.bite_range = 125
-        self.claw_range = 175
+        self.bite_range = 200
         self.attack_cooldown = 5000
         self.attack_duration = 750
         self.last_attack_time = 0
         self.attack_end_time = 0
         self.current_attack = None
-        self.bite_damage = 2
-        self.claw_damage = 1
+        self.bite_damage = 1
+        self.poison_damage = 1
         self.contact_damage = 0
         self.max_mana = 1000
         self.mana = float(self.max_mana)
@@ -1965,7 +1964,6 @@ class Spider(Boss):
         self.mana_safe_regen_distance = 240
         self.depleted_mana_retreat_multiplier = 3
         self.bite_hitbox_bonus = 50
-        self.claw_hitbox_bonus = 75
 
     def bite_attack(self):
         self.current_attack = "crocs"
@@ -1975,13 +1973,13 @@ class Spider(Boss):
         else:
             self.image = pygame.transform.flip(self.bite_attack_frames[0], True, False)
 
-    def claw_attack(self):
-        self.current_attack = "griffe"
-        self.contact_damage = self.claw_damage
+    def poison_attack(self):
+        self.current_attack = "poison"
+        self.contact_damage = self.poison_damage
         if self.direction == 1:
-            self.image = self.claw_attack_frames[0]
+            self.image = self.poison_attack_frames[0]
         else:
-            self.image = pygame.transform.flip(self.claw_attack_frames[0], True, False)
+            self.image = pygame.transform.flip(self.poison_attack_frames[0], True, False)
 
     def apply_current_attack_frame(self):
         if self.current_attack == "crocs":
@@ -1989,27 +1987,28 @@ class Spider(Boss):
                 self.image = self.bite_attack_frames[0]
             else:
                 self.image = pygame.transform.flip(self.bite_attack_frames[0], True, False)
-        elif self.current_attack == "griffe":
+        elif self.current_attack == "poison":
             if self.direction == 1:
-                self.image = self.claw_attack_frames[0]
+                self.image = self.poison_attack_frames[0]
             else:
-                self.image = pygame.transform.flip(self.claw_attack_frames[0], True, False)
+                self.image = pygame.transform.flip(self.poison_attack_frames[0], True, False)
 
     def get_attack_hitbox(self):
         if self.current_attack is None:
             return self.rect
 
-        bonus = self.bite_hitbox_bonus if self.current_attack == "crocs" else self.claw_hitbox_bonus
+        bonus = self.bite_hitbox_bonus if self.current_attack == "crocs" else 0
         hitbox_height = max(20, self.rect.height - 12)
         hitbox_top = self.rect.top + 6
 
         if self.direction == 1:
             return pygame.Rect(self.rect.left, hitbox_top, self.rect.width + bonus, hitbox_height)
-        return pygame.Rect(self.rect.left - bonus, hitbox_top, self.rect.width + bonus, hitbox_height)
+        else:
+            return pygame.Rect(self.rect.left - bonus, hitbox_top, self.rect.width + bonus, hitbox_height)
     
     def update_attack(self, player_rect, time):
         distance_x = abs(player_rect.centerx - self.rect.centerx)
-        in_melee_range = distance_x <= self.claw_range
+        in_melee_range = distance_x <= self.bite_range
 
         if time < self.attack_end_time:
             self.apply_current_attack_frame()
@@ -2032,7 +2031,7 @@ class Spider(Boss):
         if distance_x <= self.bite_range:
             self.bite_attack()
         else:
-            self.claw_attack()
+            self.poison_attack()
 
     def regenerate_mana(self, time, player_rect):
         if self.mana >= self.max_mana:
@@ -2092,7 +2091,7 @@ class Spider(Boss):
             else:
                 retreat_direction = -self.direction
                 retreat_speed_multiplier = self.depleted_mana_retreat_multiplier
-        elif self.chasing and distance_x <= self.claw_range:
+        elif self.chasing:
             cooldown_ready = time - self.last_attack_time >= self.attack_cooldown
             attack_active = time < self.attack_end_time
             if self.mana < self.attack_mana_cost and not attack_active:
