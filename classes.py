@@ -530,6 +530,12 @@ class Player:
 
     def monster_collisions(self, monsters, time, arrows, platforms_1, platforms_2, block, items, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
+        def apply_safe_pushback(monster, direction):
+            for i in range(5):
+                monster.rect.x += direction * (globals.PUSHBACK//5)
+                if hasattr(monster, "resolve_horizontal_collisions"):
+                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
+
         for monster in monsters[:]:
             hitbox = self.hitbox
             if self.attack and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):
@@ -544,22 +550,12 @@ class Player:
                     if player_hits_monster and self.selected_image == self.selected_attack_left and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):     # Si le joueur attaque vers la gauche avec l'épée
                         if monster.rect.x < self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à gauche du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
-                            if monster.type == "slug" :
-                                for _ in range(5):
-                                    monster.rect.x -= globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
-                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
-                            else :
-                                monster.rect.x -= globals.PUSHBACK
+                            apply_safe_pushback(monster, -1)
                             monster.invincible = time + 500
                     elif player_hits_monster and self.selected_image == self.selected_attack_right and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):  # Si le joueur attaque vers la droite avec l'épée
                         if monster.rect.x > self.hitbox.x and time > monster.invincible:                                                # Si le monstre est à droite du joueur
                             monster.take_damage(self.degat + self.puissance, time)                                  # Le monstre perd de la vie
-                            if monster.type == "slug" :
-                                for _ in range(5):
-                                    monster.rect.x += globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
-                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
-                            else :
-                                monster.rect.x += globals.PUSHBACK
+                            apply_safe_pushback(monster, 1)
                             monster.invincible = time + 500
                     else:
                         if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
@@ -574,13 +570,13 @@ class Player:
                         if self.hero == "beggar":
                             self.xp += monster.xp_reward
                         if monster.type == "cerberus":
-                            items.append(inventory.slug_ring(monster.rect.x, monster.rect.bottom - imports.slug_ring.get_height()))
+                            items.append(inventory.slug_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slug_ring.get_height()))
                         elif monster.type == "king_slime":
-                            items.append(inventory.slime_ring(monster.rect.x, monster.rect.bottom - imports.slime_ring.get_height()))
+                            items.append(inventory.slime_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slime_ring.get_height()))
                         elif monster.type == "spider":
-                            items.append(inventory.mushroom_ring(monster.rect.x, monster.rect.bottom - imports.mushroom_ring.get_height()))
+                            items.append(inventory.mushroom_ring(globals.WIDTH // 2, monster.rect.bottom - imports.mushroom_ring.get_height()))
                         elif monster.type == "knight":
-                            items.append(inventory.bat_ring(monster.rect.x, monster.rect.bottom - imports.bat_ring.get_height()))
+                            items.append(inventory.bat_ring(globals.WIDTH // 2, monster.rect.bottom - imports.bat_ring.get_height()))
                             
                         if monster.type in self.equipped_rings:
                             self.xp += self.ring_bonus[monster.type]
@@ -615,31 +611,21 @@ class Player:
                 if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                     monster.take_damage(self.degat + self.puissance, time)  # Le monstre perd une vie
                     if arrow.direction == "right":
-                        if monster.type == "slug" :
-                                for _ in range(5):
-                                    monster.rect.x += globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
-                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
-                        else:
-                            monster.rect.x += globals.PUSHBACK
+                        apply_safe_pushback(monster, 1)
                     else:  # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                        if monster.type == "slug" :
-                                for _ in range(5):
-                                    monster.rect.x -= globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
-                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
-                        else :
-                            monster.rect.x -= globals.PUSHBACK
+                        apply_safe_pushback(monster, -1)
                     arrows.remove(arrow)                                    # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
                         if monster.type == "cerberus":
-                            items.append(inventory.slug_ring(monster.rect.x, monster.rect.bottom - imports.slug_ring.get_height()))
+                            items.append(inventory.slug_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slug_ring.get_height()))
                         elif monster.type == "king_slime":
-                            items.append(inventory.slime_ring(monster.rect.x, monster.rect.bottom - imports.slime_ring.get_height()))
+                            items.append(inventory.slime_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slime_ring.get_height()))
                         elif monster.type == "spider":
-                            items.append(inventory.mushroom_ring(monster.rect.x, monster.rect.bottom - imports.mushroom_ring.get_height()))
+                            items.append(inventory.mushroom_ring(globals.WIDTH // 2, monster.rect.bottom - imports.mushroom_ring.get_height()))
                         elif monster.type == "knight":
-                            items.append(inventory.bat_ring(monster.rect.x, monster.rect.bottom - imports.bat_ring.get_height()))
+                            items.append(inventory.bat_ring(globals.WIDTH // 2, monster.rect.bottom - imports.bat_ring.get_height()))
                         if monster.type in self.equipped_rings:
                             self.xp += self.ring_bonus[monster.type]
 
@@ -649,31 +635,21 @@ class Player:
                 if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
                     monster.take_damage(self.degat + self.puissance, time)                # Le monstre perd une vie
                     if shuriken.direction == "right":
-                        if monster.type == "slug" :
-                                for _ in range(5):
-                                    monster.rect.x += globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
-                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
-                        else:
-                            monster.rect.x += globals.PUSHBACK
+                        apply_safe_pushback(monster, 1)
                     else:  # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                        if monster.type == "slug" :
-                                for _ in range(5):
-                                    monster.rect.x -= globals.PUSHBACK                                      # Recul du slug en plusieurs etapes pour eviter le passage a travers les murs
-                                    monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)  # Recalage apres chaque mini-deplacement
-                        else :
-                            monster.rect.x -= globals.PUSHBACK
+                        apply_safe_pushback(monster, -1)
                     shurikens.remove(shuriken)                                 # Retirer la fleche du jeu
                     if monster.life <= 0:
                         monster.alive = False                                  # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
                         if monster.type == "cerberus":
-                            items.append(inventory.slug_ring(monster.rect.x, monster.rect.bottom - imports.slug_ring.get_height()))
+                            items.append(inventory.slug_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slug_ring.get_height()))
                         elif monster.type == "king_slime":
-                            items.append(inventory.slime_ring(monster.rect.x, monster.rect.bottom - imports.slime_ring.get_height()))
+                            items.append(inventory.slime_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slime_ring.get_height()))
                         elif monster.type == "spider":
-                            items.append(inventory.mushroom_ring(monster.rect.x, monster.rect.bottom - imports.mushroom_ring.get_height()))
+                            items.append(inventory.mushroom_ring(globals.WIDTH // 2, monster.rect.bottom - imports.mushroom_ring.get_height()))
                         elif monster.type == "knight":
-                            items.append(inventory.bat_ring(monster.rect.x, monster.rect.bottom - imports.bat_ring.get_height()))
+                            items.append(inventory.bat_ring(globals.WIDTH // 2, monster.rect.bottom - imports.bat_ring.get_height()))
                         if monster.type in self.equipped_rings:
                             self.xp += self.ring_bonus[monster.type]
 
