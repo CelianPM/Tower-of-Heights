@@ -531,8 +531,11 @@ class Player:
     def monster_collisions(self, monsters, time, arrows, platforms_1, platforms_2, block, items, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         def apply_safe_pushback(monster, direction):
-            for i in range(5):
-                monster.rect.x += direction * (globals.PUSHBACK//5)
+            for _ in range(5):
+                if monster.type == "slug":
+                    monster.rect.x += direction * globals.PUSHBACK
+                else:
+                    monster.rect.x += direction * (globals.PUSHBACK//5)
                 if hasattr(monster, "resolve_horizontal_collisions"):
                     monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
 
