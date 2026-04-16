@@ -26,8 +26,8 @@ class Player:
         self.attack = False                    # Le hero n'attaque pas encore
         self.direction = "right"               # Direction initiale
         self.pushback = 0                      # Distance de recul quand le joueur est touche, qui est appliquee a la position du joueur et qui revient progressivement a 0 pour faire revenir le joueur a sa position normale apres un recul
-
         self.max_life = 0                      # Nombres de vies de depart
+        self.slow_down = False
         
         # Variables liees au combat
         self.attack_delay = 0                  # Le temps qu'il faut attendre avant de pouvoir rattaquer
@@ -235,7 +235,10 @@ class Player:
         # --- Mouvements du joueur ---
             # Gauche
         if key[pygame.K_LEFT] and not key[pygame.K_RIGHT]:                                   # Si la touche de gauche est appuyee
-            self.hitbox.x -= self.speed                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+            if self.slow_down:
+                self.hitbox.x -= self.speed//2                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+            else:
+                self.hitbox.x -= self.speed                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
             if self.direction == "right":
                 self.selected_image = self.selected_image_left   # Si la direction precedente etait a droite, changer l'image selectionnee par celle du profil gauche
             self.direction = "left"                              # Mettre a jour la direction comme etant la gauche gauche
@@ -243,7 +246,10 @@ class Player:
 
             # Droite
         if key[pygame.K_RIGHT] and not key[pygame.K_LEFT]:                                  # Si la touche de droite est appuyee
-            self.hitbox.x += self.speed                          # Deplacer la hitbox vers la droite en fonction de la vitesse du joueur
+            if self.slow_down:
+                self.hitbox.x += self.speed//2                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+            else:
+                self.hitbox.x += self.speed
             if self.direction == "left":
                 self.selected_image = self.selected_image_right  # Si la direction precedente etait a gauche, changer l'image selectionnee par celle du profil droit
             self.direction = "right"                             # Mettre a jour la direction comme etant la droite
@@ -259,7 +265,10 @@ class Player:
 
             # Le saut
         if key[pygame.K_SPACE] and self.on_ground:               # Si la touche de saut est appuyee et que le joueur est au sol
-            velocity += self.jump_power                          # Appliquer la puissance de saut a la variable de vitesse
+            if self.slow_down:
+                velocity += self.jump_power//2                          # Appliquer la puissance de saut a la variable de vitesse
+            else:
+                velocity += self.jump_power
             self.on_ground = False                               # Le joueur n'est plus au sol apres avoir saute
             imports.jump_sound.play()                                    # Jouer le son du saut
       
@@ -531,14 +540,14 @@ class Player:
     def monster_collisions(self, monsters, time, arrows, platforms_1, platforms_2, block, items, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
         def apply_safe_pushback(monster, direction):
-            for _ in range(5):
+            for i in range(5):
                 if monster.type == "slug":
                     monster.rect.x += direction * globals.PUSHBACK
                 else:
                     monster.rect.x += direction * (globals.PUSHBACK//5)
                 if hasattr(monster, "resolve_horizontal_collisions"):
                     monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
-
+        self.slow_down = False
         for monster in monsters[:]:
             hitbox = self.hitbox
             if self.attack and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):
@@ -566,6 +575,8 @@ class Player:
                          if damage > 0:
                              self.life -= damage
                              self.last_damage_time = time
+                             if hasattr(monster, "slow_down"):
+                                 self.slow_down = True
 
                     if monster.life <= 0:                                   # Quand le monstre n'a plus de vies
                         monster.alive = False                               # Il est retire du jeu
@@ -591,6 +602,8 @@ class Player:
                             continue
                         self.life -= damage
                         self.last_damage_time = time
+                        if hasattr(monster, "slow_down"):
+                                 self.slow_down = True
 
 
                         if self.hitbox.x < monster.rect.x:
@@ -2218,8 +2231,8 @@ class King_Slime(Boss):
         self.attack_end_time = 0
         self.current_attack = None
         self.dash_damage = 2
-        self.birth_damage = 0
-        self.contact_damage = 1
+        self.birth_damage = 1
+        self.contact_damage = 0
         self.max_mana = 1000
         self.mana = float(self.max_mana)
         self.attack_mana_cost = 100
@@ -2230,6 +2243,7 @@ class King_Slime(Boss):
         self.dash_distance = 50
         self.actual_dash_distance = 0
         self.birth_spawn_count = 3
+        self.slow_down = True
 
     def dash_attack(self):
         self.current_attack = "dash"
@@ -2368,7 +2382,7 @@ class King_Slime(Boss):
             hit_side_wall = True
 
 
-        # Si cerberus patrouille, il se retourne lorsqu'il est bloque
+        # Si king slime patrouille, il se retourne lorsqu'il est bloque
         # S'il poursuit, il reste contre l'obstacle au lieu de repartir
         if hit_side_wall and not self.chasing:
             self.direction *= -1
