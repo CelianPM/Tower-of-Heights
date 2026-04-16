@@ -28,6 +28,7 @@ class Player:
         self.pushback = 0                      # Distance de recul quand le joueur est touche, qui est appliquee a la position du joueur et qui revient progressivement a 0 pour faire revenir le joueur a sa position normale apres un recul
         self.max_life = 0                      # Nombres de vies de depart
         self.slow_down = False
+        self.slow_effect_end_time = 0
         
         # Variables liees au combat
         self.attack_delay = 0                  # Le temps qu'il faut attendre avant de pouvoir rattaquer
@@ -230,6 +231,7 @@ class Player:
     def move(self, jump_sound, state, time, key, velocity, start_time, arrows, shurikens):
         """Se charge de definir les mouvements du joueur et ses attaques."""
         self.prev_hitbox = self.hitbox.copy()
+        self.update_slow_effect(time)
 
 
         # --- Mouvements du joueur ---
@@ -372,6 +374,18 @@ class Player:
 
 
         return velocity, start_time
+
+    def apply_slow(self, time, duration_ms):
+        self.slow_down = True
+        self.slow_effect_end_time = max(self.slow_effect_end_time, time + duration_ms)
+
+
+    def update_slow_effect(self, time):
+        if self.slow_effect_end_time > time:
+            self.slow_down = True
+        else:
+            self.slow_down = False
+            self.slow_effect_end_time = 0
 
 
     def update_potion_effects(self, time):
@@ -547,7 +561,6 @@ class Player:
                     monster.rect.x += direction * (globals.PUSHBACK//5)
                 if hasattr(monster, "resolve_horizontal_collisions"):
                     monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
-        self.slow_down = False
         for monster in monsters[:]:
             hitbox = self.hitbox
             if self.attack and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):
@@ -576,7 +589,7 @@ class Player:
                              self.life -= damage
                              self.last_damage_time = time
                              if hasattr(monster, "slow_down"):
-                                 self.slow_down = True
+                                 self.apply_slow(time, 300)
 
                     if monster.life <= 0:                                   # Quand le monstre n'a plus de vies
                         monster.alive = False                               # Il est retire du jeu
@@ -603,7 +616,7 @@ class Player:
                         self.life -= damage
                         self.last_damage_time = time
                         if hasattr(monster, "slow_down"):
-                                 self.slow_down = True
+                                 self.apply_slow(time, 300)
 
 
                         if self.hitbox.x < monster.rect.x:
@@ -620,6 +633,7 @@ class Player:
                         if time - self.last_damage_time >= self.invincibility_time:
                             self.life -= projectile.damage
                             self.last_damage_time = time
+                        self.apply_slow(time, 2000)
                         projectile.destroyed = True
                         monster.poison_projectiles.remove(projectile)
 

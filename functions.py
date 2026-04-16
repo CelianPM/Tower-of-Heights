@@ -405,6 +405,8 @@ def death_manager(state, event, restart_rect_death, end_rect_death, player, inve
     player.speed_effect_end_time = 0
     player.power_effect_end_time = 0
     player.regeneration_effect_end_time = 0
+    player.slow_down = False
+    player.slow_effect_end_time = 0
     player.attack = False
     player.can_attack = True
     globals.arrows.clear()
