@@ -686,9 +686,8 @@ class Player:
 
     def player_xp(self):
         """Se charge de gerer l'XP du joueur et de faire monter son niveau quand il atteint le nombre d'XP requis."""
-        self.xp_lvl_up = 0
-        for i in range(self.level + 1):
-            self.xp_lvl_up += i*2
+        for i in range(self.level):
+            self.xp_lvl_up = self.level*5 + i
         if self.xp >= self.xp_lvl_up:
             self.level += 1
             self.point_attribut += 5
@@ -1031,7 +1030,7 @@ class Slug(Monster):
            image_right = imports.slug,
            life = 1500,
            speed = 2,
-           xp_reward = 8
+           xp_reward = 6
        )
 
 
@@ -1289,7 +1288,7 @@ class Slime(Monster):
            image_right = imports.slime,
            life = 400,
            speed = 2,
-           xp_reward = 8
+           xp_reward = 0
        )
 
 
