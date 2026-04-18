@@ -1023,426 +1023,438 @@ class Monster:
 
 # --- Slug ---
 class Slug(Monster):
-   def __init__(self, x, y):
-       super().__init__(
-           x,
-           y,
-           image_right = imports.slug,
-           life = 1500,
-           speed = 2,
-           xp_reward = 6
-       )
+    def __init__(self, x, y):
+        super().__init__(
+            x,
+            y,
+            image_right = imports.slug,
+            life = 1500,
+            speed = 2,
+            xp_reward = 6
+        )
 
 
-       self.velocity_y = 0
-       self.on_ground = False
-       self.type = "slug"
+        self.velocity_y = 0
+        self.on_ground = False
+        self.type = "slug"
 
 
-   def ground_ahead(self, platforms, direction = None):
-       # Verifie s'il y a du sol juste devant le slug
-       if direction is None:
-           direction = self.direction
+    def ground_ahead(self, platforms, direction = None):
+        # Verifie s'il y a du sol juste devant le slug
+        if direction is None:
+            direction = self.direction
 
 
-       front_x = self.rect.centerx + (direction * self.rect.width // 2)
-       front_y = self.rect.bottom + 5
-
-
-       return any(platform.collidepoint(front_x, front_y) for platform in platforms)
-
-
-   def update(self, player_rect, monsters, platforms = None):
-       if not self.alive:
-           return
-
-
-       if platforms is None:
-           platforms = []
-
-
-       # Met a jour l'etat de poursuite
-       self.update_chase_state(player_rect)
-
-
-       should_move_horizontally = True
-
-
-       if self.chasing:
-           # Fige le slug sur sa derniere image lorsque le joueur est deja aligne horizontalement
-           distance_x = player_rect.centerx - self.rect.centerx
-           dead_zone = 6
-
-
-           if abs(distance_x) <= dead_zone:
-               should_move_horizontally = False
-           else:
-               # Oriente le slug vers le joueur seulement s'il doit vraiment se deplacer
-               self.face_player(player_rect)
-
-
-           # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
-           if not self.ground_ahead(platforms, self.direction):
-               should_move_horizontally = False
-
-
-       # Deplacement horizontal
-       previous_x = self.rect.x
-       if should_move_horizontally:
-           self.rect.x += self.speed * self.direction
-
-
-       # Collision laterale avec les plateformes
-       hit_side_wall = False
-       for platform in platforms:
-           if not self.rect.colliderect(platform):
-               continue
-
-
-           if previous_x + self.rect.width <= platform.left:
-               self.rect.right = platform.left
-               hit_side_wall = True
-           elif previous_x >= platform.right:
-               self.rect.left = platform.right
-               hit_side_wall = True
-
-
-       # Collision avec les bords de l'ecran
-       if self.rect.left <= 0:
-           self.rect.left = 0
-           hit_side_wall = True
-       elif self.rect.right >= globals.WIDTH:
-           self.rect.right = globals.WIDTH
-           hit_side_wall = True
-
-
-       # Si le slug patrouille, il se retourne lorsqu'il est bloque
-       # S'il poursuit, il reste contre l'obstacle au lieu de repartir
-       if hit_side_wall and not self.chasing:
-           self.direction *= -1
-
-
-       # Gravite
-       previous_y = self.rect.y
-       self.velocity_y += globals.GRAVITY
-       self.rect.y += self.velocity_y
-
-
-       on_ground = False
-
-
-       # Collision verticale avec les plateformes
-       for platform in platforms:
-           if not self.rect.colliderect(platform):
-               continue
-
-
-           crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
-           if self.velocity_y >= 0 and crossed_top:
-               self.rect.bottom = platform.top
-               self.velocity_y = 0
-               on_ground = True
-               continue
-
-
-           crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
-           if self.velocity_y < 0 and crossed_bottom:
-               self.rect.top = platform.bottom
-               self.velocity_y = 0
-               continue
-
-
-       # En patrouille seulement, le slug tourne au bord de la plateforme
-       # En poursuite, il reste au bord pour attendre le joueur
-       if on_ground and not self.chasing:
-           if not self.ground_ahead(platforms):
-               self.direction *= -1
-
-
-       # Oriente l'image selon la direction
-       if self.direction == 1:
-           self.image = self.image_right
-       else:
-           self.image = self.image_left
-
-
-       self.on_ground = on_ground
-       self.overlap(monsters, horizontal_only = True)
+        front_x = self.rect.centerx + (direction * self.rect.width // 2)
+        front_y = self.rect.bottom + 5
+ 
+ 
+        return any(platform.collidepoint(front_x, front_y) for platform in platforms)
+ 
+ 
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+ 
+ 
+        if platforms is None:
+            platforms = []
+ 
+ 
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
+ 
+ 
+        should_move_horizontally = True
+ 
+ 
+        if self.chasing:
+            # Fige le slug sur sa derniere image lorsque le joueur est deja aligne horizontalement
+            distance_x = player_rect.centerx - self.rect.centerx
+            dead_zone = 6
+ 
+ 
+            if abs(distance_x) <= dead_zone:
+                should_move_horizontally = False
+            else:
+                # Oriente le slug vers le joueur seulement s'il doit vraiment se deplacer
+                self.face_player(player_rect)
+ 
+ 
+            # Si le joueur est de l'autre cote d'un vide, le slug s'arrete au bord
+            if not self.ground_ahead(platforms, self.direction):
+                should_move_horizontally = False
+ 
+ 
+        # Deplacement horizontal
+        previous_x = self.rect.x
+        if should_move_horizontally:
+            self.rect.x += self.speed * self.direction
+ 
+ 
+        # Collision laterale avec les plateformes
+        hit_side_wall = False
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+ 
+ 
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+                hit_side_wall = True
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
+                hit_side_wall = True
+ 
+ 
+        # Collision avec les bords de l'ecran
+        if self.rect.left <= 0:
+            self.rect.left = 0
+            hit_side_wall = True
+        elif self.rect.right >= globals.WIDTH:
+            self.rect.right = globals.WIDTH
+            hit_side_wall = True
+ 
+ 
+        # Si le slug patrouille, il se retourne lorsqu'il est bloque
+        # S'il poursuit, il reste contre l'obstacle au lieu de repartir
+        if hit_side_wall and not self.chasing:
+            self.direction *= -1
+ 
+ 
+        # Gravite
+        previous_y = self.rect.y
+        self.velocity_y += globals.GRAVITY
+        self.rect.y += self.velocity_y
+ 
+ 
+        on_ground = False
+ 
+ 
+        # Collision verticale avec les plateformes
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+ 
+ 
+            crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
+            if self.velocity_y >= 0 and crossed_top:
+                self.rect.bottom = platform.top
+                self.velocity_y = 0
+                on_ground = True
+                continue
+ 
+ 
+            crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
+            if self.velocity_y < 0 and crossed_bottom:
+                self.rect.top = platform.bottom
+                self.velocity_y = 0
+                continue
+ 
+ 
+        # En patrouille seulement, le slug tourne au bord de la plateforme
+        # En poursuite, il reste au bord pour attendre le joueur
+        if on_ground and not self.chasing:
+            if not self.ground_ahead(platforms):
+                self.direction *= -1
+ 
+ 
+        # Oriente l'image selon la direction
+        if self.direction == 1:
+            self.image = self.image_right
+        else:
+            self.image = self.image_left
+ 
+ 
+        self.on_ground = on_ground
+        self.overlap(monsters, horizontal_only = True)
 
 
 
 # --- Chauve-souris ---
 class Bat(Monster):
-   def __init__(self, x, y):
-       super().__init__(
-           x,
-           y,
-           image_right = imports.bat1,
-           life = 300,
-           speed = 3,
-           xp_reward = 2
-       )
-       self.frames_right = [imports.bat1, imports.bat2]
-       self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
-       self.type = "bat"
+    def __init__(self, x, y):
+        super().__init__(
+            x,
+            y,
+            image_right = imports.bat1,
+            life = 300,
+            speed = 3,
+            xp_reward = 2
+        )
+        self.frames_right = [imports.bat1, imports.bat2]
+        self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+        self.type = "bat"
+ 
+ 
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+ 
+ 
+        if platforms is None:
+            platforms = []
+ 
+ 
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
+        dx = self.direction
 
 
-   def update(self, player_rect, monsters, platforms = None):
-       if not self.alive:
-           return
+        if self.chasing:
+            # Va vers le joueur en 2D
+            dx = player_rect.centerx - self.rect.centerx
+            dy = player_rect.centery - self.rect.centery
+            distance = math.sqrt(dx * dx + dy * dy)
 
 
-       if platforms is None:
-           platforms = []
+            if distance != 0:
+                dx /= distance
+                dy /= distance
 
 
-       # Met a jour l'etat de poursuite
-       self.update_chase_state(player_rect)
-       dx = self.direction
+                self.rect.x += dx * self.speed
+                self.rect.y += dy * self.speed
+        else:
+            # Patrouille horizontalement
+            previous_x = self.rect.x
+            self.rect.x += self.speed * self.direction
 
 
-       if self.chasing:
-           # Va vers le joueur en 2D
-           dx = player_rect.centerx - self.rect.centerx
-           dy = player_rect.centery - self.rect.centery
-           distance = math.sqrt(dx * dx + dy * dy)
+            blocked = False
 
 
-           if distance != 0:
-               dx /= distance
-               dy /= distance
+            # Collision laterale avec les plateformes
+            for platform in platforms:
+                if not self.rect.colliderect(platform):
+                    continue
 
 
-               self.rect.x += dx * self.speed
-               self.rect.y += dy * self.speed
-       else:
-           # Patrouille horizontalement
-           previous_x = self.rect.x
-           self.rect.x += self.speed * self.direction
+                if previous_x + self.rect.width <= platform.left:
+                    self.rect.right = platform.left
+                    blocked = True
+                    break
+                elif previous_x >= platform.right:
+                    self.rect.left = platform.right
+                    blocked = True
+                    break
 
 
-           blocked = False
+            # Collision avec les bords de l'ecran
+            if self.rect.left <= 0:
+                self.rect.left = 0
+                blocked = True
+            elif self.rect.right >= globals.WIDTH:
+                self.rect.right = globals.WIDTH
+                blocked = True
 
 
-           # Collision laterale avec les plateformes
-           for platform in platforms:
-               if not self.rect.colliderect(platform):
-                   continue
+            # Change de direction si bloque
+            if blocked:
+                self.direction *= -1
 
 
-               if previous_x + self.rect.width <= platform.left:
-                   self.rect.right = platform.left
-                   blocked = True
-                   break
-               elif previous_x >= platform.right:
-                   self.rect.left = platform.right
-                   blocked = True
-                   break
+            # Revient vers sa hauteur de depart pendant la patrouille
+            if self.rect.centery < self.spawn_y:
+                self.rect.y += min(self.speed, self.spawn_y - self.rect.centery)
+            elif self.rect.centery > self.spawn_y:
+                self.rect.y -= min(self.speed, self.rect.centery - self.spawn_y)
 
 
-           # Collision avec les bords de l'ecran
-           if self.rect.left <= 0:
-               self.rect.left = 0
-               blocked = True
-           elif self.rect.right >= globals.WIDTH:
-               self.rect.right = globals.WIDTH
-               blocked = True
+            dx = self.direction
 
 
-           # Change de direction si bloque
-           if blocked:
-               self.direction *= -1
+        # Animation selon la direction
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(self.frames_right):
+            self.frame_index = 0
+        current_frame = int(self.frame_index)
 
 
-           # Revient vers sa hauteur de depart pendant la patrouille
-           if self.rect.centery < self.spawn_y:
-               self.rect.y += min(self.speed, self.spawn_y - self.rect.centery)
-           elif self.rect.centery > self.spawn_y:
-               self.rect.y -= min(self.speed, self.rect.centery - self.spawn_y)
+        if dx < 0:
+            self.image = self.frames_left[current_frame]
+        else:
+            self.image = self.frames_right[current_frame]
 
 
-           dx = self.direction
-
-
-       # Animation selon la direction
-       self.frame_index += self.animation_speed
-       if self.frame_index >= len(self.frames_right):
-           self.frame_index = 0
-       current_frame = int(self.frame_index)
-
-
-       if dx < 0:
-           self.image = self.frames_left[current_frame]
-       else:
-           self.image = self.frames_right[current_frame]
-
-
-       self.overlap(monsters)
+        self.overlap(monsters)
 
 
 class Slime(Monster):
-   def __init__(self, x, y):
-       super().__init__(
-           x,
-           y,
-           image_right = imports.slime,
-           life = 400,
-           speed = 2,
-           xp_reward = 0
-       )
+    def __init__(self, x, y):
+        super().__init__(
+            x,
+            y,
+            image_right = imports.slime,
+            life = 400,
+            speed = 2,
+            xp_reward = 0
+        )
+ 
+ 
+        self.velocity_y = 0
+        self.on_ground = False
+        self.jump_power = -8
+        self.jump_interval = 750
+        self.last_jump_time = 0
+        self.jump_direction = 1
+        self.frames_right = [imports.slime, imports.flat_slime]
+        self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
+        self.jumping_frames_right = [imports.jumping_slime1, imports.jumping_slime2, imports.slime, imports.jumping_slime3, imports.jumping_slime4]
+        self.jumping_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.jumping_frames_right]
+        self.type = "slime"
+ 
+ 
+    def ground_ahead(self, platforms, direction = None):
+        # Verifie s'il y a du sol juste devant le slime
+        if direction is None:
+            direction = self.direction
+ 
+ 
+        front_x = self.rect.centerx + (direction * self.rect.width // 2)
+        front_y = self.rect.bottom + 5
+ 
+ 
+        return any(platform.collidepoint(front_x, front_y) for platform in platforms)
+ 
+ 
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+ 
+ 
+        if platforms is None:
+            platforms = []
+ 
+ 
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
+        time = pygame.time.get_ticks()
+ 
+ 
+ 
+ 
+        if self.chasing:
+            distance_x = player_rect.centerx - self.rect.centerx
+            if abs(distance_x) > 6:
+                self.direction = 1 if distance_x > 0 else -1
+ 
+            desired_direction = self.direction
+ 
+        # Evite les sauts dans le vide pendant la poursuite
+        desired_direction = self.direction
+        if self.chasing and not self.ground_ahead(platforms, desired_direction):
+            desired_direction = self.direction
+ 
+        # Debut de saut: le slime se deplace surtout pendant son arc de saut
+        if self.on_ground and time - self.last_jump_time >= self.jump_interval:
+            if self.ground_ahead(platforms, desired_direction) or not self.chasing:
+                self.direction = desired_direction
+                self.jump_direction = self.direction
+                self.velocity_y = self.jump_power
+                self.on_ground = False
+                self.last_jump_time = time
+ 
+ 
+ 
+        # Deplacement horizontal uniquement pendant le saut 
+        previous_x = self.rect.x
+        if not self.on_ground:
+            self.rect.x += self.speed * self.jump_direction
+ 
+        # Collision laterale avec les plateformes
+        hit_side_wall = False
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+ 
+ 
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+                hit_side_wall = True
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
+                hit_side_wall = True
+ 
+ 
+        # Collision avec les bords de l'ecran
+        if self.rect.left <= 0:
+            self.rect.left = 0
+            hit_side_wall = True
+        elif self.rect.right >= globals.WIDTH:
+            self.rect.right = globals.WIDTH
+            hit_side_wall = True
+ 
+ 
+        if hit_side_wall:
+            self.jump_direction *= -1
+            if self.on_ground and not self.chasing:
+                self.direction *= -1
+ 
+ 
+        # Gravite
+        previous_y = self.rect.y
+        self.velocity_y += globals.GRAVITY
+        self.rect.y += self.velocity_y
+ 
+ 
+        on_ground = False
+ 
+ 
+        # Collision verticale avec les plateformes
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+ 
+ 
+            crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
+            if self.velocity_y >= 0 and crossed_top:
+                self.rect.bottom = platform.top
+                self.velocity_y = 0
+                on_ground = True
+                continue
+ 
+ 
+            crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
+            if self.velocity_y < 0 and crossed_bottom:
+                self.rect.top = platform.bottom
+                self.velocity_y = 0
+                continue
 
-
-       self.velocity_y = 0
-       self.on_ground = False
-       self.jump_power = -8
-       self.jump_interval = 900
-       self.last_jump_time = 0
-       self.jump_direction = 1
-       self.frames_right = [imports.slime, imports.flat_slime]
-       self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
-       self.jumping_frames_right = [imports.jumping_slime1, imports.jumping_slime2, imports.slime, imports.jumping_slime3, imports.jumping_slime4]
-       self.jumping_frames_left = [pygame.transform.flip(frame, True, False) for frame in self.jumping_frames_right]
-       self.type = "slime"
-
-
-   def ground_ahead(self, platforms, direction = None):
-       # Verifie s'il y a du sol juste devant le slime
-       if direction is None:
-           direction = self.direction
-
-
-       front_x = self.rect.centerx + (direction * self.rect.width // 2)
-       front_y = self.rect.bottom + 5
-
-
-       return any(platform.collidepoint(front_x, front_y) for platform in platforms)
-
-
-   def update(self, player_rect, monsters, platforms = None):
-       if not self.alive:
-           return
-
-
-       if platforms is None:
-           platforms = []
-
-
-       # Met a jour l'etat de poursuite
-       self.update_chase_state(player_rect)
-       time = pygame.time.get_ticks()
-
-
-
-
-       if self.chasing:
-           distance_x = player_rect.centerx - self.rect.centerx
-           if abs(distance_x) > 6:
-               self.direction = 1 if distance_x > 0 else -1
-
-           desired_direction = self.direction
-
-       # Evite les sauts dans le vide pendant la poursuite
-       desired_direction = self.direction
-       if self.chasing and not self.ground_ahead(platforms, desired_direction):
-           desired_direction = self.direction
-
-       # Debut de saut: le slime se deplace surtout pendant son arc de saut
-       if self.on_ground and time - self.last_jump_time >= self.jump_interval:
-           if self.ground_ahead(platforms, desired_direction) or not self.chasing:
-               self.direction = desired_direction
-               self.jump_direction = self.direction
-               self.velocity_y = self.jump_power
-               self.on_ground = False
-               self.last_jump_time = time
-
-
-
-       # Deplacement horizontal uniquement pendant le saut 
-       previous_x = self.rect.x
-       if not self.on_ground:
-           self.rect.x += self.speed * self.jump_direction
-
-       # Collision laterale avec les plateformes
-       hit_side_wall = False
-       for platform in platforms:
-           if not self.rect.colliderect(platform):
-               continue
-
-
-           if previous_x + self.rect.width <= platform.left:
-               self.rect.right = platform.left
-               hit_side_wall = True
-           elif previous_x >= platform.right:
-               self.rect.left = platform.right
-               hit_side_wall = True
-
-
-       # Collision avec les bords de l'ecran
-       if self.rect.left <= 0:
-           self.rect.left = 0
-           hit_side_wall = True
-       elif self.rect.right >= globals.WIDTH:
-           self.rect.right = globals.WIDTH
-           hit_side_wall = True
-
-
-       if hit_side_wall:
-           self.jump_direction *= -1
-           if self.on_ground and not self.chasing:
-               self.direction *= -1
-
-
-       # Gravite
-       previous_y = self.rect.y
-       self.velocity_y += globals.GRAVITY
-       self.rect.y += self.velocity_y
-
-
-       on_ground = False
-
-
-       # Collision verticale avec les plateformes
-       for platform in platforms:
-           if not self.rect.colliderect(platform):
-               continue
-
-
-           crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
-           if self.velocity_y >= 0 and crossed_top:
-               self.rect.bottom = platform.top
-               self.velocity_y = 0
-               on_ground = True
-               continue
-
-
-           crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
-           if self.velocity_y < 0 and crossed_bottom:
-               self.rect.top = platform.bottom
-               self.velocity_y = 0
-               continue
-
-
-       if on_ground:
-           self.direction = self.jump_direction
-           if not self.chasing and not self.ground_ahead(platforms, self.direction):
-               self.direction *= -1
-               self.jump_direction = self.direction
-
-
-       # Animation
-       if on_ground:
-           frames = self.frames_right if self.direction == 1 else self.frames_left
-       else:
-           frames = self.jumping_frames_right if self.jump_direction == 1 else self.jumping_frames_left
-
-       self.frame_index += self.animation_speed
-       if self.frame_index >= len(frames):
-           self.frame_index = 0
-       self.image = frames[int(self.frame_index)]
-
-
-       self.on_ground = on_ground
-       self.overlap(monsters, horizontal_only = True)
+        # Detecte aussi le contact pose quand les rects se touchent sans se chevaucher.
+        if not on_ground and self.velocity_y >= 0:
+            for platform in platforms:
+                horizontal_overlap = self.rect.right > platform.left and self.rect.left < platform.right
+                touching_top = 0 <= (platform.top - self.rect.bottom) <= 2
+                if horizontal_overlap and touching_top:
+                    self.rect.bottom = platform.top
+                    self.velocity_y = 0
+                    on_ground = True
+                    break
+ 
+ 
+        if on_ground:
+            self.direction = self.jump_direction
+            if not self.chasing and not self.ground_ahead(platforms, self.direction):
+                self.direction *= -1
+                self.jump_direction = self.direction
+ 
+ 
+        # Animation
+        if on_ground:
+            # Garder une seule frame au sol pour eviter le scintillement visuel.
+            self.frame_index = 0
+            self.image = imports.flat_slime
+        else:
+            frames = self.jumping_frames_right if self.jump_direction == 1 else self.jumping_frames_left
+            self.frame_index += self.animation_speed
+            if self.frame_index >= len(frames):
+                self.frame_index = 0
+            self.image = frames[int(self.frame_index)]
+ 
+ 
+        self.on_ground = on_ground
+        self.overlap(monsters, horizontal_only = True)
 
 
 class Mushroom(Monster):
