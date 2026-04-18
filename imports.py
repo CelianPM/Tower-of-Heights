@@ -92,6 +92,13 @@ spider_walking2 = pygame.transform.scale(pygame.image.load("Images/Monsters/Boss
 spider_jaw_attack = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/Spider/spider_attack_jaw.png").convert_alpha(), (315, 250))
 spider_poison_ball = pygame.image.load("Images/Monsters/Bosses/Spider/spider_poison_ball.png").convert_alpha()
 
+            # Knight
+knight = pygame.image.load("Images/Monsters/Bosses/knight.png").convert_alpha()
+knight_axe_up = pygame.image.load("Images/Monsters/Bosses/knight_axe_up.png").convert_alpha()
+knight_axe_mid = pygame.image.load("Images/Monsters/Bosses/knight_axe_mid.png").convert_alpha()
+knight_axe_low = pygame.image.load("Images/Monsters/Bosses/knight_axe_low.png").convert_alpha()
+knight_axe_slice = pygame.image.load("Images/Monsters/Bosses/knight_axe_slice.png").convert_alpha()
+
     # Objets
         # Potions
 life_potion = pygame.image.load("Images/Potions/life_potion.png").convert_alpha()    # Charger l'image de la potion de vie
