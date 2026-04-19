@@ -131,11 +131,11 @@ class Player:
 
 
         elif self.hero == "ninja":
-            self.attack_delay = 2000                                                            # Definit le temps entre les attaques pour l'epeiste, pour qui c'est plus court
-            self.selected_image = imports.ninja_image                                           # L'image selectionnee est celle de l'epeiste
+            self.attack_delay = 200                                                             # Definit le temps entre les attaques pour le ninja, pour qui c'est plus court
+            self.selected_image = imports.ninja_image                                           # L'image selectionnee est celle du ninja
             self.selected_image_right = self.selected_image                                     # Profil droit de l'image selectionnee
             self.selected_image_left = pygame.transform.flip(self.selected_image, True, False)  # Profil gauche de l'image selectionnee
-            self.selected_attack = imports.ninja_ash                                            # Telecharge l'image de l'attaque de l'epeiste
+            self.selected_attack = imports.ninja_ash                                            # Telecharge l'image de l'attaque du ninja
             self.speed = 5
             self.max_speed = 5
             self.max_life = 3
