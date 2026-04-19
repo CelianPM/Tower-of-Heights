@@ -90,14 +90,14 @@ King_Slime = pygame.image.load("Images/Monsters/Bosses/king_slime.png").convert_
 spider_walking1 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/Spider/walking_spider1.png").convert_alpha(), (315, 250))
 spider_walking2 = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/Spider/walking_spider2.png").convert_alpha(), (315, 250))
 spider_jaw_attack = pygame.transform.scale(pygame.image.load("Images/Monsters/Bosses/Spider/spider_attack_jaw.png").convert_alpha(), (315, 250))
-spider_poison_ball = pygame.image.load("Images/Monsters/Bosses/Spider/spider_poison_ball.png").convert_alpha()
+poison_ball = pygame.image.load("Images/Monsters/Bosses/Spider/poison_ball.png").convert_alpha()
 
             # Knight
-knight = pygame.image.load("Images/Monsters/Bosses/knight.png").convert_alpha()
-knight_axe_up = pygame.image.load("Images/Monsters/Bosses/knight_axe_up.png").convert_alpha()
-knight_axe_mid = pygame.image.load("Images/Monsters/Bosses/knight_axe_mid.png").convert_alpha()
-knight_axe_low = pygame.image.load("Images/Monsters/Bosses/knight_axe_low.png").convert_alpha()
-knight_axe_slice = pygame.image.load("Images/Monsters/Bosses/knight_axe_slice.png").convert_alpha()
+knight = pygame.image.load("Images/Monsters/Bosses/Knight/knight.png").convert_alpha()
+knight_axe_up = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_up.png").convert_alpha()
+knight_axe_mid = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_mid.png").convert_alpha()
+knight_axe_low = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_low.png").convert_alpha()
+knight_axe_slice = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_slice.png").convert_alpha()
 
     # Objets
         # Potions
