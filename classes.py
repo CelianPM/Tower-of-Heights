@@ -646,11 +646,11 @@ class Player:
                         if hasattr(monster, "slow_down"):
                                  self.apply_slow(time, 300)
 
-
-                        if self.hitbox.x < monster.rect.x:
-                            self.pushback -= globals.PUSHBACK  # Si le joueur est a gauche du monstre, il recule vers la gauche
-                        else:
-                            self.pushback += globals.PUSHBACK  # Si le joueur est a droite du monstre, il recule vers la droite
+                        if monster.type != "knight":
+                            if self.hitbox.x < monster.rect.x:
+                                self.pushback -= globals.PUSHBACK  # Si le joueur est a gauche du monstre, il recule vers la gauche
+                            else:
+                                self.pushback += globals.PUSHBACK  # Si le joueur est a droite du monstre, il recule vers la droite
           
             if hasattr(monster, "poison_projectiles"):
                 for projectile in monster.poison_projectiles[:]:
