@@ -585,6 +585,8 @@ class Player:
                     else:
                         if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
                          damage = monster.get_contact_damage() if hasattr(monster, 'get_contact_damage') else 1
+                         if hasattr(monster, "can_damage_player") and not monster.can_damage_player(self):
+                             damage = 0
                          if damage > 0:
                              self.life -= damage
                              self.last_damage_time = time
@@ -611,6 +613,8 @@ class Player:
                 else:                                                       # Si le joueur n'attaque pas
                     if monster_hits_player and time - self.last_damage_time >= self.invincibility_time:
                         damage = monster.get_contact_damage() if hasattr(monster, 'get_contact_damage') else 1
+                        if hasattr(monster, "can_damage_player") and not monster.can_damage_player(self):
+                            damage = 0
                         if damage <= 0:
                             continue
                         self.life -= damage
@@ -1002,8 +1006,11 @@ class Monster:
        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
 
 
-   def get_contect_damage(self):
+   def get_contact_damage(self):
        return self.contact_damage
+
+   def get_contect_damage(self):
+       return self.get_contact_damage()
    
    def get_attack_hitbox(self):
        return self.rect
@@ -1173,14 +1180,14 @@ class Slug(Monster):
 
 # --- Chauve-souris ---
 class Bat(Monster):
-    def __init__(self, x, y):
+    def __init__(self, x, y, xp_reward = 2):
         super().__init__(
             x,
             y,
             image_right = imports.bat1,
             life = 300,
             speed = 3,
-            xp_reward = 2
+            xp_reward = xp_reward
         )
         self.frames_right = [imports.bat1, imports.bat2]
         self.frames_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_right]
@@ -2479,14 +2486,18 @@ class Knight(Boss):
         self.slice_range = 175
         self.chock_range = 300
         self.attack_cooldown = 5000
-        self.attack_duration = 750
+        self.attack_duration = 2000
+        self.chock_impact_duration = 150
         self.last_attack_time = 0
+        self.attack_start_time = 0
         self.attack_end_time = 0
+        self.attack_impact_end_time = 0
         self.current_attack = None
         self.chock_damage = 1
         self.cut_damage = 2
         self.slice_damage = 1
         self.contact_damage = 0
+        self.chock_damage_active = False
         self.max_mana = 1000
         self.mana = float(self.max_mana)
         self.attack_mana_cost = 100
@@ -2497,10 +2508,13 @@ class Knight(Boss):
         self.cut_hitbox_bonus = 50
         self.slice_hitbox_bonus = 75
         self.chock_hitbox_bonus = 100
+        self.bat_spawn_count = 3
+        self.bat_spawn_attack_frames = [imports.knight_axe_up, imports.knight]
 
     def chock_attack(self):
         self.current_attack = "chock"
-        self.contact_damage = self.chock_damage
+        self.contact_damage = 0
+        self.chock_damage_active = False
         if self.direction == 1:
             self.image = self.chock_attack_frames[0]
         else:
@@ -2509,6 +2523,7 @@ class Knight(Boss):
     def cut_attack(self):
         self.current_attack = "cut"
         self.contact_damage = self.cut_damage
+        self.chock_damage_active = False
         if self.direction == 1:
             self.image = self.cut_attack_frames[0]
         else:
@@ -2517,27 +2532,55 @@ class Knight(Boss):
     def slice_attack(self):
         self.current_attack = "slice"
         self.contact_damage = self.slice_damage
+        self.chock_damage_active = False
         if self.direction == 1:
             self.image = self.slice_attack_frames[0]
         else:
             self.image = pygame.transform.flip(self.slice_attack_frames[0], True, False)
 
-    def apply_current_attack_frame(self):
+    def spawn_bats(self, monsters):
+        spawn_step = max(40, self.rect.width // 2)
+        start_x = self.rect.centerx - ((self.bat_spawn_count - 1) * spawn_step) // 2
+        spawn_y = self.rect.top - 20
+
+        for i in range(self.bat_spawn_count):
+            spawn_x = start_x + (i * spawn_step)
+            bat = Bat(spawn_x, spawn_y, xp_reward = 0)
+            bat.direction = self.direction
+            bat.chasing = True
+            monsters.append(bat)
+
+    def bat_spawn_attack(self, monsters):
+        self.current_attack = "spawn_bats"
+        self.contact_damage = 0
+        self.chock_damage_active = False
+        self.spawn_bats(monsters)
+        self.image = self.bat_spawn_attack_frames[0]
+      
+    def get_current_attack_frames(self):
         if self.current_attack == "chock":
-            if self.direction == 1:
-                self.image = self.chock_attack_frames[0]
-            else:
-                self.image = pygame.transform.flip(self.chock_attack_frames[0], True, False)
-        elif self.current_attack == "cut":
-            if self.direction == 1:
-                self.image = self.cut_attack_frames[0]
-            else:
-                self.image = pygame.transform.flip(self.cut_attack_frames[0], True, False)
-        elif self.current_attack == "slice":
-            if self.direction == 1:
-                self.image = self.slice_attack_frames[0]
-            else:
-                self.image = pygame.transform.flip(self.slice_attack_frames[0], True, False)
+            return self.chock_attack_frames
+        if self.current_attack == "cut":
+            return self.cut_attack_frames
+        if self.current_attack == "slice":
+            return self.slice_attack_frames
+        if self.current_attack == "spawn_bats":
+            return self.bat_spawn_attack_frames
+        return self.frames
+    
+    def apply_current_attack_frame(self, time):
+        frames = self.get_current_attack_frames()
+        if not frames:
+            return
+
+        if self.attack_duration <= 0:
+            frame_index = len(frames) - 1
+        else:
+            progress = max(0.0, min(1.0, (time - self.attack_start_time) / self.attack_duration))
+            frame_index = min(len(frames) - 1, int(progress * len(frames)))
+
+        frame = frames[frame_index]
+        self.image = frame
 
     def get_attack_hitbox(self):
         if self.current_attack is None:
@@ -2548,6 +2591,8 @@ class Knight(Boss):
             bonus = self.slice_hitbox_bonus
         elif self.current_attack == "chock":
             bonus = self.chock_hitbox_bonus
+        else:
+            bonus = 0
         
         hitbox_height = max(20, self.rect.height - 12)
         hitbox_top = self.rect.top + 6
@@ -2555,33 +2600,60 @@ class Knight(Boss):
         if self.direction == 1:
             return pygame.Rect(self.rect.left, hitbox_top, self.rect.width + bonus, hitbox_height)
         return pygame.Rect(self.rect.left - bonus, hitbox_top, self.rect.width + bonus, hitbox_height)
+
+    def can_damage_player(self, player):
+        if self.current_attack == "chock" and self.contact_damage > 0:
+            return player.on_ground
+        return True
+
+    def get_contact_damage(self):
+        if self.current_attack is None:
+            return 0
+        return self.contact_damage
     
-    def update_attack(self, player_rect, time):
+    def update_attack(self, player_rect, monsters, time):
         distance_x = abs(player_rect.centerx - self.rect.centerx)
-        if time < self.attack_end_time:
-            self.apply_current_attack_frame()
+        in_melee_range = distance_x <= self.chock_range
+        if self.current_attack == "chock":
+            if time < self.attack_end_time:
+                self.apply_current_attack_frame(time)
+                return
+            if not self.chock_damage_active:
+                self.chock_damage_active = True
+                self.contact_damage = self.chock_damage
+                self.attack_impact_end_time = time + self.chock_impact_duration
+                self.image = self.chock_attack_frames[-1]
+                return
+            if time < self.attack_impact_end_time:
+                self.image = self.chock_attack_frames[-1]
+                return
+        elif time < self.attack_end_time:
+            self.apply_current_attack_frame(time)
             return
 
         self.contact_damage = 0
         self.current_attack = None
+        self.chock_damage_active = False
 
-        if distance_x >= self.chock_range:
-            return
         if time - self.last_attack_time < self.attack_cooldown:
             return
         if self.mana < self.attack_mana_cost:
             return
 
         self.last_attack_time = time
+        self.attack_start_time = time
         self.attack_end_time = time + self.attack_duration
+        self.attack_impact_end_time = self.attack_end_time
         self.mana -= self.attack_mana_cost
 
-        if distance_x <= self.chock_range:
-            self.chock_attack()
+        if not in_melee_range:
+            self.bat_spawn_attack(monsters)
         elif distance_x <= self.cut_range:
             self.cut_attack()
-        else:
+        elif distance_x <= self.slice_range:
             self.slice_attack()
+        else:
+            self.chock_attack()
 
     def regenerate_mana(self, time, player_rect):
         if self.mana >= self.max_mana:
@@ -2616,6 +2688,7 @@ class Knight(Boss):
         # Met a jour l'etat de poursuite
         time = pygame.time.get_ticks()
         self.regenerate_mana(time, player_rect)
+        self.direction = 1
 
         # Gravite
         previous_y = self.rect.y
@@ -2648,7 +2721,9 @@ class Knight(Boss):
 
 
         self.on_ground = on_ground
-        self.update_attack(player_rect, pygame.time.get_ticks())
+        self.update_attack(player_rect, monsters, pygame.time.get_ticks())
+        if self.current_attack is None:
+            self.image = self.image_right
 # =================================
 # ARMES A DISTANCE
 # =================================
