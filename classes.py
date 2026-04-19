@@ -561,7 +561,31 @@ class Player:
                     monster.rect.x += direction * (globals.PUSHBACK//5)
                 if hasattr(monster, "resolve_horizontal_collisions"):
                     monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
+        def resolve_knight_body_collision(monster):
+            if monster.type != "knight" or not monster.alive:
+                return
+            if not self.hitbox.colliderect(monster.rect):
+                return
+
+            previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
+            horizontal_overlap = self.hitbox.right > monster.rect.left and self.hitbox.left < monster.rect.right
+            vertical_overlap = self.hitbox.bottom > monster.rect.top and self.hitbox.top < monster.rect.bottom
+            if not horizontal_overlap or not vertical_overlap:
+                return
+
+            if previous_hitbox.right <= monster.rect.left and self.hitbox.right > monster.rect.left:
+                self.hitbox.right = monster.rect.left
+            elif previous_hitbox.left >= monster.rect.right and self.hitbox.left < monster.rect.right:
+                self.hitbox.left = monster.rect.right
+            else:
+                overlap_left = self.hitbox.right - monster.rect.left
+                overlap_right = monster.rect.right - self.hitbox.left
+                if overlap_left < overlap_right:
+                    self.hitbox.right = monster.rect.left
+                else:
+                    self.hitbox.left = monster.rect.right
         for monster in monsters[:]:
+            resolve_knight_body_collision(monster)
             hitbox = self.hitbox
             if self.attack and (self.hero in ("swordsman", "beggar") or (self.hero == "ninja" and self.ninja_attack_mode == "ada")):
                 hitbox = self.hitbox_attack()
@@ -640,6 +664,19 @@ class Player:
                         self.apply_slow(time, 2000)
                         projectile.destroyed = True
                         monster.poison_projectiles.remove(projectile)
+
+            if hasattr(monster, "wave_chocks"):
+                for wave in monster.wave_chocks[:]:
+                    if wave.destroyed:
+                        monster.wave_chocks.remove(wave)
+                        continue
+                    if self.hitbox.colliderect(wave.rect):
+                        if time - self.last_damage_time >= self.invincibility_time:
+                            self.life -= wave.damage
+                            self.last_damage_time = time
+                        wave.destroyed = True
+                        if wave in monster.wave_chocks:
+                            monster.wave_chocks.remove(wave)
 
             for arrow in arrows[:]:
                 if monster.alive and arrow.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
@@ -2482,22 +2519,21 @@ class Knight(Boss):
         self.velocity_y = 0
         self.on_ground = False
         self.type = "knight"
-        self.cut_range = 125
-        self.slice_range = 175
-        self.chock_range = 300
+        self.cut_range = 150
+        self.slice_range = 235
+        self.chock_range = 320
         self.attack_cooldown = 5000
         self.attack_duration = 2000
-        self.chock_impact_duration = 150
+        self.cut_attack_duration = 400
+        self.current_attack_duration = self.attack_duration
         self.last_attack_time = 0
         self.attack_start_time = 0
         self.attack_end_time = 0
-        self.attack_impact_end_time = 0
         self.current_attack = None
         self.chock_damage = 1
         self.cut_damage = 2
         self.slice_damage = 1
         self.contact_damage = 0
-        self.chock_damage_active = False
         self.max_mana = 1000
         self.mana = float(self.max_mana)
         self.attack_mana_cost = 100
@@ -2505,16 +2541,22 @@ class Knight(Boss):
         self.last_mana_regen_time = pygame.time.get_ticks()
         self.mana_safe_regen_distance = 240
         self.depleted_mana_retreat_multiplier = 3
-        self.cut_hitbox_bonus = 50
-        self.slice_hitbox_bonus = 75
+        self.cut_hitbox_bonus = 100
+        self.slice_hitbox_bonus = 150
         self.chock_hitbox_bonus = 100
         self.bat_spawn_count = 3
         self.bat_spawn_attack_frames = [imports.knight_axe_up, imports.knight]
+        self.wave_chocks = []
+        self.chock_spawned = False
+        self.chock_wave_count = 10
+        self.chock_wave_duration = 300
+        self.chock_wave_spacing = max(24, imports.wave_chock.get_width() - 4)
 
     def chock_attack(self):
         self.current_attack = "chock"
+        self.current_attack_duration = self.attack_duration
         self.contact_damage = 0
-        self.chock_damage_active = False
+        self.chock_spawned = False
         if self.direction == 1:
             self.image = self.chock_attack_frames[0]
         else:
@@ -2522,8 +2564,9 @@ class Knight(Boss):
 
     def cut_attack(self):
         self.current_attack = "cut"
+        self.current_attack_duration = self.cut_attack_duration
         self.contact_damage = self.cut_damage
-        self.chock_damage_active = False
+        self.chock_spawned = False
         if self.direction == 1:
             self.image = self.cut_attack_frames[0]
         else:
@@ -2531,8 +2574,9 @@ class Knight(Boss):
 
     def slice_attack(self):
         self.current_attack = "slice"
+        self.current_attack_duration = self.attack_duration
         self.contact_damage = self.slice_damage
-        self.chock_damage_active = False
+        self.chock_spawned = False
         if self.direction == 1:
             self.image = self.slice_attack_frames[0]
         else:
@@ -2552,10 +2596,19 @@ class Knight(Boss):
 
     def bat_spawn_attack(self, monsters):
         self.current_attack = "spawn_bats"
+        self.current_attack_duration = self.attack_duration
         self.contact_damage = 0
-        self.chock_damage_active = False
+        self.chock_spawned = False
         self.spawn_bats(monsters)
         self.image = self.bat_spawn_attack_frames[0]
+
+    def spawn_chock_waves(self, time):
+        ground_y = self.rect.bottom
+        start_x = self.rect.right
+        for i in range(self.chock_wave_count):
+            wave_x = start_x + (i * self.chock_wave_spacing)
+            self.wave_chocks.append(WaveChock(wave_x, ground_y, self.chock_damage, time, self.chock_wave_duration))
+        self.chock_spawned = True
       
     def get_current_attack_frames(self):
         if self.current_attack == "chock":
@@ -2573,14 +2626,16 @@ class Knight(Boss):
         if not frames:
             return
 
-        if self.attack_duration <= 0:
+        if self.current_attack_duration <= 0:
             frame_index = len(frames) - 1
         else:
-            progress = max(0.0, min(1.0, (time - self.attack_start_time) / self.attack_duration))
+            progress = max(0.0, min(1.0, (time - self.attack_start_time) / self.current_attack_duration))
             frame_index = min(len(frames) - 1, int(progress * len(frames)))
 
         frame = frames[frame_index]
         self.image = frame
+        if self.current_attack == "chock" and frame_index >= 1 and not self.chock_spawned:
+            self.spawn_chock_waves(time)
 
     def get_attack_hitbox(self):
         if self.current_attack is None:
@@ -2601,39 +2656,30 @@ class Knight(Boss):
             return pygame.Rect(self.rect.left, hitbox_top, self.rect.width + bonus, hitbox_height)
         return pygame.Rect(self.rect.left - bonus, hitbox_top, self.rect.width + bonus, hitbox_height)
 
-    def can_damage_player(self, player):
-        if self.current_attack == "chock" and self.contact_damage > 0:
-            return player.on_ground
-        return True
-
     def get_contact_damage(self):
         if self.current_attack is None:
             return 0
+        if self.current_attack == "chock":
+            return 0
         return self.contact_damage
+
+    def update_wave_chocks(self):
+        time = pygame.time.get_ticks()
+        for wave in self.wave_chocks[:]:
+            wave.update(time)
+            if wave.destroyed:
+                self.wave_chocks.remove(wave)
     
     def update_attack(self, player_rect, monsters, time):
         distance_x = abs(player_rect.centerx - self.rect.centerx)
         in_melee_range = distance_x <= self.chock_range
-        if self.current_attack == "chock":
-            if time < self.attack_end_time:
-                self.apply_current_attack_frame(time)
-                return
-            if not self.chock_damage_active:
-                self.chock_damage_active = True
-                self.contact_damage = self.chock_damage
-                self.attack_impact_end_time = time + self.chock_impact_duration
-                self.image = self.chock_attack_frames[-1]
-                return
-            if time < self.attack_impact_end_time:
-                self.image = self.chock_attack_frames[-1]
-                return
-        elif time < self.attack_end_time:
+        if time < self.attack_end_time:
             self.apply_current_attack_frame(time)
             return
 
         self.contact_damage = 0
         self.current_attack = None
-        self.chock_damage_active = False
+        self.chock_spawned = False
 
         if time - self.last_attack_time < self.attack_cooldown:
             return
@@ -2642,8 +2688,6 @@ class Knight(Boss):
 
         self.last_attack_time = time
         self.attack_start_time = time
-        self.attack_end_time = time + self.attack_duration
-        self.attack_impact_end_time = self.attack_end_time
         self.mana -= self.attack_mana_cost
 
         if not in_melee_range:
@@ -2654,6 +2698,7 @@ class Knight(Boss):
             self.slice_attack()
         else:
             self.chock_attack()
+        self.attack_end_time = time + self.current_attack_duration
 
     def regenerate_mana(self, time, player_rect):
         if self.mana >= self.max_mana:
@@ -2721,9 +2766,15 @@ class Knight(Boss):
 
 
         self.on_ground = on_ground
+        self.update_wave_chocks()
         self.update_attack(player_rect, monsters, pygame.time.get_ticks())
         if self.current_attack is None:
             self.image = self.image_right
+
+    def reset_boss(self):
+        super().reset_boss()
+        self.wave_chocks.clear()
+        self.chock_spawned = False
 # =================================
 # ARMES A DISTANCE
 # =================================
@@ -2845,6 +2896,23 @@ class SpiderPoisonBall:
            if self.rect.colliderect(platform):
                self.destroyed = True
                return
+
+
+class WaveChock:
+   def __init__(self, x, ground_y, damage, spawn_time, duration = 150):
+       self.damage = damage
+       self.spawn_time = spawn_time
+       self.duration = duration
+       self.destroyed = False
+       self.image = imports.wave_chock
+       self.rect = self.image.get_rect(bottomleft = (x, ground_y))
+
+   def update(self, time):
+       if self.destroyed:
+           return
+       if time - self.spawn_time >= self.duration:
+           self.destroyed = True
+           return
            
            
 # --- Machine pour les runes ---

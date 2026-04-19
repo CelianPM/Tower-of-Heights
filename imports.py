@@ -98,6 +98,7 @@ knight_axe_up = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_up.p
 knight_axe_mid = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_mid.png").convert_alpha()
 knight_axe_low = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_low.png").convert_alpha()
 knight_axe_slice = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_slice.png").convert_alpha()
+wave_chock = pygame.image.load("Images/Monsters/Bosses/Knight/wave_chock.png").convert_alpha()
 
     # Objets
         # Potions
