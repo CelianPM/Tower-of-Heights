@@ -2458,6 +2458,197 @@ class King_Slime(Boss):
         super().reset_boss()
         self.poison_projectiles.clear()
 
+class Knight(Boss):
+    def __init__(self, x, y):
+        super().__init__(
+            x, 
+            y, 
+            image_right = imports.knight,
+            life = 60000,
+            speed = 1,
+            xp_reward = 20
+        )
+        self.frames = [imports.knight, imports.knight]
+        self.chock_attack_frames = [imports.knight, imports.knight_axe_up]
+        self.cut_attack_frames = [imports.knight_axe_up, imports.knight_axe_mid, imports.knight_axe_low]
+        self.slice_attack_frames = [imports.knight_axe_slice, imports.knight_axe_slice]
+        self.velocity_y = 0
+        self.on_ground = False
+        self.type = "knight"
+        self.cut_range = 125
+        self.slice_range = 175
+        self.chock_range = 300
+        self.attack_cooldown = 5000
+        self.attack_duration = 750
+        self.last_attack_time = 0
+        self.attack_end_time = 0
+        self.current_attack = None
+        self.chock_damage = 1
+        self.cut_damage = 2
+        self.slice_damage = 1
+        self.contact_damage = 0
+        self.max_mana = 1000
+        self.mana = float(self.max_mana)
+        self.attack_mana_cost = 100
+        self.mana_regen_per_second = 50
+        self.last_mana_regen_time = pygame.time.get_ticks()
+        self.mana_safe_regen_distance = 240
+        self.depleted_mana_retreat_multiplier = 3
+        self.cut_hitbox_bonus = 50
+        self.slice_hitbox_bonus = 75
+        self.chock_hitbox_bonus = 100
+
+    def chock_attack(self):
+        self.current_attack = "chock"
+        self.contact_damage = self.chock_damage
+        if self.direction == 1:
+            self.image = self.chock_attack_frames[0]
+        else:
+            self.image = pygame.transform.flip(self.chock_attack_frames[0], True, False)
+
+    def cut_attack(self):
+        self.current_attack = "cut"
+        self.contact_damage = self.cut_damage
+        if self.direction == 1:
+            self.image = self.cut_attack_frames[0]
+        else:
+            self.image = pygame.transform.flip(self.cut_attack_frames[0], True, False)
+
+    def slice_attack(self):
+        self.current_attack = "slice"
+        self.contact_damage = self.slice_damage
+        if self.direction == 1:
+            self.image = self.slice_attack_frames[0]
+        else:
+            self.image = pygame.transform.flip(self.slice_attack_frames[0], True, False)
+
+    def apply_current_attack_frame(self):
+        if self.current_attack == "chock":
+            if self.direction == 1:
+                self.image = self.chock_attack_frames[0]
+            else:
+                self.image = pygame.transform.flip(self.chock_attack_frames[0], True, False)
+        elif self.current_attack == "cut":
+            if self.direction == 1:
+                self.image = self.cut_attack_frames[0]
+            else:
+                self.image = pygame.transform.flip(self.cut_attack_frames[0], True, False)
+        elif self.current_attack == "slice":
+            if self.direction == 1:
+                self.image = self.slice_attack_frames[0]
+            else:
+                self.image = pygame.transform.flip(self.slice_attack_frames[0], True, False)
+
+    def get_attack_hitbox(self):
+        if self.current_attack is None:
+            return self.rect
+        if self.current_attack == "cut":
+            bonus = self.cut_hitbox_bonus
+        elif self.current_attack == "slice":
+            bonus = self.slice_hitbox_bonus
+        elif self.current_attack == "chock":
+            bonus = self.chock_hitbox_bonus
+        
+        hitbox_height = max(20, self.rect.height - 12)
+        hitbox_top = self.rect.top + 6
+
+        if self.direction == 1:
+            return pygame.Rect(self.rect.left, hitbox_top, self.rect.width + bonus, hitbox_height)
+        return pygame.Rect(self.rect.left - bonus, hitbox_top, self.rect.width + bonus, hitbox_height)
+    
+    def update_attack(self, player_rect, time):
+        distance_x = abs(player_rect.centerx - self.rect.centerx)
+        if time < self.attack_end_time:
+            self.apply_current_attack_frame()
+            return
+
+        self.contact_damage = 0
+        self.current_attack = None
+
+        if distance_x >= self.chock_range:
+            return
+        if time - self.last_attack_time < self.attack_cooldown:
+            return
+        if self.mana < self.attack_mana_cost:
+            return
+
+        self.last_attack_time = time
+        self.attack_end_time = time + self.attack_duration
+        self.mana -= self.attack_mana_cost
+
+        if distance_x <= self.chock_range:
+            self.chock_attack()
+        elif distance_x <= self.cut_range:
+            self.cut_attack()
+        else:
+            self.slice_attack()
+
+    def regenerate_mana(self, time, player_rect):
+        if self.mana >= self.max_mana:
+            self.last_mana_regen_time = time
+            return
+        if self.current_attack is not None:
+            self.last_mana_regen_time = time
+            return
+        if self.mana < self.attack_mana_cost:
+            self.mana = float(self.max_mana)
+            self.last_mana_regen_time = time
+            return
+        if self.mana >= self.attack_mana_cost:
+            self.last_mana_regen_time = time
+            return
+
+        elapsed_seconds = (time - self.last_mana_regen_time) / 1000
+        if elapsed_seconds <= 0:
+            return
+        self.mana = min(self.max_mana, self.mana + (self.mana_regen_per_second * elapsed_seconds))
+        self.last_mana_regen_time = time
+
+    def update(self, player_rect, monsters, platforms = None):
+        if not self.alive:
+            return
+
+
+        if platforms is None:
+            platforms = []
+
+
+        # Met a jour l'etat de poursuite
+        time = pygame.time.get_ticks()
+        self.regenerate_mana(time, player_rect)
+
+        # Gravite
+        previous_y = self.rect.y
+        self.velocity_y += globals.GRAVITY
+        self.rect.y += self.velocity_y
+
+
+        on_ground = False
+
+
+        # Collision verticale avec les plateformes
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+
+
+            crossed_top = previous_y + self.rect.height <= platform.top and self.rect.bottom >= platform.top
+            if self.velocity_y >= 0 and crossed_top:
+                self.rect.bottom = platform.top
+                self.velocity_y = 0
+                on_ground = True
+                continue
+
+
+            crossed_bottom = previous_y >= platform.bottom and self.rect.top <= platform.bottom
+            if self.velocity_y < 0 and crossed_bottom:
+                self.rect.top = platform.bottom
+                self.velocity_y = 0
+                continue
+
+
+        self.on_ground = on_ground
+        self.update_attack(player_rect, pygame.time.get_ticks())
 # =================================
 # ARMES A DISTANCE
 # =================================

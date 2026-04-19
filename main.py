@@ -140,11 +140,15 @@ def create_world_from_map(map_design):
             elif cell == "A":
                 monsters.append(classes.Spider(x, y))
                 wall.append(classes.Wall(x, y, tile_size))
-                wall_type.append(3)
+                wall_type.append(1)
             elif cell == "K":
                 monsters.append(classes.King_Slime(x, y))
                 wall.append(classes.Wall(x, y, tile_size))
-                wall_type.append(2)
+                wall_type.append(1)
+            elif cell == "k":
+                monsters.append(classes.Knight(x, y))
+                wall.append(classes.Wall(x, y, tile_size))
+                wall_type.append(1)
 
             # Items
             elif cell == "P":
