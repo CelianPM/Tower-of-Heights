@@ -490,6 +490,9 @@ while running:
                 for projectile in monster.poison_projectiles:
                     if is_visible(projectile.rect, camera_y):
                         globals.screen.blit(projectile.image, (projectile.rect.x, projectile.rect.y - camera_y))
+            if hasattr(monster, "wave_chocks"):
+                for wave in monster.wave_chocks:
+                    globals.screen.blit(wave.image, (wave.rect.x, wave.rect.y - camera_y))
 
 
     for arrow in globals.arrows:

@@ -73,7 +73,7 @@ jumping_slime3 = pygame.image.load("Images/Monsters/Slime/jumping_slime3.png").c
 jumping_slime4 = pygame.image.load("Images/Monsters/Slime/jumping_slime4.png").convert_alpha()
 
         # Mushroom
-mushroom = pygame.image.load("Images/Monsters/mushroom.png").convert_alpha()
+mushroom = pygame.transform.scale(pygame.image.load("Images/Monsters/mushroom.png").convert_alpha(), (45, 62))
 
         # Bosses
             # Cerbere
@@ -98,6 +98,7 @@ knight_axe_up = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_up.p
 knight_axe_mid = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_mid.png").convert_alpha()
 knight_axe_low = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_low.png").convert_alpha()
 knight_axe_slice = pygame.image.load("Images/Monsters/Bosses/Knight/knight_axe_slice.png").convert_alpha()
+wave_chock = pygame.image.load("Images/Monsters/Bosses/Knight/wave_chock.png").convert_alpha()
 
     # Objets
         # Potions
