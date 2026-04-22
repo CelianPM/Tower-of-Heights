@@ -14,7 +14,7 @@ BLUE = (0, 0, 255)
 
 
 # --- Pour les touches ---
-key = None # initialisé plus tard
+key = None # Initialisé plus tard
 
 
 # --- Pour le FPS ---

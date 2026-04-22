@@ -3,7 +3,7 @@ from random import randint
 import globals, imports, inventory
 
 
-# --- Importer les listes
+# --- Importer les listes ---
     # Listes des monstres
 monsters = globals.monsters
 
@@ -20,6 +20,7 @@ hazards = globals.hazards
 class Player:
     def __init__(self, on_ground):
         """Definit les variables requises par le joueur et importe la variable on_ground pour en avoir une specialement pour le joueur."""
+        
         # Variables liees au mouvement
         self.speed = 0                         # Vitesse du joueur
         self.jump_power = -15                  # Puissance de saut
@@ -173,7 +174,7 @@ class Player:
         self.selected_attack_right = self.selected_attack                                     # Profil droit de l'image attaquant
         self.selected_attack_left = pygame.transform.flip(self.selected_attack, True, False)  # Profil gauche de l'image attaquant
         self.perso_rect = self.selected_image.get_rect(topleft=(200, 300))                    # Rect de l'image
-        self.hitbox = pygame.Rect(0, 0, 32, 112)  # Hitbox du personnage
+        self.hitbox = pygame.Rect(0, 0, 32, 112)                                              # Hitbox du personnage
         self.life = math.floor(self.max_life)
 
 
@@ -236,20 +237,20 @@ class Player:
 
         # --- Mouvements du joueur ---
             # Gauche
-        if key[pygame.K_LEFT] and not key[pygame.K_RIGHT]:                                   # Si la touche de gauche est appuyee
-            if self.slow_down:
-                self.hitbox.x -= self.speed//2                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
-            else:
-                self.hitbox.x -= self.speed                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
-            if self.direction == "right":
+        if key[pygame.K_LEFT] and not key[pygame.K_RIGHT]:       # Si la touche de gauche est appuyee
+            if self.slow_down: 
+                self.hitbox.x -= self.speed//2                   # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+            else: 
+                self.hitbox.x -= self.speed                      # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+            if self.direction == "right": 
                 self.selected_image = self.selected_image_left   # Si la direction precedente etait a droite, changer l'image selectionnee par celle du profil gauche
             self.direction = "left"                              # Mettre a jour la direction comme etant la gauche gauche
 
 
             # Droite
-        if key[pygame.K_RIGHT] and not key[pygame.K_LEFT]:                                  # Si la touche de droite est appuyee
+        if key[pygame.K_RIGHT] and not key[pygame.K_LEFT]:       # Si la touche de droite est appuyee
             if self.slow_down:
-                self.hitbox.x += self.speed//2                          # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
+                self.hitbox.x += self.speed//2                   # Deplacer la hitbox vers la gauche en fonction de la vitesse du joueur
             else:
                 self.hitbox.x += self.speed
             if self.direction == "left":
@@ -258,6 +259,7 @@ class Player:
 
 
         is_moving = key[pygame.K_LEFT] or key[pygame.K_RIGHT]
+        
         if is_moving and not self.attack and self.on_ground:
             if self.direction == "left":
                 self.selected_image = self.animate(self.walk_frames_left)
@@ -266,20 +268,20 @@ class Player:
 
 
             # Le saut
-        if key[pygame.K_SPACE] and self.on_ground:               # Si la touche de saut est appuyee et que le joueur est au sol
+        if key[pygame.K_SPACE] and self.on_ground:  # Si la touche de saut est appuyee et que le joueur est au sol
             if self.slow_down:
-                velocity += self.jump_power//2                          # Appliquer la puissance de saut a la variable de vitesse
+                velocity += self.jump_power//2      # Appliquer la puissance de saut a la variable de vitesse
             else:
                 velocity += self.jump_power
-            self.on_ground = False                               # Le joueur n'est plus au sol apres avoir saute
-            imports.jump_sound.play()                                    # Jouer le son du saut
+            self.on_ground = False                  # Le joueur n'est plus au sol apres avoir saute
+            imports.jump_sound.play()               # Jouer le son du saut
       
         if not key[pygame.K_LEFT] and not key[pygame.K_RIGHT] and not key[pygame.K_SPACE] and not self.attack and time >= self.post_attack_until:  # Si aucune touche de deplacement n'est appuyee et que le joueur n'attaque pas
             self.frame_index = 0
             if self.direction == "left":
-                self.selected_image = self.selected_image_left       # L'image revient a celle du profil gauche de l'image selectionnee
+                self.selected_image = self.selected_image_left   # L'image revient a celle du profil gauche de l'image selectionnee
             else:
-                self.selected_image = self.selected_image_right      # L'image revient a celle du profil droit de l'image selectionnee
+                self.selected_image = self.selected_image_right  # L'image revient a celle du profil droit de l'image selectionnee
 
 
             # La gravite
@@ -423,8 +425,9 @@ class Player:
         self.on_ground = False                                                      # Par defaut, le joueur n'est pas au sol, et il le devient seulement s'il est en collision avec une plateforme en dessous de lui
         previous_hitbox = self.prev_hitbox if self.prev_hitbox else self.hitbox.copy()
 
+        player_platforms = block + platforms_1 + platforms_2
 
-        for platform in block:
+        for platform in player_platforms:
             if not self.hitbox.colliderect(platform):
                 continue
 
@@ -436,7 +439,7 @@ class Player:
                 self.hitbox.bottom = platform.top
                 self.on_ground = True
                 velocity = 0
-                continue                                                   # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
+                continue  # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
  
             # Collisions du bas de la plateforme
             if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
@@ -446,83 +449,7 @@ class Player:
                 if horizontal_overlap:
                     self.hitbox.top = platform.bottom
                     velocity = 0
-                    continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
-
-
-            # Collisions des cotes de la plateforme
-            if previous_hitbox.right <= platform.left and self.hitbox.right > platform.left:
-                self.hitbox.right = platform.left
-            elif previous_hitbox.left >= platform.right and self.hitbox.left < platform.right:
-                self.hitbox.left = platform.right
-            else:
-                overlap_left = self.hitbox.right - platform.left
-                overlap_right = platform.right - self.hitbox.left
-                if overlap_left < overlap_right:
-                    self.hitbox.right = platform.left
-                else:
-                    self.hitbox.left = platform.right
-
-        for platform in platforms_1:
-            if not self.hitbox.colliderect(platform):
-                continue
-
-
-            horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
-              
-            # Collisions du haut de la plateforme
-            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
-                self.hitbox.bottom = platform.top
-                self.on_ground = True
-                velocity = 0
-                continue                                                   # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
- 
-            # Collisions du bas de la plateforme
-            if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
-                a = self.hitbox
-                a.x = previous_hitbox.x
-                horizontal_overlap = a.right > platform.left and a.left < platform.right
-                if horizontal_overlap:
-                    self.hitbox.top = platform.bottom
-                    velocity = 0
-                    continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
-
-
-            # Collisions des cotes de la plateforme
-            if previous_hitbox.right <= platform.left and self.hitbox.right > platform.left:
-                self.hitbox.right = platform.left
-            elif previous_hitbox.left >= platform.right and self.hitbox.left < platform.right:
-                self.hitbox.left = platform.right
-            else:
-                overlap_left = self.hitbox.right - platform.left
-                overlap_right = platform.right - self.hitbox.left
-                if overlap_left < overlap_right:
-                    self.hitbox.right = platform.left
-                else:
-                    self.hitbox.left = platform.right
-
-        for platform in platforms_2:
-            if not self.hitbox.colliderect(platform):
-                continue
-
-
-            horizontal_overlap = self.hitbox.right > platform.left and self.hitbox.left < platform.right
-              
-            # Collisions du haut de la plateforme
-            if velocity >= 0 and horizontal_overlap and previous_hitbox.bottom <= platform.top:
-                self.hitbox.bottom = platform.top
-                self.on_ground = True
-                velocity = 0
-                continue                                                   # La vitesse de chute est reinitialiser a 0 quand le joueur touche une plateforme
- 
-            # Collisions du bas de la plateforme
-            if velocity < 0 and horizontal_overlap and previous_hitbox.top >= platform.bottom:
-                a = self.hitbox
-                a.x = previous_hitbox.x
-                horizontal_overlap = a.right > platform.left and a.left < platform.right
-                if horizontal_overlap:
-                    self.hitbox.top = platform.bottom
-                    velocity = 0
-                    continue                                                   # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
+                    continue  # La vitesse de saut est reinitialiser a 0 quand le joueur touche une plateforme par en dessous
 
 
             # Collisions des cotes de la plateforme
@@ -553,14 +480,16 @@ class Player:
 
     def monster_collisions(self, monsters, time, arrows, platforms_1, platforms_2, block, items, shurikens = None):
         """Se charge des collisions entre le joueur et les monstres."""
+        
         def apply_safe_pushback(monster, direction):
-            for i in range(5):
+            for _ in range(5):
                 if monster.type == "slug":
                     monster.rect.x += direction * globals.PUSHBACK
                 else:
                     monster.rect.x += direction * (globals.PUSHBACK//5)
                 if hasattr(monster, "resolve_horizontal_collisions"):
                     monster.resolve_horizontal_collisions(platforms_1, platforms_2, block)
+        
         def resolve_knight_body_collision(monster):
             if monster.type != "knight" or not monster.alive:
                 return
@@ -584,6 +513,8 @@ class Player:
                     self.hitbox.right = monster.rect.left
                 else:
                     self.hitbox.left = monster.rect.right
+        
+        
         for monster in monsters[:]:
             resolve_knight_body_collision(monster)
             hitbox = self.hitbox
@@ -683,11 +614,11 @@ class Player:
                     monster.take_damage(self.degat + self.puissance, time)  # Le monstre perd une vie
                     if arrow.direction == "right":
                         apply_safe_pushback(monster, 1)
-                    else:  # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                        apply_safe_pushback(monster, -1)
-                    arrows.remove(arrow)                                    # Retirer la fleche du jeu
+                    else:
+                        apply_safe_pushback(monster, -1)  # Si la fleche va vers la gauche, le monstre recule vers la gauche
+                    arrows.remove(arrow)       # Retirer la fleche du jeu
                     if monster.life <= 0:
-                        monster.alive = False                               # Quand le monstre n'a plus de vies, il est retire du jeu
+                        monster.alive = False  # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
                         if monster.type == "cerberus":
                             items.append(inventory.slug_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slug_ring.get_height()))
@@ -704,14 +635,14 @@ class Player:
                 continue
             for shuriken in shurikens[:]:
                 if monster.alive and shuriken.rect.colliderect(monster.rect):  # Si la hitbox de la fleche est en collision avec celle du monstre
-                    monster.take_damage(self.degat + self.puissance, time)                # Le monstre perd une vie
+                    monster.take_damage(self.degat + self.puissance, time)     # Le monstre perd une vie
                     if shuriken.direction == "right":
                         apply_safe_pushback(monster, 1)
-                    else:  # Si la fleche va vers la gauche, le monstre recule vers la gauche
-                        apply_safe_pushback(monster, -1)
-                    shurikens.remove(shuriken)                                 # Retirer la fleche du jeu
+                    else:
+                        apply_safe_pushback(monster, -1)  # Si le shuriken va vers la gauche, le monstre recule vers la gauche
+                    shurikens.remove(shuriken)  # Retirer la fleche du jeu
                     if monster.life <= 0:
-                        monster.alive = False                                  # Quand le monstre n'a plus de vies, il est retire du jeu
+                        monster.alive = False   # Quand le monstre n'a plus de vies, il est retire du jeu
                         self.xp += monster.xp_reward
                         if monster.type == "cerberus":
                             items.append(inventory.slug_ring(globals.WIDTH // 2, monster.rect.bottom - imports.slug_ring.get_height()))
@@ -776,7 +707,7 @@ class Player:
 
 
     def hazard_collisions(self, hazards, time):
-        """Se charge des collisions entre le joueur et les hazard : si le joueur touche un hazard, il perd une vie."""
+        """Se charge des collisions entre le joueur et les hazard : si le joueur touche un hazard, il perd une ou deux vie(s)."""
         for hazard in hazards:
             if self.hitbox.colliderect(hazard.rect):
                 if time - self.last_damage_time >= self.invincibility_time:
@@ -796,101 +727,101 @@ class Player:
 
 # --- General ---
 class Monster:
-   def __init__(self, x, y, image_right = None, life = 0, speed = 0, xp_reward = 10):
-       self.spawn_x = x                                                                                 # La position de spawn du monstre
-       self.spawn_y = y                                                                                 # La position de spawn du monstre
-       self.image_right = image_right                                                                   # Le profil droit du monstre
-       self.image_left = pygame.transform.flip(image_right, True, False) if image_right else None       # Le profil gauche du monstre
-       self.image = self.image_right                                                                    # L'image de base du monstre
-       self.rect = self.image.get_rect(topleft = (x, y)) if image_right else pygame.Rect(x, y, 50, 50)  # Le rectangle du monstre
-       self.life = life                                                                                 # Vie actuelle du monstre
-       self.max_life = life                                                                             # Vie maximale du monstre
-       self.alive = True                                                                                # Le monstre est vivant au debut
-       self.speed = speed                                                                               # Vitesse du monstre
-       self.xp_reward = xp_reward                                                                       # XP donne au joueur
-       self.frame_index = 0
-       self.animation_speed = 0.15
-       self.invincible = 0
+    def __init__(self, x, y, image_right = None, life = 0, speed = 0, xp_reward = 10):
+        self.spawn_x = x                                                                                 # La position de spawn du monstre
+        self.spawn_y = y                                                                                 # La position de spawn du monstre
+        self.image_right = image_right                                                                   # Le profil droit du monstre
+        self.image_left = pygame.transform.flip(image_right, True, False) if image_right else None       # Le profil gauche du monstre
+        self.image = self.image_right                                                                    # L'image de base du monstre
+        self.rect = self.image.get_rect(topleft = (x, y)) if image_right else pygame.Rect(x, y, 50, 50)  # Le rectangle du monstre
+        self.life = life                                                                                 # Vie actuelle du monstre
+        self.max_life = life                                                                             # Vie maximale du monstre
+        self.alive = True                                                                                # Le monstre est vivant au debut
+        self.speed = speed                                                                               # Vitesse du monstre
+        self.xp_reward = xp_reward                                                                       # XP donne au joueur
+        self.frame_index = 0
+        self.animation_speed = 0.15
+        self.invincible = 0
+ 
+ 
+        self.direction = 1                                                                               # 1 = droite, -1 = gauche
+        self.chasing = False                                                                             # Indique si le monstre poursuit le joueur
+        self.chase_distance_x = 180                                                                      # Distance a laquelle le monstre commence la poursuite
+        self.chase_distance_y = 230                                                                      # Distance a laquelle le monstre commence la poursuite
+        self.type = None                                                                                 # Type de monstre, a definir dans les classes enfants
+        self.lose_distance = 260                                                                         # Distance a laquelle le monstre abandonne la poursuite
+        self.contact_damage = 1
+        self.last_damage_taken_time = 0
+ 
+ 
+    def overlap(self, monsters, horizontal_only = False):
+        for other in monsters:
+            if other is self or not other.alive or other.__class__ is not self.__class__:
+                continue
+            if not self.rect.colliderect(other.rect):
+                continue
+ 
+ 
+            overlap_x = min(self.rect.right, other.rect.right) - max(self.rect.left, other.rect.left)
+            overlap_y = min(self.rect.bottom, other.rect.bottom) - max(self.rect.top, other.rect.top)
+ 
+ 
+            if overlap_x <= 0 or overlap_y <= 0:
+                continue
+ 
+ 
+            if horizontal_only or overlap_x < overlap_y:
+                push_x = math.ceil(overlap_x / 2)
+                if self.rect.centerx < other.rect.centerx:
+                    self.rect.x -= push_x
+                else:
+                    self.rect.x += push_x
+            else:
+                push_y = math.ceil(overlap_y / 2)
+                if self.rect.centery < other.rect.centery:
+                    self.rect.y -= push_y
+                else:
+                    self.rect.y += push_y
+ 
+ 
+    def update_chase_state(self, player_rect):
+        # Calcule la distance horizontale entre le joueur et le monstre
+        distance_x = abs(player_rect.centerx - self.rect.centerx)
+        distance_y = abs(player_rect.centery - self.rect.centery)
+ 
+ 
+        # Active la poursuite si le joueur est assez proche
+        if not self.chasing and distance_x <= self.chase_distance_x:
+            if self.type == "bat" and distance_y <= self.chase_distance_y:
+                self.chasing = True
+            elif self.type == "slug" or self.type == "slime" or self.type == "mushroom":
+                self.chasing = True
+ 
+        # Arrete la poursuite si le joueur est trop loin
+        if self.chasing and distance_x >= self.lose_distance:
+            if self.type == "bat" and distance_y >= self.lose_distance:
+                self.chasing = False
+            elif self.type == "slug" or self.type == "slime" or self.type == "mushroom":
+                self.chasing = False
+ 
+ 
+    def face_player(self, player_rect):
+        # Oriente le monstre vers le joueur avec une petite zone morte pour eviter le clignotement
+        dead_zone = 6
+ 
+ 
+        if player_rect.centerx < self.rect.centerx - dead_zone:
+            self.direction = -1
+            if self.image_left:
+                self.image = self.image_left
+        elif player_rect.centerx > self.rect.centerx + dead_zone:
+            self.direction = 1
+            if self.image_right:
+                self.image = self.image_right
 
 
-       self.direction = 1                                                                               # 1 = droite, -1 = gauche
-       self.chasing = False                                                                             # Indique si le monstre poursuit le joueur
-       self.chase_distance_x = 180                                                                      # Distance a laquelle le monstre commence la poursuite
-       self.chase_distance_y = 230                                                                      # Distance a laquelle le monstre commence la poursuite
-       self.type = None                                                                                 # Type de monstre, a definir dans les classes enfants
-       self.lose_distance = 260                                                                         # Distance a laquelle le monstre abandonne la poursuite
-       self.contact_damage = 1
-       self.last_damage_taken_time = 0
-
-
-   def overlap(self, monsters, horizontal_only = False):
-       for other in monsters:
-           if other is self or not other.alive or other.__class__ is not self.__class__:
-               continue
-           if not self.rect.colliderect(other.rect):
-               continue
-
-
-           overlap_x = min(self.rect.right, other.rect.right) - max(self.rect.left, other.rect.left)
-           overlap_y = min(self.rect.bottom, other.rect.bottom) - max(self.rect.top, other.rect.top)
-
-
-           if overlap_x <= 0 or overlap_y <= 0:
-               continue
-
-
-           if horizontal_only or overlap_x < overlap_y:
-               push_x = math.ceil(overlap_x / 2)
-               if self.rect.centerx < other.rect.centerx:
-                   self.rect.x -= push_x
-               else:
-                   self.rect.x += push_x
-           else:
-               push_y = math.ceil(overlap_y / 2)
-               if self.rect.centery < other.rect.centery:
-                   self.rect.y -= push_y
-               else:
-                   self.rect.y += push_y
-
-
-   def update_chase_state(self, player_rect):
-       # Calcule la distance horizontale entre le joueur et le monstre
-       distance_x = abs(player_rect.centerx - self.rect.centerx)
-       distance_y = abs(player_rect.centery - self.rect.centery)
-
-
-       # Active la poursuite si le joueur est assez proche
-       if not self.chasing and distance_x <= self.chase_distance_x:
-           if self.type == "bat" and distance_y <= self.chase_distance_y:
-               self.chasing = True
-           elif self.type == "slug" or self.type == "slime" or self.type == "mushroom":
-               self.chasing = True
-
-       # Arrete la poursuite si le joueur est trop loin
-       if self.chasing and distance_x >= self.lose_distance:
-           if self.type == "bat" and distance_y >= self.lose_distance:
-               self.chasing = False
-           elif self.type == "slug" or self.type == "slime" or self.type == "mushroom":
-               self.chasing = False
-
-
-   def face_player(self, player_rect):
-       # Oriente le monstre vers le joueur avec une petite zone morte pour eviter le clignotement
-       dead_zone = 6
-
-
-       if player_rect.centerx < self.rect.centerx - dead_zone:
-           self.direction = -1
-           if self.image_left:
-               self.image = self.image_left
-       elif player_rect.centerx > self.rect.centerx + dead_zone:
-           self.direction = 1
-           if self.image_right:
-               self.image = self.image_right
-
-
-   def resolve_horizontal_collisions(self, platforms_1, platforms_2, blocks = None):
-       # Empeche le monstre de traverser un mur apres un pushback horizontal
+    def resolve_horizontal_collisions(self, platforms_1, platforms_2, blocks = None):
+        # Empeche le monstre de traverser un mur apres un pushback horizontal
         if platforms_1 is None:
             platforms_1 = []
 
@@ -948,120 +879,121 @@ class Monster:
             self.rect.right = globals.WIDTH
 
 
-   def patrol_horizontally(self, platforms = None):
-       # Fait patrouiller le monstre horizontalement jusqu'a rencontrer un obstacle lateral
-       if platforms is None:
-           platforms = []
+    def patrol_horizontally(self, platforms = None):
+        # Fait patrouiller le monstre horizontalement jusqu'a rencontrer un obstacle lateral
+        if platforms is None:
+            platforms = []
 
 
-       previous_x = self.rect.x
-       self.rect.x += self.speed * self.direction
-
-
-       blocked = False
-
-
-       # Collision laterale avec les plateformes
-       for platform in platforms:
-           if not self.rect.colliderect(platform):
-               continue
-
-
-           if previous_x + self.rect.width <= platform.left:
-               self.rect.right = platform.left
-               blocked = True
-               break
-           elif previous_x >= platform.right:
-               self.rect.left = platform.right
-               blocked = True
-               break
-
-
-       # Collision avec les bords de l'ecran
-       if self.rect.left <= 0:
-           self.rect.left = 0
-           blocked = True
-       elif self.rect.right >= globals.WIDTH:
-           self.rect.right = globals.WIDTH
-           blocked = True
-
-
-       # Si le monstre est bloque, il change de direction
-       if blocked:
-           self.direction *= -1
-
-
-       # Oriente l'image selon la direction
-       if self.direction == -1:
-           if self.image_left:
-               self.image = self.image_left
-       else:
-           if self.image_right:
-               self.image = self.image_right
-
-
-   def update(self, player_rect, hazards, monsters, platforms = None):
-       if not self.alive:
-           return
-
-
-       if platforms is None:
-           platforms = []
-
-
-       # Met a jour l'etat de poursuite
-       self.update_chase_state(player_rect)
-
-
-       if self.chasing:
-           # Suit le joueur horizontalement
-           self.face_player(player_rect)
-           self.rect.x += self.speed * self.direction
-       else:
-           # Patrouille horizontalement
-           self.patrol_horizontally(platforms)
-
-
-       self.overlap(monsters, horizontal_only = True)
-
-       for danger in hazards:
-           if self.rect.colliderect(danger.rect) and self.direction == -1:
-                self.rect.x += globals.PUSHBACK
-           elif self.rect.colliderect(danger.rect) and self.direction == 1:
-             self.rect.x -= globals.PUSHBACK
-               
-  
-   def reset(self):
-       self.alive = True
-       self.life = self.max_life
-       self.rect.topleft = (self.spawn_x, self.spawn_y)
-       self.chasing = False
-       self.direction = 1
-
-
-   def draw(self, screen, camera_y = 0):
-       screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
-
-
-   def get_contact_damage(self):
-       return self.contact_damage
-
-   def get_contect_damage(self):
-       return self.get_contact_damage()
+        previous_x = self.rect.x
+        self.rect.x += self.speed * self.direction
+ 
+ 
+        blocked = False
+ 
+ 
+        # Collision laterale avec les plateformes
+        for platform in platforms:
+            if not self.rect.colliderect(platform):
+                continue
+ 
+ 
+            if previous_x + self.rect.width <= platform.left:
+                self.rect.right = platform.left
+                blocked = True
+                break
+            elif previous_x >= platform.right:
+                self.rect.left = platform.right
+                blocked = True
+                break
+ 
+ 
+        # Collision avec les bords de l'ecran
+        if self.rect.left <= 0:
+            self.rect.left = 0
+            blocked = True
+        elif self.rect.right >= globals.WIDTH:
+            self.rect.right = globals.WIDTH
+            blocked = True
+ 
+ 
+        # Si le monstre est bloque, il change de direction
+        if blocked:
+            self.direction *= -1
+ 
+ 
+        # Oriente l'image selon la direction
+        if self.direction == -1:
+            if self.image_left:
+                self.image = self.image_left
+        else:
+            if self.image_right:
+                self.image = self.image_right
+ 
+ 
+    def update(self, player_rect, hazards, monsters, platforms = None):
+        if not self.alive:
+            return
+ 
+ 
+        if platforms is None:
+            platforms = []
+ 
+ 
+        # Met a jour l'etat de poursuite
+        self.update_chase_state(player_rect)
+ 
+ 
+        if self.chasing:
+            # Suit le joueur horizontalement
+            self.face_player(player_rect)
+            self.rect.x += self.speed * self.direction
+        else:
+            # Patrouille horizontalement
+            self.patrol_horizontally(platforms)
+ 
+ 
+        self.overlap(monsters, horizontal_only = True)
+ 
+        for danger in hazards:
+            if self.rect.colliderect(danger.rect) and self.direction == -1:
+                 self.rect.x += globals.PUSHBACK
+            elif self.rect.colliderect(danger.rect) and self.direction == 1:
+              self.rect.x -= globals.PUSHBACK
+                
    
-   def get_attack_hitbox(self):
-       return self.rect
+    def reset(self):
+        self.alive = True
+        self.life = self.max_life
+        self.rect.topleft = (self.spawn_x, self.spawn_y)
+        self.chasing = False
+        self.direction = 1
+ 
+ 
+    def draw(self, screen, camera_y = 0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+ 
+ 
+    def get_contact_damage(self):
+        return self.contact_damage
+ 
 
+    def get_contect_damage(self):
+        return self.get_contact_damage()
+    
 
-   def take_damage(self, damage, time = None):
-       if not self.alive:
-           return
-       self.life -= damage
-       if time is not None:
-           self.last_damage_taken_time = time
-       if self.life <= 0:
-           self.alive = False
-
+    def get_attack_hitbox(self):
+        return self.rect
+ 
+ 
+    def take_damage(self, damage, time = None):
+        if not self.alive:
+            return
+        self.life -= damage
+        if time is not None:
+            self.last_damage_taken_time = time
+        if self.life <= 0:
+            self.alive = False
 
 
 
@@ -2825,134 +2757,134 @@ class Projectile:
 
 # --- Fleche ---
 class Arrow(Projectile):
-   def __init__(self, x, y, player):
-       super().__init__(x, y, player)
-       self.speed = 10                # La vitesse de la fleche, qui est constante et ne change pas selon la direction
-
-
-       if self.direction == "right":
-           self.image = imports.arrow_right   # Le profil droit de la fleche est utilise si la direction est a droite
-           self.rect = self.image.get_rect(midleft = (x, y))
-       else:
-           self.image = imports.arrow_left    # Le profil gauche de la fleche est utilise si la direction est a gauche
-           self.rect = self.image.get_rect(midright = (x, y))
+    def __init__(self, x, y, player):
+        super().__init__(x, y, player)
+        self.speed = 10                # La vitesse de la fleche, qui est constante et ne change pas selon la direction
+ 
+ 
+        if self.direction == "right":
+            self.image = imports.arrow_right   # Le profil droit de la fleche est utilise si la direction est a droite
+            self.rect = self.image.get_rect(midleft = (x, y))
+        else:
+            self.image = imports.arrow_left    # Le profil gauche de la fleche est utilise si la direction est a gauche
+            self.rect = self.image.get_rect(midright = (x, y))
 
 
 # --- Shuriken ---
 class Shuriken(Projectile):
-   def __init__(self, x, y, player):
-       super().__init__(x, y, player)
-       self.base_image = imports.shuriken
-       self.image = self.base_image
-       self.speed = 12                # La vitesse du shuriken, qui est constante et ne change pas selon la direction
-       self.angle = 0                 # L'angle de rotation initial du shuriken
-       self.rotation_speed = 15       # La vitesse de rotation du shuriken, qui est constante et ne change pas selon la direction
-
-
-
-
-       if self.direction == "right":
-           self.rect = self.image.get_rect(midleft = (x, y))
-       else:
-            self.rect = self.image.get_rect(midright = (x, y))
-       self.image = self.base_image
-
-
-   def update(self, platforms_1, platforms_2, block, arrows, shurikens):
-       super().update(platforms_1, platforms_2, block, arrows, shurikens)
-       if self not in shurikens:
-           return  # Si le shuriken a ete retire du jeu (par exemple, s'il a touche une plateforme), ne pas continuer a mettre a jour sa rotation
-      
-       self.angle = (self.angle + self.rotation_speed) % 360  # Mettre a jour l'angle de rotation du shuriken
-       self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
-       self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
-
+    def __init__(self, x, y, player):
+        super().__init__(x, y, player)
+        self.base_image = imports.shuriken
+        self.image = self.base_image
+        self.speed = 12                # La vitesse du shuriken, qui est constante et ne change pas selon la direction
+        self.angle = 0                 # L'angle de rotation initial du shuriken
+        self.rotation_speed = 15       # La vitesse de rotation du shuriken, qui est constante et ne change pas selon la direction
+ 
+ 
+ 
+ 
+        if self.direction == "right":
+            self.rect = self.image.get_rect(midleft = (x, y))
+        else:
+             self.rect = self.image.get_rect(midright = (x, y))
+        self.image = self.base_image
+ 
+ 
+    def update(self, platforms_1, platforms_2, block, arrows, shurikens):
+        super().update(platforms_1, platforms_2, block, arrows, shurikens)
+        if self not in shurikens:
+            return  # Si le shuriken a ete retire du jeu (par exemple, s'il a touche une plateforme), ne pas continuer a mettre a jour sa rotation
+       
+        self.angle = (self.angle + self.rotation_speed) % 360  # Mettre a jour l'angle de rotation du shuriken
+        self.image = pygame.transform.rotate(self.base_image, self.angle)  # Faire tourner l'image du shuriken en fonction de l'angle
+        self.rect = self.image.get_rect(center=self.rect.center)  # Mettre a jour le rect du shuriken pour qu'il reste centre sur sa position actuelle
+ 
 
 
 
 class SpiderPoisonBall:
-   def __init__(self, x, y, direction, damage = 1):
-       self.direction = direction
-       self.damage = damage
-       self.speed = 8
-       self.destroyed = False
-       self.image = imports.poison_ball
-       if self.direction == 1:
-           self.rect = self.image.get_rect(midleft = (x, y))
-       else:
-           self.rect = self.image.get_rect(midright = (x, y))
-
-   def update(self, platforms):
-       if self.destroyed:
-           return
-
-       self.rect.x += self.speed * self.direction
-
-       if self.rect.right < 0 or self.rect.left > globals.WIDTH:
-           self.destroyed = True
-           return
-
-       for platform in platforms:
-           if self.rect.colliderect(platform):
-               self.destroyed = True
-               return
-
+    def __init__(self, x, y, direction, damage = 1):
+        self.direction = direction
+        self.damage = damage
+        self.speed = 8
+        self.destroyed = False
+        self.image = imports.poison_ball
+        if self.direction == 1:
+            self.rect = self.image.get_rect(midleft = (x, y))
+        else:
+            self.rect = self.image.get_rect(midright = (x, y))
+ 
+    def update(self, platforms):
+        if self.destroyed:
+            return
+ 
+        self.rect.x += self.speed * self.direction
+ 
+        if self.rect.right < 0 or self.rect.left > globals.WIDTH:
+            self.destroyed = True
+            return
+ 
+        for platform in platforms:
+            if self.rect.colliderect(platform):
+                self.destroyed = True
+                return
+ 
 
 class WaveChock:
-   def __init__(self, x, ground_y, damage, spawn_time, duration = 150):
-       self.damage = damage
-       self.spawn_time = spawn_time
-       self.duration = duration
-       self.destroyed = False
-       self.image = imports.wave_chock
-       self.rect = self.image.get_rect(bottomleft = (x, ground_y))
-
-   def update(self, time):
-       if self.destroyed:
-           return
-       if time - self.spawn_time >= self.duration:
-           self.destroyed = True
-           return
-           
+    def __init__(self, x, ground_y, damage, spawn_time, duration = 150):
+        self.damage = damage
+        self.spawn_time = spawn_time
+        self.duration = duration
+        self.destroyed = False
+        self.image = imports.wave_chock
+        self.rect = self.image.get_rect(bottomleft = (x, ground_y))
+ 
+    def update(self, time):
+        if self.destroyed:
+            return
+        if time - self.spawn_time >= self.duration:
+            self.destroyed = True
+            return
+            
            
 # --- Machine pour les runes ---
 class Runemachine:
-   def __init__(self, x, ground_y, tile_size = 32):
-       self.image = imports.rune_machine
-       offset_y = self.image.get_height() - tile_size
-       self.rect = self.image.get_rect(topleft = (x, ground_y - offset_y))
-       self.interact_padding = 40
-
-
-   def can_interact(self, player_hitbox):
-       zone = self.rect.inflate(self.interact_padding * 2, self.interact_padding * 2)
-       return zone.colliderect(player_hitbox)
-
-
-   def draw(self, screen, camera_y = 0):
-       screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
-
-
-   def available_runes(self, inventory_list):
-       counts = {
-           "rune_vie": 0,
-           "rune_vitesse": 0,
-           "rune_puissance": 0,
-       }
-       for slot in inventory_list:
-           if slot and slot.get("name") in counts:
-               counts[slot["name"]] += slot.get("quantity", 1)
-       return counts
-
-
-   def consume_rune(self, inventory_list, rune_name):
-       for index, slot in enumerate(inventory_list):
-           if slot and slot.get("name") == rune_name:
-               slot["quantity"] -= 1
-               if slot["quantity"] <= 0:
-                   inventory_list[index] = None
-               return True
-       return False
+    def __init__(self, x, ground_y, tile_size = 32):
+        self.image = imports.rune_machine
+        offset_y = self.image.get_height() - tile_size
+        self.rect = self.image.get_rect(topleft = (x, ground_y - offset_y))
+        self.interact_padding = 40
+ 
+ 
+    def can_interact(self, player_hitbox):
+        zone = self.rect.inflate(self.interact_padding * 2, self.interact_padding * 2)
+        return zone.colliderect(player_hitbox)
+ 
+ 
+    def draw(self, screen, camera_y = 0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+ 
+ 
+    def available_runes(self, inventory_list):
+        counts = {
+            "rune_vie": 0,
+            "rune_vitesse": 0,
+            "rune_puissance": 0,
+        }
+        for slot in inventory_list:
+            if slot and slot.get("name") in counts:
+                counts[slot["name"]] += slot.get("quantity", 1)
+        return counts
+ 
+ 
+    def consume_rune(self, inventory_list, rune_name):
+        for index, slot in enumerate(inventory_list):
+            if slot and slot.get("name") == rune_name:
+                slot["quantity"] -= 1
+                if slot["quantity"] <= 0:
+                    inventory_list[index] = None
+                return True
+        return False
 
 
 
@@ -3030,23 +2962,24 @@ class Wall:
 
 
 class Hazard:
-   def __init__(self, x, y, tile_size = 32, damage = 1):
-       self.rect = pygame.Rect(x, y, tile_size, tile_size)
-       self.damage = damage
-       self.image = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
-
-
-   def draw(self, screen, camera_y = 0):
-       screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
-
-
+    def __init__(self, x, y, tile_size = 32, damage = 1):
+        self.rect = pygame.Rect(x, y, tile_size, tile_size)
+        self.damage = damage
+        self.image = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
+ 
+ 
+    def draw(self, screen, camera_y = 0):
+        screen.blit(self.image, (self.rect.x, self.rect.y - camera_y))
+ 
+ 
 class Spikes(Hazard):
-   def __init__(self, x, y, tile_size = 32, damage = 1):
-       super().__init__(x, y, tile_size, damage)
-       self.image = imports.spikes
-
-
+    def __init__(self, x, y, tile_size = 32, damage = 1):
+        super().__init__(x, y, tile_size, damage)
+        self.image = imports.spikes
+ 
+ 
 class Lava(Hazard):
-   def __init__(self, x, y, tile_size = 32, damage = 2):
-       super().__init__(x, y, tile_size, damage)
-       self.image = imports.lava
+    def __init__(self, x, y, tile_size = 32, damage = 2):
+        super().__init__(x, y, tile_size, damage)
+        self.image = imports.lava
+ 

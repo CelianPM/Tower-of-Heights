@@ -181,6 +181,23 @@ def draw_equipped_rings(screen, player):
         screen.blit(scaled, (x, y))
         x -= spacing
 
+def random_potion(x, y):
+    """Genere une potion aleatoire (vie, puissance ou vitesse) a la position x, y."""
+    potion_cls = random.choice((life_potion, power_potion, speed_potion))
+    return potion_cls(x, y)
+
+
+def random_rune(x, y):
+    """Genere une rune aleatoire (vie, puissance ou vitesse) a la position x, y."""
+    rune_cls = random.choice((life_rune, power_rune, speed_rune))
+    return rune_cls(x, y)
+
+
+def generate_default_world_items():
+    """Genere une liste d'items a spawn dans le monde aux positions fixes."""
+    positions =  []
+    return positions
+
 
 
 # ================================
@@ -237,24 +254,6 @@ class bat_ring(Item):
 class mushroom_ring(Item):
     def __init__(self, x, y):
         super().__init__("bague_mushroom", x, y, imports.mushroom_ring, quantity=1, usable=True, heal_amount=0)
-
-
-def random_potion(x, y):
-    """Genere une potion aleatoire (vie, puissance ou vitesse) a la position x, y."""
-    potion_cls = random.choice((life_potion, power_potion, speed_potion))
-    return potion_cls(x, y)
-
-
-def random_rune(x, y):
-    """Genere une rune aleatoire (vie, puissance ou vitesse) a la position x, y."""
-    rune_cls = random.choice((life_rune, power_rune, speed_rune))
-    return rune_cls(x, y)
-
-
-def generate_default_world_items():
-    """Genere une liste d'items a spawn dans le monde aux positions fixes."""
-    positions =  []
-    return positions
 
 
 
