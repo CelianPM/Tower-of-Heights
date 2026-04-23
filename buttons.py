@@ -8,7 +8,7 @@ import globals
 
 title_font = pygame.font.SysFont(None, 100)                               # Police du titre
 text_font = pygame.font.SysFont(None, 40)                                 # Police du texte
-
+death_txt_font = pygame.font.SysFont(None, 64)                            # Police du texte dans l'ecran de mort
 
 
 # =================================
