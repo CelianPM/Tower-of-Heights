@@ -8,7 +8,6 @@ import globals
 
 title_font = pygame.font.SysFont(None, 100)                               # Police du titre
 text_font = pygame.font.SysFont(None, 40)                                 # Police du texte
-death_text_font = pygame.font.SysFont("Fonts/youmurdererbb_reg.ttf", 64)  # Police du texte de mort
 
 
 
