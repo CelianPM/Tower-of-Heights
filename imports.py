@@ -162,8 +162,6 @@ wall_tile_rope_end = pygame.image.load("Images/Background/Rope/wall_tile_rope_en
 lava = pygame.image.load("Images/Background/Hazards/lava_tile.png").convert_alpha()  # Charger l'image de la lave de l'interface
 spikes = pygame.image.load("Images/Background/Hazards/spikes.png").convert_alpha()   # Charger l'image de la dalle de piques de l'interface
 
-    
-
     # Machine
 rune_machine = pygame.image.load("Images/rune_machine.png").convert_alpha()  # Charger l'image de la machine a runes de l'interface
 
@@ -172,6 +170,8 @@ platform_trap = pygame.image.load("Images/Background/Platforms/platform_trap.png
 platform_wall = pygame.image.load("Images/Background/Platforms/platform_wall.png").convert_alpha()  # Charger l'image de la plateforme murale
 platform_1 = pygame.image.load("Images/Background/Platforms/platform_floor1.png").convert_alpha()
 platform_2 = pygame.image.load("Images/Background/Platforms/platform_floor2.png").convert_alpha()
+
+
 
 # =================================
 # SONS
