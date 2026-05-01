@@ -393,6 +393,7 @@ def death_manager(state, event, restart_rect_death, end_rect_death, player, inve
     player.xp = 0
     player.level = 0
     player.point_attribut = 0
+    player.xp_lvl_up = 5
     player.puissance = 0
     inventory_list = [None] * globals.INVENTORY_SLOTS
     slot_hold_start = [None] * globals.INVENTORY_SLOTS
